@@ -6,6 +6,7 @@ import { StatsCard } from "@/components/dashboard/stats-card"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { useSidebar } from "./layout"
 import {
   Building2 as Mosque,
   DollarSign,
@@ -33,6 +34,7 @@ import Link from "next/link"
 
 export default function DashboardPage() {
   const t = useTranslations()
+  const { setSidebarOpen } = useSidebar()
   const stats = getStatistics()
 
   const recentProjects = mockProjects.slice(0, 5)
@@ -72,11 +74,15 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen">
-      <DashboardHeader title={t("dashboard.title")} description={t("dashboard.welcome")} />
+      <DashboardHeader 
+        title={t("dashboard.title")} 
+        description={t("dashboard.welcome")} 
+        onMenuClick={() => setSidebarOpen(true)}
+      />
 
-      <div className="p-6 space-y-8">
+      <div className="p-4 lg:p-6 space-y-6 lg:space-y-8">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
           <StatsCard
             title="إجمالي المساجد"
             value={stats.totalMosques}
@@ -117,18 +123,18 @@ export default function DashboardPage() {
 
         {/* Quick Actions */}
         <div>
-          <h2 className="text-2xl font-bold text-slate-900 mb-6">{t("dashboard.quickActions")}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <h2 className="text-xl lg:text-2xl font-bold text-slate-900 mb-4 lg:mb-6">{t("dashboard.quickActions")}</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
             {quickActions.map((action, index) => (
               <Link key={index} href={action.href}>
                 <Card className="group hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer">
-                  <CardContent className="p-6 text-center">
+                  <CardContent className="p-4 lg:p-6 text-center">
                     <div
-                      className={`w-16 h-16 ${action.color} rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300`}
+                      className={`w-12 h-12 lg:w-16 lg:h-16 ${action.color} rounded-2xl flex items-center justify-center mx-auto mb-3 lg:mb-4 group-hover:scale-110 transition-transform duration-300`}
                     >
-                      <action.icon className="w-8 h-8 text-white" />
+                      <action.icon className="w-6 h-6 lg:w-8 lg:h-8 text-white" />
                     </div>
-                    <h3 className="text-lg font-semibold text-slate-900 mb-2">{action.title}</h3>
+                    <h3 className="text-base lg:text-lg font-semibold text-slate-900 mb-2">{action.title}</h3>
                     <p className="text-slate-600 text-sm">{action.description}</p>
                   </CardContent>
                 </Card>
@@ -138,15 +144,15 @@ export default function DashboardPage() {
         </div>
 
         {/* Recent Activity */}
-        <div className="grid lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8">
           {/* Recent Projects */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>آخر المشاريع</CardTitle>
+              <CardTitle className="text-lg lg:text-xl">آخر المشاريع</CardTitle>
               <Link href="/dashboard/projects">
                 <Button variant="outline" size="sm">
                   <Eye className="w-4 h-4 ml-2" />
-                  {t("dashboard.viewAll")}
+                  <span className="hidden sm:inline">{t("dashboard.viewAll")}</span>
                 </Button>
               </Link>
             </CardHeader>
@@ -159,22 +165,22 @@ export default function DashboardPage() {
                   return (
                     <div
                       key={project.id}
-                      className="flex items-center justify-between p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
+                      className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors gap-3"
                     >
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-slate-900">{mosque?.name}</h4>
-                        <div className="flex items-center gap-4 mt-1">
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-semibold text-slate-900 truncate">{mosque?.name}</h4>
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-1">
                           <div className="flex items-center gap-1 text-sm text-slate-600">
-                            <MapPin className="w-3 h-3" />
-                            {governorate?.name}
+                            <MapPin className="w-3 h-3 flex-shrink-0" />
+                            <span className="truncate">{governorate?.name}</span>
                           </div>
                           <div className="flex items-center gap-1 text-sm text-slate-600">
-                            <Calendar className="w-3 h-3" />
+                            <Calendar className="w-3 h-3 flex-shrink-0" />
                             {formatDate(project.created_at)}
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center justify-between sm:justify-end gap-3">
                         <Badge
                           className={`${
                             project.status === "مكتمل"
@@ -202,11 +208,11 @@ export default function DashboardPage() {
           {/* Recent Donations */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>آخر التبرعات</CardTitle>
+              <CardTitle className="text-lg lg:text-xl">آخر التبرعات</CardTitle>
               <Link href="/dashboard/donations">
                 <Button variant="outline" size="sm">
                   <Eye className="w-4 h-4 ml-2" />
-                  {t("dashboard.viewAll")}
+                  <span className="hidden sm:inline">{t("dashboard.viewAll")}</span>
                 </Button>
               </Link>
             </CardHeader>
@@ -217,20 +223,20 @@ export default function DashboardPage() {
                     key={donation.id}
                     className="flex items-center justify-between p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0">
                         <User className="w-5 h-5 text-emerald-600" />
                       </div>
-                      <div>
-                        <p className="font-semibold text-slate-900">{donation.donor_name || "متبرع مجهول"}</p>
-                        <div className="flex items-center gap-2 text-sm text-slate-600">
-                          <span>{donation.payment_method}</span>
-                          <span>•</span>
+                      <div className="min-w-0">
+                        <p className="font-semibold text-slate-900 truncate">{donation.donor_name || "متبرع مجهول"}</p>
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-sm text-slate-600">
+                          <span className="truncate">{donation.payment_method}</span>
+                          <span className="hidden sm:inline">•</span>
                           <span>{formatDate(donation.donated_at || donation.created_at)}</span>
                         </div>
                       </div>
                     </div>
-                    <div className="text-left">
+                    <div className="text-left flex-shrink-0">
                       <p className="font-bold text-emerald-600">{formatCurrency(donation.amount)}</p>
                     </div>
                   </div>
@@ -243,16 +249,16 @@ export default function DashboardPage() {
         {/* Recent Mosques */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>آخر المساجد المضافة</CardTitle>
+            <CardTitle className="text-lg lg:text-xl">آخر المساجد المضافة</CardTitle>
             <Link href="/dashboard/mosques">
               <Button variant="outline" size="sm">
                 <Eye className="w-4 h-4 ml-2" />
-                {t("dashboard.manageAll")}
+                <span className="hidden sm:inline">{t("dashboard.manageAll")}</span>
               </Button>
             </Link>
           </CardHeader>
           <CardContent>
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
               {recentMosques.map((mosque) => {
                 const governorate = getGovernorateById(mosque.governorate_id)
 
@@ -269,13 +275,13 @@ export default function DashboardPage() {
                         {mosque.damage_level}
                       </Badge>
                     </div>
-                    <h4 className="font-semibold text-slate-900 mb-2">{mosque.name}</h4>
+                    <h4 className="font-semibold text-slate-900 mb-2 truncate">{mosque.name}</h4>
                     <div className="flex items-center gap-1 text-sm text-slate-600 mb-2">
-                      <MapPin className="w-3 h-3" />
-                      {governorate?.name}
+                      <MapPin className="w-3 h-3 flex-shrink-0" />
+                      <span className="truncate">{governorate?.name}</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-slate-600">
+                      <span className="text-sm text-slate-600 truncate">
                         {mosque.estimated_cost ? formatCurrency(mosque.estimated_cost) : "غير محدد"}
                       </span>
                       <Link href={`/dashboard/mosques/${mosque.id}`}>

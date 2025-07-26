@@ -75,6 +75,80 @@
   }
 }
 
+/* Dashboard Responsive Styles */
+@layer components {
+  .dashboard-sidebar {
+    @apply fixed top-0 h-full bg-white shadow-xl z-50 transition-all duration-300 overflow-hidden;
+  }
+
+  .dashboard-sidebar-rtl {
+    @apply right-0 border-l border-slate-200;
+  }
+
+  .dashboard-sidebar-ltr {
+    @apply left-0 border-r border-slate-200;
+  }
+
+  .dashboard-sidebar-mobile {
+    @apply w-0 lg:w-80;
+  }
+
+  .dashboard-sidebar-mobile.open {
+    @apply w-80;
+  }
+
+  .dashboard-sidebar-desktop {
+    @apply lg:w-80;
+  }
+
+  .dashboard-sidebar-desktop.collapsed {
+    @apply lg:w-20;
+  }
+
+  .dashboard-content {
+    @apply transition-all duration-300 min-h-screen;
+    margin-right: 0;
+    margin-left: 0;
+  }
+
+  .dashboard-content-with-sidebar-rtl {
+    @apply lg:mr-80;
+  }
+
+  .dashboard-content-with-sidebar-ltr {
+    @apply lg:ml-80;
+  }
+
+  .dashboard-content-with-collapsed-sidebar-rtl {
+    @apply lg:mr-20;
+  }
+
+  .dashboard-content-with-collapsed-sidebar-ltr {
+    @apply lg:ml-20;
+  }
+
+  .dashboard-mobile-overlay {
+    @apply fixed inset-0 bg-black/50 z-40 lg:hidden;
+  }
+
+  .dashboard-card-grid {
+    @apply grid gap-4 lg:gap-6;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+
+  .dashboard-stats-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6;
+  }
+
+  .dashboard-header {
+    @apply bg-white border-b border-slate-200 sticky top-0 z-30;
+  }
+
+  .dashboard-main {
+    @apply p-4 lg:p-6 space-y-6 lg:space-y-8;
+  }
+}
+
 /* Enhanced animations and transitions */
 @keyframes fade-in {
   from {
@@ -357,6 +431,42 @@
   .project-card {
     margin-bottom: 1rem;
   }
+
+  .dashboard-stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-card-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Tablet optimizations */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .dashboard-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .dashboard-card-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Desktop optimizations */
+@media (min-width: 1024px) {
+  .dashboard-stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .dashboard-card-grid {
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  }
 }
 
 /* Reduced motion support */
@@ -366,7 +476,9 @@
   .slide-in-from-bottom-4,
   .scale-in,
   .interactive-hover,
-  .interactive-click {
+  .interactive-click,
+  .dashboard-sidebar,
+  .dashboard-content {
     animation: none;
     transition: none;
   }
