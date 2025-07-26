@@ -114,7 +114,7 @@ export default function ContactPage() {
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 bg-emerald-100 text-emerald-800 px-4 py-2 rounded-full text-sm font-medium mb-6">
             <Mail className="w-4 h-4" />
-            نحن هنا لمساعدتك
+            {t("badge")}
           </div>
           <h1 className="text-4xl lg:text-5xl font-bold text-slate-900 mb-6">{t("title")}</h1>
           <p className="text-lg text-slate-600 max-w-2xl mx-auto">{t("subtitle")}</p>
@@ -128,7 +128,7 @@ export default function ContactPage() {
                 <div className="w-12 h-12 bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-xl flex items-center justify-center shadow-lg">
                   <Send className="w-6 h-6 text-white" />
                 </div>
-                <h2 className="text-2xl font-bold text-slate-900">أرسل لنا رسالة</h2>
+                <h2 className="text-2xl font-bold text-slate-900">{t("form.title")}</h2>
               </div>
 
               {isSubmitted ? (
@@ -137,7 +137,7 @@ export default function ContactPage() {
                     <CheckCircle className="w-8 h-8 text-emerald-600" />
                   </div>
                   <h3 className="text-xl font-semibold text-slate-900 mb-2">{t("form.success")}</h3>
-                  <p className="text-slate-600">سنتواصل معك في أقرب وقت ممكن</p>
+                  <p className="text-slate-600">{t("form.successMessage")}</p>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -150,7 +150,7 @@ export default function ContactPage() {
                         onChange={handleChange}
                         required
                         className="w-full"
-                        placeholder="أدخل اسمك الكامل"
+                        placeholder={t("form.namePlaceholder")}
                       />
                     </div>
                     <div>
@@ -162,7 +162,7 @@ export default function ContactPage() {
                         onChange={handleChange}
                         required
                         className="w-full"
-                        placeholder="example@email.com"
+                        placeholder={t("form.emailPlaceholder")}
                       />
                     </div>
                   </div>
@@ -175,7 +175,7 @@ export default function ContactPage() {
                         value={formData.phone}
                         onChange={handleChange}
                         className="w-full"
-                        placeholder="+963-XX-XXXXXXX"
+                        placeholder={t("form.phonePlaceholder")}
                       />
                     </div>
                     <div>
@@ -186,7 +186,7 @@ export default function ContactPage() {
                         onChange={handleChange}
                         required
                         className="w-full"
-                        placeholder="موضوع الرسالة"
+                        placeholder={t("form.subjectPlaceholder")}
                       />
                     </div>
                   </div>
@@ -200,7 +200,7 @@ export default function ContactPage() {
                       required
                       rows={6}
                       className="w-full resize-none"
-                      placeholder="اكتب رسالتك هنا..."
+                      placeholder={t("form.messagePlaceholder")}
                     />
                   </div>
 
@@ -289,16 +289,16 @@ export default function ContactPage() {
         <Card className="shadow-2xl border-0 bg-white/80 backdrop-blur-sm">
           <CardContent className="p-8">
             <div className="text-center mb-8">
-              <h3 className="text-2xl font-bold text-slate-900 mb-4">موقعنا على الخريطة</h3>
-              <p className="text-slate-600">يمكنك زيارتنا في مكتبنا الرئيسي في دمشق</p>
+              <h3 className="text-2xl font-bold text-slate-900 mb-4">{t("map.title")}</h3>
+              <p className="text-slate-600">{t("map.description")}</p>
             </div>
 
             {/* Placeholder for Map */}
             <div className="w-full h-96 bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl flex items-center justify-center">
               <div className="text-center">
                 <MapPin className="w-16 h-16 text-slate-400 mx-auto mb-4" />
-                <p className="text-slate-600 font-medium">خريطة تفاعلية</p>
-                <p className="text-slate-500 text-sm">وزارة الأوقاف - دمشق - سوريا</p>
+                <p className="text-slate-600 font-medium">{t("map.interactive")}</p>
+                <p className="text-slate-500 text-sm">{t("office.address")}</p>
               </div>
             </div>
           </CardContent>
@@ -307,28 +307,27 @@ export default function ContactPage() {
         {/* FAQ Section */}
         <div className="mt-16">
           <div className="text-center mb-12">
-            <h3 className="text-3xl font-bold text-slate-900 mb-4">الأسئلة الشائعة</h3>
-            <p className="text-slate-600">إجابات على أكثر الأسئلة شيوعاً حول المبادرة</p>
+            <h3 className="text-3xl font-bold text-slate-900 mb-4">{t("faq.title")}</h3>
+            <p className="text-slate-600">{t("faq.description")}</p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8">
             {[
               {
-                question: "كيف يمكنني المساهمة في المبادرة؟",
-                answer: "يمكنك المساهمة من خلال التبرع للمشاريع، أو التطوع معنا، أو نشر الوعي حول المبادرة في مجتمعك.",
+                question: t("faq.q1.question"),
+                answer: t("faq.q1.answer"),
               },
               {
-                question: "هل التبرعات آمنة وشفافة؟",
-                answer: "نعم، نلتزم بأعلى معايير الشفافية ونوفر تقارير دورية عن استخدام التبرعات وتقدم المشاريع.",
+                question: t("faq.q2.question"),
+                answer: t("faq.q2.answer"),
               },
               {
-                question: "كيف يتم اختيار المساجد للإعمار؟",
-                answer:
-                  "يتم اختيار المساجد بناءً على معايير علمية تشمل الأهمية التاريخية، مستوى الضرر، والحاجة المجتمعية.",
+                question: t("faq.q3.question"),
+                answer: t("faq.q3.answer"),
               },
               {
-                question: "هل يمكنني زيارة المشاريع؟",
-                answer: "نعم، نرحب بالزيارات المنسقة مسبقاً لمواقع المشاريع لمتابعة التقدم والاطلاع على الأعمال.",
+                question: t("faq.q4.question"),
+                answer: t("faq.q4.answer"),
               },
             ].map((faq, index) => (
               <Card
@@ -349,9 +348,9 @@ export default function ContactPage() {
           <Card className="shadow-2xl border-0 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white">
             <CardContent className="p-12">
               <div className="max-w-2xl mx-auto">
-                <h3 className="text-3xl font-bold mb-4">هل لديك استفسار آخر؟</h3>
+                <h3 className="text-3xl font-bold mb-4">{t("cta.title")}</h3>
                 <p className="text-emerald-100 text-lg mb-8">
-                  فريقنا جاهز للإجابة على جميع استفساراتكم ومساعدتكم في أي وقت
+                  {t("cta.description")}
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Button
@@ -359,7 +358,7 @@ export default function ContactPage() {
                     className="bg-white text-emerald-600 hover:bg-emerald-50 font-semibold shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-4"
                   >
                     <Phone className="w-5 h-5 ml-2" />
-                    اتصل بنا الآن
+                    {t("cta.callNow")}
                   </Button>
                   <Button
                     size="lg"
@@ -367,7 +366,7 @@ export default function ContactPage() {
                     className="border-2 border-white text-white hover:bg-white hover:text-emerald-600 transition-all duration-300 px-8 py-4 bg-transparent"
                   >
                     <Users className="w-5 h-5 ml-2" />
-                    انضم كمتطوع
+                    {t("cta.volunteer")}
                   </Button>
                 </div>
               </div>
