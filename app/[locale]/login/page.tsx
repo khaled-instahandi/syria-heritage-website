@@ -45,10 +45,10 @@ export default function LoginPage() {
         localStorage.setItem("user", JSON.stringify(data.user))
         router.push("/dashboard")
       } else {
-        setError(data.message || "حدث خطأ في تسجيل الدخول")
+        setError(data.message || t("login.errors.general"))
       }
     } catch (error) {
-      setError("حدث خطأ في الاتصال بالخادم")
+      setError(t("login.errors.connection"))
     } finally {
       setIsLoading(false)
     }
@@ -79,8 +79,8 @@ export default function LoginPage() {
               <Building className="w-7 h-7 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-slate-800">إحياء تراث سوريا</h1>
-              <p className="text-sm text-slate-600">الحفاظ على التراث</p>
+              <h1 className="text-2xl font-bold text-slate-800">{t("login.brandTitle")}</h1>
+              <p className="text-sm text-slate-600">{t("login.brandSubtitle")}</p>
             </div>
           </div>
         </div>
@@ -88,8 +88,8 @@ export default function LoginPage() {
         {/* Login Card */}
         <Card className="shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
           <CardHeader className="text-center pb-6">
-            <CardTitle className="text-2xl font-bold text-slate-900 mb-2">تسجيل الدخول</CardTitle>
-            <CardDescription className="text-slate-600">أدخل بياناتك للوصول إلى لوحة التحكم</CardDescription>
+            <CardTitle className="text-2xl font-bold text-slate-900 mb-2">{t("login.title")}</CardTitle>
+            <CardDescription className="text-slate-600">{t("login.subtitle")}</CardDescription>
           </CardHeader>
 
           <CardContent>
@@ -104,7 +104,7 @@ export default function LoginPage() {
               {/* Email Field */}
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-slate-700 font-medium">
-                  البريد الإلكتروني
+                  {t("login.email")}
                 </Label>
                 <div className="relative">
                   <Mail className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
@@ -124,7 +124,7 @@ export default function LoginPage() {
               {/* Password Field */}
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-slate-700 font-medium">
-                  كلمة المرور
+                  {t("login.password")}
                 </Label>
                 <div className="relative">
                   <Lock className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
@@ -150,10 +150,10 @@ export default function LoginPage() {
 
               {/* Demo Credentials */}
               <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
-                <p className="text-sm text-slate-600 mb-2 font-medium">بيانات تجريبية:</p>
+                <p className="text-sm text-slate-600 mb-2 font-medium">{t("login.demoCredentials")}</p>
                 <div className="text-xs text-slate-500 space-y-1">
-                  <p>المدير: admin@syria-heritage.org / password</p>
-                  <p>المستخدم: user@syria-heritage.org / password</p>
+                  <p>{t("login.adminDemo")}</p>
+                  <p>{t("login.userDemo")}</p>
                 </div>
               </div>
 
@@ -166,10 +166,10 @@ export default function LoginPage() {
                 {isLoading ? (
                   <div className="flex items-center space-x-2 rtl:space-x-reverse">
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>جاري تسجيل الدخول...</span>
+                    <span>{t("login.submitting")}</span>
                   </div>
                 ) : (
-                  "تسجيل الدخول"
+                  t("login.submit")
                 )}
               </Button>
             </form>
@@ -177,7 +177,7 @@ export default function LoginPage() {
             {/* Back to Home */}
             <div className="mt-6 text-center">
               <Link href="/" className="text-emerald-600 hover:text-emerald-700 font-medium transition-colors">
-                العودة إلى الصفحة الرئيسية
+                {t("login.backHome")}
               </Link>
             </div>
           </CardContent>

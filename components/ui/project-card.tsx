@@ -72,7 +72,7 @@ export function ProjectCard({ project, index = 0 }: ProjectCardProps) {
 
         <div className="mb-6">
           <div className="flex justify-between items-center mb-2">
-            <span className="text-sm text-slate-600">التقدم المحرز</span>
+            <span className="text-sm text-slate-600">{t("projects.progress")}</span>
             <span className="text-sm font-semibold text-emerald-600">{progress}%</span>
           </div>
           <Progress value={progress} className="h-2 bg-slate-200">
@@ -82,9 +82,9 @@ export function ProjectCard({ project, index = 0 }: ProjectCardProps) {
             />
           </Progress>
           <div className="flex justify-between items-center mt-2 text-sm">
-            <span className="text-slate-600">{formatCurrency(totalRaised)} مُجمع</span>
+            <span className="text-slate-600">{formatCurrency(totalRaised)} {t("projects.raised")}</span>
             <span className="font-semibold text-slate-900">
-              {project.total_cost ? formatCurrency(project.total_cost) : "غير محدد"} الهدف
+              {project.total_cost ? formatCurrency(project.total_cost) : t("projects.undefined")} {t("projects.target")}
             </span>
           </div>
         </div>

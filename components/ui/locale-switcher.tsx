@@ -1,36 +1,38 @@
 "use client"
 
 import { useLocale } from "next-intl"
-import { usePathname } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Globe } from "lucide-react"
 import { useState } from "react"
 
 export function LocaleSwitcher() {
   const locale = useLocale()
+  const router = useRouter()
   const pathname = usePathname()
   const [isLoading, setIsLoading] = useState(false)
 
-  // Debug: Log the current locale
-  console.log('LocaleSwitcher render - Current locale:', locale)
-  console.log('LocaleSwitcher render - Pathname:', pathname)
-
   const switchLocale = () => {
-    console.log('🔄 Button clicked!')
-    console.log('Current locale:', locale)
-    console.log('Current pathname:', pathname)
+    setIsLoading(true)
     
-    // Use pathname to determine current language instead of locale hook
-    if (pathname.startsWith('/en')) {
-      console.log('🇸🇦 Switching from English to Arabic')
-      window.location.href = "/ar"
-    } else if (pathname.startsWith('/ar')) {
-      console.log('🇺🇸 Switching from Arabic to English')
-      window.location.href = "/en"
-    } else {
-      console.log('🤔 Unknown path, defaulting to Arabic')
-      window.location.href = "/ar"
-    }
+    // Remove the current locale from pathname
+    const pathWithoutLocale = pathname.replace(/^\/[a-z]{2}/, '') || '/'
+    
+    // Determine the new locale
+    const newLocale = locale === 'ar' ? 'en' : 'ar'
+    
+    // Construct new path with new locale
+    const newPath = `/${newLocale}${pathWithoutLocale}`
+    
+    console.log('Switching from', locale, 'to', newLocale)
+    console.log('Current path:', pathname)
+    console.log('New path:', newPath)
+    
+    // Navigate to new path
+    router.push(newPath)
+    router.refresh()
+    
+    setTimeout(() => setIsLoading(false), 1000)
   }
 
   return (
@@ -50,7 +52,7 @@ export function LocaleSwitcher() {
         </div>
       ) : (
         <span className="font-medium">
-          {pathname.startsWith('/en') ? "عربي" : "English"}
+          {locale === 'ar' ? "English" : "عربي"}
         </span>
       )}
     </Button>

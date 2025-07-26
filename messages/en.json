@@ -11,7 +11,16 @@
     "search": "Search",
     "filter": "Filter",
     "export": "Export",
-    "import": "Import"
+    "import": "Import",
+    "add": "Add",
+    "update": "Update",
+    "remove": "Remove",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit",
+    "reset": "Reset"
   },
   "navigation": {
     "home": "Home",
@@ -43,6 +52,10 @@
     "description": "Browse all mosque reconstruction and restoration projects",
     "donate": "Donate Now",
     "viewDetails": "View Details",
+    "progress": "Progress Made",
+    "raised": "Raised",
+    "target": "Target",
+    "undefined": "Undefined",
     "status": {
       "study": "Under Study",
       "progress": "In Progress",
@@ -65,9 +78,6 @@
     "title": "Dashboard",
     "welcome": "Welcome to the Management Dashboard",
     "overview": "Overview",
-    "quickActions": "Quick Actions",
-    "viewAll": "View All",
-    "manageAll": "Manage All",
     "importBatches": "Import Batches",
     "mosquesManagement": "Mosques Management",
     "projectsManagement": "Projects Management",
@@ -75,7 +85,40 @@
     "mediaManagement": "Media Management",
     "reports": "Reports",
     "users": "Users",
-    "settings": "Settings"
+    "settings": "Settings",
+    "quickActions": "Quick Actions",
+    "recentActivity": "Recent Activity",
+    "statistics": "Statistics",
+    "addNew": "Add New",
+    "viewAll": "View All",
+    "manageAll": "Manage All",
+    "actions": {
+      "addMosque": "Add New Mosque",
+      "addMosqueDesc": "Register a new mosque in the system",
+      "uploadExcel": "Upload Excel File",
+      "uploadExcelDesc": "Import new mosque data",
+      "createReport": "Create Report",
+      "createReportDesc": "Generate detailed report",
+      "manageDonations": "Manage Donations",
+      "manageDonationsDesc": "Record and track donations"
+    },
+    "stats": {
+      "totalMosques": "Total Mosques",
+      "totalMosquesDesc": "mosques registered in the system",
+      "totalDonations": "Total Donations",
+      "totalDonationsDesc": "collected from donors",
+      "completedMosques": "Completed Mosques",
+      "completedMosquesDesc": "mosques reconstructed",
+      "activeProjects": "Active Projects",
+      "activeProjectsDesc": "projects in progress"
+    },
+    "recent": {
+      "projects": "Recent Projects",
+      "donations": "Recent Donations",
+      "mosques": "Recently Added Mosques",
+      "anonymousDonor": "Anonymous Donor",
+      "undefined": "Undefined"
+    }
   },
   "about": {
     "title": "About the Initiative",
@@ -158,6 +201,86 @@
     "contact": {
       "title": "Contact Us",
       "description": "For inquiries and participation in the initiative"
+    }
+  },
+  "contact": {
+    "title": "Contact Us",
+    "subtitle": "We are here to answer your inquiries and help you participate in the Reviving Syria's Heritage initiative",
+    "form": {
+      "name": "Full Name",
+      "email": "Email Address",
+      "phone": "Phone Number",
+      "subject": "Subject",
+      "message": "Message",
+      "send": "Send Message",
+      "sending": "Sending...",
+      "success": "Your message was sent successfully",
+      "error": "An error occurred while sending the message"
+    },
+    "info": {
+      "address": "Address",
+      "phone": "Phone",
+      "email": "Email",
+      "hours": "Working Hours"
+    },
+    "office": {
+      "title": "Initiative Office",
+      "address": "Ministry of Religious Endowments - Damascus - Syria",
+      "phone": "+963-11-1234567",
+      "email": "info@syria-heritage.org",
+      "hours": "Sunday - Thursday: 8:00 AM - 4:00 PM"
+    },
+    "support": {
+      "title": "Technical Support",
+      "email": "support@syria-heritage.org",
+      "phone": "+963-11-7654321"
+    },
+    "partnerships": {
+      "title": "Partnerships",
+      "email": "partnerships@syria-heritage.org",
+      "phone": "+963-11-1122334"
+    }
+  },
+  "footer": {
+    "brand": {
+      "title": "E'mar",
+      "subtitle": "Syria's Heritage",
+      "description": "Contribute to the reconstruction of historical mosques and the revival of Syrian cultural heritage"
+    },
+    "quickLinks": {
+      "title": "Quick Links",
+      "currentProjects": "Our Current Projects",
+      "completedProjects": "Completed Projects",
+      "neededProjects": "Projects in Need",
+      "featuredProjects": "Featured Projects"
+    },
+    "contact": {
+      "title": "Contact Us",
+      "ministry": "Ministry of Religious Endowments",
+      "location": "Damascus - Syria",
+      "email": "eng-requests@awqaf.gov.sy"
+    },
+    "social": {
+      "title": "Follow Us"
+    },
+    "copyright": "© 2025 Syria Heritage Reconstruction Initiative. All rights reserved."
+  },
+  "login": {
+    "title": "Login",
+    "subtitle": "Enter your credentials to access the dashboard",
+    "email": "Email Address",
+    "password": "Password",
+    "submit": "Sign In",
+    "submitting": "Signing in...",
+    "backHome": "Back to Homepage",
+    "demoCredentials": "Demo Credentials:",
+    "adminDemo": "Admin: admin@syria-heritage.org / password",
+    "userDemo": "User: user@syria-heritage.org / password",
+    "brandTitle": "Reviving Syria's Heritage",
+    "brandSubtitle": "Preserving Heritage",
+    "errors": {
+      "general": "An error occurred during login",
+      "connection": "Connection error with server"
     }
   }
 }

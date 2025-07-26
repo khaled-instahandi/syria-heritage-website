@@ -52,6 +52,10 @@
     "description": "تصفح جميع مشاريع إعادة إعمار وترميم المساجد",
     "donate": "تبرع الآن",
     "viewDetails": "عرض التفاصيل",
+    "progress": "التقدم المحرز",
+    "raised": "مُجمع",
+    "target": "الهدف",
+    "undefined": "غير محدد",
     "status": {
       "study": "قيد الدراسة",
       "progress": "قيد التنفيذ",
@@ -87,7 +91,34 @@
     "statistics": "الإحصائيات",
     "addNew": "إضافة جديد",
     "viewAll": "عرض الكل",
-    "manageAll": "إدارة الكل"
+    "manageAll": "إدارة الكل",
+    "actions": {
+      "addMosque": "إضافة مسجد جديد",
+      "addMosqueDesc": "تسجيل مسجد جديد في النظام",
+      "uploadExcel": "رفع ملف Excel",
+      "uploadExcelDesc": "استيراد بيانات مساجد جديدة",
+      "createReport": "إنشاء تقرير",
+      "createReportDesc": "إنشاء تقرير مفصل",
+      "manageDonations": "إدارة التبرعات",
+      "manageDonationsDesc": "تسجيل ومتابعة التبرعات"
+    },
+    "stats": {
+      "totalMosques": "إجمالي المساجد",
+      "totalMosquesDesc": "مسجد مسجل في النظام",
+      "totalDonations": "إجمالي التبرعات",
+      "totalDonationsDesc": "تم جمعها من المتبرعين",
+      "completedMosques": "مساجد مكتملة",
+      "completedMosquesDesc": "مسجد تم إعادة إعماره",
+      "activeProjects": "مشاريع نشطة",
+      "activeProjectsDesc": "مشروع قيد التنفيذ"
+    },
+    "recent": {
+      "projects": "آخر المشاريع",
+      "donations": "آخر التبرعات",
+      "mosques": "آخر المساجد المضافة",
+      "anonymousDonor": "متبرع مجهول",
+      "undefined": "غير محدد"
+    }
   },
   "about": {
     "title": "عن المبادرة",
@@ -208,6 +239,48 @@
       "title": "الشراكات",
       "email": "partnerships@syria-heritage.org",
       "phone": "+963-11-1122334"
+    }
+  },
+  "footer": {
+    "brand": {
+      "title": "إعمار",
+      "subtitle": "تراث سوريا",
+      "description": "ساهم في إعادة إعمار المساجد التاريخية وإحياء التراث الثقافي السوري"
+    },
+    "quickLinks": {
+      "title": "روابط سريعة",
+      "currentProjects": "مشاريعنا الحالية",
+      "completedProjects": "مشاريع مكتملة",
+      "neededProjects": "مشاريع بحاجة",
+      "featuredProjects": "مشاريع مميزة"
+    },
+    "contact": {
+      "title": "تواصل معنا",
+      "ministry": "وزارة الأوقاف",
+      "location": "دمشق - سوريا",
+      "email": "eng-requests@awqaf.gov.sy"
+    },
+    "social": {
+      "title": "تابعنا"
+    },
+    "copyright": "© 2025 مبادرة إعمار إعادة المساجد السورية. جميع الحقوق محفوظة."
+  },
+  "login": {
+    "title": "تسجيل الدخول",
+    "subtitle": "أدخل بياناتك للوصول إلى لوحة التحكم",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "submit": "تسجيل الدخول",
+    "submitting": "جاري تسجيل الدخول...",
+    "backHome": "العودة إلى الصفحة الرئيسية",
+    "demoCredentials": "بيانات تجريبية:",
+    "adminDemo": "المدير: admin@syria-heritage.org / password",
+    "userDemo": "المستخدم: user@syria-heritage.org / password",
+    "brandTitle": "إحياء تراث سوريا",
+    "brandSubtitle": "الحفاظ على التراث",
+    "errors": {
+      "general": "حدث خطأ في تسجيل الدخول",
+      "connection": "حدث خطأ في الاتصال بالخادم"
     }
   }
 }

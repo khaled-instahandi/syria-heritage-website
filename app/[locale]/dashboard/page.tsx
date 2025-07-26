@@ -43,29 +43,29 @@ export default function DashboardPage() {
 
   const quickActions = [
     {
-      title: "إضافة مسجد جديد",
-      description: "تسجيل مسجد جديد في النظام",
+      title: t("dashboard.actions.addMosque"),
+      description: t("dashboard.actions.addMosqueDesc"),
       icon: Plus,
       href: "/dashboard/mosques/new",
       color: "bg-emerald-500",
     },
     {
-      title: "رفع ملف Excel",
-      description: "استيراد بيانات مساجد جديدة",
+      title: t("dashboard.actions.uploadExcel"),
+      description: t("dashboard.actions.uploadExcelDesc"),
       icon: Upload,
       href: "/dashboard/import",
       color: "bg-blue-500",
     },
     {
-      title: "إنشاء تقرير",
-      description: "إنشاء تقرير مفصل",
+      title: t("dashboard.actions.createReport"),
+      description: t("dashboard.actions.createReportDesc"),
       icon: BarChart3,
       href: "/dashboard/reports",
       color: "bg-purple-500",
     },
     {
-      title: "إدارة التبرعات",
-      description: "تسجيل ومتابعة التبرعات",
+      title: t("dashboard.actions.manageDonations"),
+      description: t("dashboard.actions.manageDonationsDesc"),
       icon: DollarSign,
       href: "/dashboard/donations",
       color: "bg-amber-500",
@@ -84,40 +84,40 @@ export default function DashboardPage() {
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
           <StatsCard
-            title="إجمالي المساجد"
+            title={t("dashboard.stats.totalMosques")}
             value={stats.totalMosques}
             change={{ value: "+12%", type: "increase" }}
             icon={Mosque}
             color="from-emerald-500 to-emerald-600"
             bgColor="bg-emerald-50"
-            description="مسجد مسجل في النظام"
+            description={t("dashboard.stats.totalMosquesDesc")}
           />
           <StatsCard
-            title="إجمالي التبرعات"
+            title={t("dashboard.stats.totalDonations")}
             value={formatCurrency(stats.totalDonations).replace("US$", "$")}
             change={{ value: "+8%", type: "increase" }}
             icon={DollarSign}
             color="from-blue-500 to-blue-600"
             bgColor="bg-blue-50"
-            description="تم جمعها من المتبرعين"
+            description={t("dashboard.stats.totalDonationsDesc")}
           />
           <StatsCard
-            title="مساجد مكتملة"
+            title={t("dashboard.stats.completedMosques")}
             value={stats.completedMosques}
             change={{ value: "+25%", type: "increase" }}
             icon={TrendingUp}
             color="from-amber-500 to-amber-600"
             bgColor="bg-amber-50"
-            description="مسجد تم إعادة إعماره"
+            description={t("dashboard.stats.completedMosquesDesc")}
           />
           <StatsCard
-            title="مشاريع نشطة"
+            title={t("dashboard.stats.activeProjects")}
             value={stats.activeProjects}
             change={{ value: "-3%", type: "decrease" }}
             icon={FileText}
             color="from-purple-500 to-purple-600"
             bgColor="bg-purple-50"
-            description="مشروع قيد التنفيذ"
+            description={t("dashboard.stats.activeProjectsDesc")}
           />
         </div>
 
@@ -148,7 +148,7 @@ export default function DashboardPage() {
           {/* Recent Projects */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-lg lg:text-xl">آخر المشاريع</CardTitle>
+              <CardTitle className="text-lg lg:text-xl">{t("dashboard.recent.projects")}</CardTitle>
               <Link href="/dashboard/projects">
                 <Button variant="outline" size="sm">
                   <Eye className="w-4 h-4 ml-2" />
@@ -208,7 +208,7 @@ export default function DashboardPage() {
           {/* Recent Donations */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-lg lg:text-xl">آخر التبرعات</CardTitle>
+              <CardTitle className="text-lg lg:text-xl">{t("dashboard.recent.donations")}</CardTitle>
               <Link href="/dashboard/donations">
                 <Button variant="outline" size="sm">
                   <Eye className="w-4 h-4 ml-2" />
@@ -228,7 +228,7 @@ export default function DashboardPage() {
                         <User className="w-5 h-5 text-emerald-600" />
                       </div>
                       <div className="min-w-0">
-                        <p className="font-semibold text-slate-900 truncate">{donation.donor_name || "متبرع مجهول"}</p>
+                        <p className="font-semibold text-slate-900 truncate">{donation.donor_name || t("dashboard.recent.anonymousDonor")}</p>
                         <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-sm text-slate-600">
                           <span className="truncate">{donation.payment_method}</span>
                           <span className="hidden sm:inline">•</span>
@@ -249,7 +249,7 @@ export default function DashboardPage() {
         {/* Recent Mosques */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-lg lg:text-xl">آخر المساجد المضافة</CardTitle>
+            <CardTitle className="text-lg lg:text-xl">{t("dashboard.recent.mosques")}</CardTitle>
             <Link href="/dashboard/mosques">
               <Button variant="outline" size="sm">
                 <Eye className="w-4 h-4 ml-2" />
@@ -282,7 +282,7 @@ export default function DashboardPage() {
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-slate-600 truncate">
-                        {mosque.estimated_cost ? formatCurrency(mosque.estimated_cost) : "غير محدد"}
+                        {mosque.estimated_cost ? formatCurrency(mosque.estimated_cost) : t("dashboard.recent.undefined")}
                       </span>
                       <Link href={`/dashboard/mosques/${mosque.id}`}>
                         <Button variant="ghost" size="sm">

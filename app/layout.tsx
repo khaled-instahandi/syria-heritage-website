@@ -17,10 +17,11 @@ export default function RootLayout({
 }: {
     children: React.ReactNode
 }) {
-    // Redirect to default locale
     return (
-        <>
-            {children}
-        </>
+        <html>
+            <body className={cairo.className}>
+                {children}
+            </body>
+        </html>
     )
 }
