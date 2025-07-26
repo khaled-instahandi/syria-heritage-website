@@ -1,0 +1,159 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Success",
+    "cancel": "Cancel",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "view": "View",
+    "search": "Search",
+    "filter": "Filter",
+    "export": "Export",
+    "import": "Import"
+  },
+  "navigation": {
+    "home": "Home",
+    "projects": "Projects",
+    "mosques": "Mosques",
+    "about": "About",
+    "contact": "Contact",
+    "dashboard": "Dashboard",
+    "login": "Login",
+    "logout": "Logout"
+  },
+  "home": {
+    "title": "Reviving Syria's Heritage",
+    "subtitle": "One Mosque at a Time",
+    "description": "An initiative to document Syrian mosque restoration achievements, showcase projects needing funding, and receive supporter applications",
+    "becomePartner": "Become a Partner",
+    "viewProjects": "Our Current Projects",
+    "featuredProjects": "Featured Projects",
+    "viewAll": "View All",
+    "stats": {
+      "mosques": "Registered Mosques",
+      "donations": "Dollars Raised",
+      "completed": "Completed Mosques",
+      "projects": "Active Projects"
+    }
+  },
+  "projects": {
+    "title": "Reconstruction Projects",
+    "description": "Browse all mosque reconstruction and restoration projects",
+    "donate": "Donate Now",
+    "viewDetails": "View Details",
+    "status": {
+      "study": "Under Study",
+      "progress": "In Progress",
+      "completed": "Completed"
+    },
+    "category": {
+      "restoration": "Restoration",
+      "reconstruction": "Reconstruction"
+    }
+  },
+  "mosques": {
+    "title": "Registered Mosques",
+    "description": "Comprehensive database of damaged mosques",
+    "damageLevel": {
+      "partial": "Partial Damage",
+      "complete": "Complete Damage"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "overview": "Overview",
+    "importBatches": "Import Batches",
+    "mosquesManagement": "Mosques Management",
+    "projectsManagement": "Projects Management",
+    "donationsManagement": "Donations Management",
+    "mediaManagement": "Media Management",
+    "reports": "Reports",
+    "users": "Users",
+    "settings": "Settings"
+  },
+  "about": {
+    "title": "About the Initiative",
+    "subtitle": "Learn about the Reviving Syria's Heritage initiative and its mission to reconstruct historical mosques",
+    "hero": {
+      "title": "Reviving Syria's Heritage Initiative",
+      "description": "We work to document and reconstruct historical mosques in Syria, preserving our cultural and religious heritage for future generations"
+    },
+    "mission": {
+      "title": "Our Mission",
+      "description": "We strive to revive Islamic architectural heritage in Syria by documenting damaged mosques and organizing reconstruction and restoration efforts with transparency and high professionalism"
+    },
+    "vision": {
+      "title": "Our Vision",
+      "description": "To be the primary reference in documenting and reconstructing Syrian mosques, contributing to preserving Syria's cultural and religious identity"
+    },
+    "values": {
+      "title": "Our Values",
+      "transparency": {
+        "title": "Transparency",
+        "description": "We commit to complete transparency in all our financial and administrative operations"
+      },
+      "authenticity": {
+        "title": "Authenticity",
+        "description": "We preserve the original architectural character of historical mosques"
+      },
+      "quality": {
+        "title": "Quality",
+        "description": "We ensure the highest quality standards in restoration and reconstruction work"
+      },
+      "collaboration": {
+        "title": "Collaboration",
+        "description": "We work as a team with all partners and volunteers"
+      }
+    },
+    "objectives": {
+      "title": "Our Objectives",
+      "documentation": "Comprehensive documentation of all damaged mosques in Syria",
+      "reconstruction": "Reconstruction and restoration of mosques according to heritage standards",
+      "fundraising": "Fundraising from diverse and reliable sources",
+      "transparency": "Ensuring transparency in the use of donations",
+      "heritage": "Preserving Islamic architectural heritage",
+      "community": "Engaging the community in the reconstruction process"
+    },
+    "team": {
+      "title": "Our Team",
+      "description": "Our team includes elite engineers, architects, and experts in Islamic heritage"
+    },
+    "achievements": {
+      "title": "Our Achievements",
+      "description": "Since the initiative's launch, we have achieved significant milestones in reconstruction"
+    },
+    "timeline": {
+      "title": "Initiative Journey",
+      "2020": {
+        "title": "Initiative Launch",
+        "description": "Establishment of the initiative and beginning of initial documentation work"
+      },
+      "2021": {
+        "title": "First Reconstruction Project",
+        "description": "Completion of the first historical mosque reconstruction project"
+      },
+      "2022": {
+        "title": "Scope Expansion",
+        "description": "Expanding work to include new governorates"
+      },
+      "2023": {
+        "title": "International Partnerships",
+        "description": "Establishing partnerships with international organizations"
+      },
+      "2024": {
+        "title": "Digital Platform",
+        "description": "Launch of the comprehensive digital platform"
+      }
+    },
+    "partners": {
+      "title": "Our Partners",
+      "description": "We work with local and international partners to achieve our goals"
+    },
+    "contact": {
+      "title": "Contact Us",
+      "description": "For inquiries and participation in the initiative"
+    }
+  }
+}
