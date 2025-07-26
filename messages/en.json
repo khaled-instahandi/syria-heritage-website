@@ -63,7 +63,11 @@
   },
   "dashboard": {
     "title": "Dashboard",
+    "welcome": "Welcome to the Management Dashboard",
     "overview": "Overview",
+    "quickActions": "Quick Actions",
+    "viewAll": "View All",
+    "manageAll": "Manage All",
     "importBatches": "Import Batches",
     "mosquesManagement": "Mosques Management",
     "projectsManagement": "Projects Management",

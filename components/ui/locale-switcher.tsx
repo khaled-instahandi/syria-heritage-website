@@ -1,25 +1,58 @@
 "use client"
 
 import { useLocale } from "next-intl"
-import { useRouter, usePathname } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Globe } from "lucide-react"
+import { useState } from "react"
 
 export function LocaleSwitcher() {
   const locale = useLocale()
-  const router = useRouter()
   const pathname = usePathname()
+  const [isLoading, setIsLoading] = useState(false)
+
+  // Debug: Log the current locale
+  console.log('LocaleSwitcher render - Current locale:', locale)
+  console.log('LocaleSwitcher render - Pathname:', pathname)
 
   const switchLocale = () => {
-    const newLocale = locale === "ar" ? "en" : "ar"
-    const newPath = pathname.replace(`/${locale}`, `/${newLocale}`)
-    router.push(newPath)
+    console.log('🔄 Button clicked!')
+    console.log('Current locale:', locale)
+    console.log('Current pathname:', pathname)
+    
+    // Use pathname to determine current language instead of locale hook
+    if (pathname.startsWith('/en')) {
+      console.log('🇸🇦 Switching from English to Arabic')
+      window.location.href = "/ar"
+    } else if (pathname.startsWith('/ar')) {
+      console.log('🇺🇸 Switching from Arabic to English')
+      window.location.href = "/en"
+    } else {
+      console.log('🤔 Unknown path, defaulting to Arabic')
+      window.location.href = "/ar"
+    }
   }
 
   return (
-    <Button variant="outline" size="sm" onClick={switchLocale} className="flex items-center gap-2 bg-transparent">
+    <Button 
+      variant="outline" 
+      size="sm" 
+      onClick={switchLocale} 
+      disabled={isLoading}
+      className="flex items-center gap-2 bg-white/90 hover:bg-white border-slate-200 transition-all duration-200 shadow-sm"
+    >
       <Globe className="w-4 h-4" />
-      {locale === "ar" ? "EN" : "عربي"}
+      {isLoading ? (
+        <div className="flex items-center gap-1">
+          <div className="w-1 h-1 bg-current rounded-full animate-bounce"></div>
+          <div className="w-1 h-1 bg-current rounded-full animate-bounce delay-100"></div>
+          <div className="w-1 h-1 bg-current rounded-full animate-bounce delay-200"></div>
+        </div>
+      ) : (
+        <span className="font-medium">
+          {pathname.startsWith('/en') ? "عربي" : "English"}
+        </span>
+      )}
     </Button>
   )
 }
