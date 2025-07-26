@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent } from "@/components/ui/card"
+import InteractiveMap from "@/components/ui/interactive-map"
 import { MapPin, Phone, Mail, Clock, Send, MessageCircle, Users, Handshake, CheckCircle } from "lucide-react"
 
 export default function ContactPage() {
@@ -293,14 +294,14 @@ export default function ContactPage() {
               <p className="text-slate-600">{t("map.description")}</p>
             </div>
 
-            {/* Placeholder for Map */}
-            <div className="w-full h-96 bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl flex items-center justify-center">
-              <div className="text-center">
-                <MapPin className="w-16 h-16 text-slate-400 mx-auto mb-4" />
-                <p className="text-slate-600 font-medium">{t("map.interactive")}</p>
-                <p className="text-slate-500 text-sm">{t("office.address")}</p>
-              </div>
-            </div>
+            {/* Interactive Leaflet Map */}
+            <InteractiveMap
+              center={[33.5138, 36.2765]} // Damascus, Syria - Ministry of Religious Endowments
+              zoom={15}
+              className="w-full h-96"
+              markerTitle={t("office.title")}
+              markerDescription={t("office.address")}
+            />
           </CardContent>
         </Card>
 
