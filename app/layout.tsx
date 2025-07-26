@@ -6,10 +6,10 @@ export const metadata: Metadata = {
     title: "Syria Heritage - Reviving Syrian Mosques",
     description: "An initiative to document Syrian mosque restoration achievements, showcase projects needing funding, and receive supporter applications",
 }
-const cairo = Cairo({ 
-  subsets: ["latin", "arabic"],
-  weight: ["200", "300", "400", "500", "600", "700", "800", "900"],
-  display: "swap",
+const cairo = Cairo({
+    subsets: ["latin", "arabic"],
+    weight: ["200", "300", "400", "500", "600", "700", "800", "900"],
+    display: "swap",
 })
 
 export default function RootLayout({
@@ -18,10 +18,9 @@ export default function RootLayout({
     children: React.ReactNode
 }) {
     return (
-        <html>
-            <body className={cairo.className}>
-                {children}
-            </body>
-        </html>
+        <>
+
+            {children}
+        </>
     )
 }
