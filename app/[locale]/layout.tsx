@@ -1,7 +1,7 @@
 import type React from "react"
 import { NextIntlClientProvider } from "next-intl"
 import { getMessages } from "next-intl/server"
-import { Cairo, Inter } from "next/font/google"
+import { Cairo } from "next/font/google"
 import "./globals.css"
 
 const cairo = Cairo({ 
@@ -10,6 +10,19 @@ const cairo = Cairo({
   display: "swap",
 })
 
+export async function generateMetadata({
+  params: { locale }
+}: {
+  params: { locale: string }
+}) {
+  return {
+    title: locale === 'ar' ? 'إحياء تراث سوريا' : 'Reviving Syria\'s Heritage',
+    description: locale === 'ar' 
+      ? 'مبادرة لتوثيق إنجازات ترميم المساجد السورية' 
+      : 'Initiative to document Syrian mosque restoration achievements',
+  }
+}
+
 export default async function LocaleLayout({
   children,
   params: { locale },
@@ -17,12 +30,13 @@ export default async function LocaleLayout({
   children: React.ReactNode
   params: { locale: string }
 }) {
-  const messages = await getMessages()
+  // Ensure we have messages for the given locale
+  const messages = await getMessages({ locale })
 
   return (
     <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>
       <body className={cairo.className}>
-        <NextIntlClientProvider messages={messages}>
+        <NextIntlClientProvider locale={locale} messages={messages}>
           {children}
         </NextIntlClientProvider>
       </body>

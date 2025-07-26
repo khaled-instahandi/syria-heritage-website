@@ -130,9 +130,14 @@
   "about": {
     "title": "About the Initiative",
     "subtitle": "Learn about the Reviving Syria's Heritage initiative and its mission to reconstruct historical mosques",
+    "badge": "Certified Heritage Initiative",
     "hero": {
       "title": "Reviving Syria's Heritage Initiative",
-      "description": "We work to document and reconstruct historical mosques in Syria, preserving our cultural and religious heritage for future generations"
+      "subtitle": "We work to document and reconstruct historical mosques in Syria, preserving our cultural and religious heritage for future generations",
+      "cta": {
+        "primary": "Donate Now",
+        "secondary": "Learn More"
+      }
     },
     "mission": {
       "title": "Our Mission",
