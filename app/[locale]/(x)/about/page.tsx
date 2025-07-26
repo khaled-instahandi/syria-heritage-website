@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslations } from "next-intl"
 import { HeroSection } from "@/components/about/hero-section"
 import { MissionVision } from "@/components/about/mission-vision"
 import { ValuesSection } from "@/components/about/values-section"
@@ -10,6 +11,8 @@ import { AchievementsSection } from "@/components/about/achievements-section"
 import { Sparkles, Heart, Users } from "lucide-react"
 
 export default function AboutPage() {
+  const t = useTranslations()
+
   return (
     <div className="min-h-screen">
       <HeroSection />
@@ -31,18 +34,18 @@ export default function AboutPage() {
         </div>
 
         <div className="relative z-10 max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">Join Our Mission</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">{t("about.joinMission")}</h2>
           <p className="text-xl text-emerald-100 mb-8 max-w-2xl mx-auto">
-            Help us preserve Syria's architectural heritage for future generations
+            {t("about.joinMissionDesc")}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button className="inline-flex items-center gap-2 px-8 py-4 bg-white text-emerald-600 rounded-lg hover:bg-emerald-50 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
               <Heart className="w-5 h-5" />
-              Donate Now
+              {t("about.donateNow")}
             </button>
             <button className="inline-flex items-center gap-2 px-8 py-4 bg-transparent text-white border-2 border-white rounded-lg hover:bg-white hover:text-emerald-600 transition-all duration-300 transform hover:scale-105">
               <Users className="w-5 h-5" />
-              Become a Volunteer
+              {t("about.becomeVolunteer")}
             </button>
           </div>
         </div>

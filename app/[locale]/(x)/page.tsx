@@ -31,7 +31,7 @@ export default function HomePage() {
           <div className="max-w-4xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 bg-emerald-100 text-emerald-800 px-4 py-2 rounded-full text-sm font-medium mb-6 animate-in fade-in-50 slide-in-from-bottom-4">
               <Star className="w-4 h-4" />
-              مبادرة رسمية معتمدة
+              {t("home.officialInitiative")}
             </div>
 
             <h1 className="text-4xl lg:text-6xl font-bold text-slate-900 mb-6 animate-in fade-in-50 slide-in-from-bottom-6 duration-700">
@@ -75,11 +75,11 @@ export default function HomePage() {
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 bg-emerald-100 text-emerald-800 px-4 py-2 rounded-full text-sm font-medium mb-6">
               <Star className="w-4 h-4" />
-              مشاريع موثقة ومعتمدة
+              {t("home.documentedProjects")}
             </div>
             <h2 className="text-3xl lg:text-5xl font-bold text-slate-900 mb-6">{t("home.featuredProjects")}</h2>
             <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-              اكتشف مشاريعنا المميزة التي تحتاج لدعمكم لإكمال رحلة الإعمار والترميم
+              {t("home.featuredProjectsDesc")}
             </p>
           </div>
 
@@ -116,17 +116,17 @@ export default function HomePage() {
 
         <div className="container mx-auto px-4 relative">
           <div className="max-w-2xl mx-auto text-center text-white">
-            <h2 className="text-3xl lg:text-4xl font-bold mb-6">كن شريكاً في إحياء تراث سوريا</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold mb-6">{t("home.becomePartnerTitle")}</h2>
             <p className="text-lg mb-8 text-emerald-100">
-              ساهم في إعادة إعمار المساجد التاريخية واحصل على تحديثات دورية حول تقدم المشاريع
+              {t("home.becomePartnerDesc")}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
               <Input
-                placeholder="البريد الإلكتروني"
+                placeholder={t("home.emailPlaceholder")}
                 className="bg-white/10 border-white/20 text-white placeholder:text-emerald-100 backdrop-blur-sm"
               />
               <Button className="bg-white text-emerald-600 hover:bg-emerald-50 font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
-                اشترك الآن
+                {t("home.subscribeNow")}
               </Button>
             </div>
           </div>

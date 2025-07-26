@@ -36,9 +36,16 @@
     "title": "Reviving Syria's Heritage",
     "subtitle": "One Mosque at a Time",
     "description": "An initiative to document Syrian mosque restoration achievements, showcase projects needing funding, and receive supporter applications",
+    "officialInitiative": "Official Approved Initiative",
     "becomePartner": "Become a Partner",
     "viewProjects": "Our Current Projects",
     "featuredProjects": "Featured Projects",
+    "documentedProjects": "Documented and Approved Projects",
+    "featuredProjectsDesc": "Discover our featured projects that need your support to complete the reconstruction and restoration journey",
+    "becomePartnerTitle": "Become a Partner in Reviving Syria's Heritage",
+    "becomePartnerDesc": "Contribute to the reconstruction of historical mosques and receive regular updates on project progress",
+    "emailPlaceholder": "Email Address",
+    "subscribeNow": "Subscribe Now",
     "viewAll": "View All",
     "stats": {
       "mosques": "Registered Mosques",
@@ -201,7 +208,11 @@
     "contact": {
       "title": "Contact Us",
       "description": "For inquiries and participation in the initiative"
-    }
+    },
+    "joinMission": "Join Our Mission",
+    "joinMissionDesc": "Help us preserve Syria's architectural heritage for future generations",
+    "donateNow": "Donate Now",
+    "becomeVolunteer": "Become a Volunteer"
   },
   "contact": {
     "title": "Contact Us",
