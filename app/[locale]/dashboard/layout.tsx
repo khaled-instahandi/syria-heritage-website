@@ -3,6 +3,8 @@
 import React, { useState, createContext, useContext } from "react"
 import { useParams } from "next/navigation"
 import { AuthProtectedRoute } from "@/components/protected-route"
+import { NavigationLoading } from "@/components/ui/navigation-loading"
+import { useNavigationLoading } from "@/hooks/use-navigation-loading"
 
 import { DashboardSidebar } from "@/components/dashboard/sidebar"
 
@@ -12,11 +14,13 @@ const SidebarContext = createContext<{
   setSidebarOpen: (open: boolean) => void
   sidebarCollapsed: boolean
   setSidebarCollapsed: (collapsed: boolean) => void
+  navigateWithLoading: (url: string) => void
 }>({
   sidebarOpen: false,
   setSidebarOpen: () => { },
   sidebarCollapsed: false,
   setSidebarCollapsed: () => { },
+  navigateWithLoading: () => { },
 })
 
 export const useSidebar = () => useContext(SidebarContext)
@@ -28,6 +32,7 @@ export default function DashboardLayout({
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const { isLoading, navigateWithLoading } = useNavigationLoading()
   const params = useParams()
 
   // Get current locale from params
@@ -48,9 +53,13 @@ export default function DashboardLayout({
       sidebarOpen,
       setSidebarOpen,
       sidebarCollapsed,
-      setSidebarCollapsed
+      setSidebarCollapsed,
+      navigateWithLoading
     }}>
       <div className="min-h-screen bg-slate-50">
+        {/* Navigation Loading Overlay */}
+        {isLoading && <NavigationLoading />}
+
         {/* Main Content */}
         <div className={`min-h-screen transition-all duration-300 ${getMarginClass()}`}>
           {children}
@@ -62,6 +71,7 @@ export default function DashboardLayout({
           onClose={() => setSidebarOpen(false)}
           isCollapsed={sidebarCollapsed}
           onToggleCollapse={setSidebarCollapsed}
+          navigateWithLoading={navigateWithLoading}
         />
       </div>
     </SidebarContext.Provider>

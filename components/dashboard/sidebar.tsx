@@ -27,13 +27,15 @@ interface DashboardSidebarProps {
   onClose?: () => void
   isCollapsed?: boolean
   onToggleCollapse?: (collapsed: boolean) => void
+  navigateWithLoading?: (url: string) => void
 }
 
 export function DashboardSidebar({ 
   isOpen = false, 
   onClose, 
   isCollapsed = false, 
-  onToggleCollapse 
+  onToggleCollapse,
+  navigateWithLoading
 }: DashboardSidebarProps) {
   const t = useTranslations()
   const pathname = usePathname()
@@ -171,26 +173,43 @@ export function DashboardSidebar({
           {/* Navigation */}
           <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
             {/* Back to Site */}
-            <Link href={`/${locale}`} onClick={onClose}>
-              <Button
-                variant="ghost"
-                className={`w-full ${isRTL ? 'justify-start' : 'justify-start'} gap-3 text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 ${
-                  isDesktopCollapsed ? "lg:px-2" : "px-4"
-                }`}
-              >
-                <Home className="w-5 h-5 flex-shrink-0" />
-                {(!isDesktopCollapsed || isMobileOpen) && (
-                  <span>{isRTL ? "العودة للموقع" : "Back to Site"}</span>
-                )}
-              </Button>
-            </Link>
+            <Button
+              onClick={() => {
+                if (navigateWithLoading) {
+                  navigateWithLoading(`/${locale}`)
+                } else {
+                  window.location.href = `/${locale}`
+                }
+                onClose?.()
+              }}
+              variant="ghost"
+              className={`w-full ${isRTL ? 'justify-start' : 'justify-start'} gap-3 text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 ${
+                isDesktopCollapsed ? "lg:px-2" : "px-4"
+              }`}
+            >
+              <Home className="w-5 h-5 flex-shrink-0" />
+              {(!isDesktopCollapsed || isMobileOpen) && (
+                <span>{isRTL ? "العودة للموقع" : "Back to Site"}</span>
+              )}
+            </Button>
 
             <div className="border-t border-slate-200 pt-4 mt-4">
               {menuItems.map((item) => {
                 const isActive = pathname === item.href
+                
+                const handleNavigation = () => {
+                  if (navigateWithLoading) {
+                    navigateWithLoading(item.href)
+                  } else {
+                    window.location.href = item.href
+                  }
+                  onClose?.()
+                }
+
                 return (
-                  <Link key={item.href} href={item.href} onClick={onClose}>
+                  <div key={item.href}>
                     <Button
+                      onClick={handleNavigation}
                       variant={isActive ? "default" : "ghost"}
                       className={`w-full ${isRTL ? 'justify-start' : 'justify-start'} gap-3 mb-1 ${
                         isActive
@@ -210,7 +229,7 @@ export function DashboardSidebar({
                         </>
                       )}
                     </Button>
-                  </Link>
+                  </div>
                 )
               })}
             </div>

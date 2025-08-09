@@ -1,6 +1,7 @@
 {
   "common": {
     "loading": "Loading...",
+    "loadingDesc": "Please wait while we load the page",
     "error": "An error occurred",
     "success": "Success",
     "cancel": "Cancel",
