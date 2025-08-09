@@ -16,15 +16,20 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Hero Section */}
-      <section className="relative py-20 lg:py-32 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 via-white to-slate-50"></div>
+      <section className="relative py-20 lg:py-32 overflow-hidden hero-section">
+        {/* Background Image */}
+        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{backgroundImage: 'url("/images/bg-hero.jpg")'}}></div>
+        {/* Dark Overlay */}
+        <div className="absolute inset-0 bg-black/40"></div>
+        {/* Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900/20 via-transparent to-slate-900/30"></div>
 
         {/* Decorative Icons */}
         <div className="absolute inset-0 overflow-hidden">
-          <Sparkles className="absolute top-20 left-20 w-6 h-6 text-emerald-200 opacity-60" />
-          <Sparkles className="absolute top-40 right-32 w-4 h-4 text-blue-200 opacity-40" />
-          <Sparkles className="absolute bottom-32 left-40 w-5 h-5 text-emerald-300 opacity-50" />
-          <Sparkles className="absolute bottom-20 right-20 w-6 h-6 text-blue-300 opacity-30" />
+          <Sparkles className="absolute top-20 left-20 w-6 h-6 text-white/60 opacity-60" />
+          <Sparkles className="absolute top-40 right-32 w-4 h-4 text-white/40 opacity-40" />
+          <Sparkles className="absolute bottom-32 left-40 w-5 h-5 text-white/50 opacity-50" />
+          <Sparkles className="absolute bottom-20 right-20 w-6 h-6 text-white/30 opacity-30" />
         </div>
 
         <div className="container mx-auto px-4 relative">
@@ -34,12 +39,12 @@ export default function HomePage() {
               {t("home.officialInitiative")}
             </div>
 
-            <h1 className="text-4xl lg:text-6xl font-bold text-slate-900 mb-6 animate-in fade-in-50 slide-in-from-bottom-6 duration-700">
+            <h1 className="text-4xl lg:text-6xl font-bold text-white mb-6 animate-in fade-in-50 slide-in-from-bottom-6 duration-700 drop-shadow-lg">
               {t("home.title")}
-              <span className="block text-2xl lg:text-4xl text-emerald-600 mt-2 font-normal">{t("home.subtitle")}</span>
+              <span className="block text-2xl lg:text-4xl text-emerald-400 mt-2 font-normal">{t("home.subtitle")}</span>
             </h1>
 
-            <p className="text-lg lg:text-xl text-slate-600 mb-8 max-w-3xl mx-auto leading-relaxed animate-in fade-in-50 slide-in-from-bottom-8 duration-1000">
+            <p className="text-lg lg:text-xl text-gray-200 mb-8 max-w-3xl mx-auto leading-relaxed animate-in fade-in-50 slide-in-from-bottom-8 duration-1000 drop-shadow-md">
               {t("home.description")}
             </p>
 
@@ -55,7 +60,7 @@ export default function HomePage() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="px-8 py-4 text-lg border-2 border-slate-300 hover:border-emerald-600 hover:text-emerald-600 transition-all duration-300 bg-transparent"
+                  className="px-8 py-4 text-lg border-2 border-slate-300 hover:border-emerald-600 text-white hover:text-emerald-600 transition-all duration-300 bg-transparent"
                 >
                   <Target className="w-5 h-5 ml-2" />
                   {t("home.viewProjects")}

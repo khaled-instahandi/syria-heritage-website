@@ -57,6 +57,7 @@ export interface Mosque {
 
 export interface Project {
   id: number
+  image_url?: string
   mosque_id: number
   project_category: "ترميم" | "إعادة إعمار"
   status: "قيد الدراسة" | "قيد التنفيذ" | "مكتمل"

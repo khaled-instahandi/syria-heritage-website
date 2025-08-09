@@ -47,7 +47,7 @@ export default function ProjectDetailPage() {
         {/* Hero Section */}
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden mb-8">
           <div className="relative h-96">
-            <Image src={mainImage || "/placeholder.svg"} alt={mosque.name} fill className="object-cover" />
+            <Image src={project.image_url || "/placeholder.svg"} alt={mosque.name} fill className="object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
             <div className="absolute bottom-6 left-6 right-6 text-white">
               <div className="flex gap-3 mb-4">

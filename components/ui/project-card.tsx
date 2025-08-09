@@ -35,7 +35,7 @@ export function ProjectCard({ project, index = 0 }: ProjectCardProps) {
     >
       <div className="relative overflow-hidden">
         <Image
-          src={mainImage || "/placeholder.svg"}
+          src={project.image_url || "/placeholder.svg"}
           alt={mosque.name}
           width={400}
           height={300}
