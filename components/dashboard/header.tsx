@@ -2,11 +2,12 @@
 
 import { useTranslations } from "next-intl"
 import { useParams } from "next/navigation"
+import { useAuth } from "@/hooks/use-auth"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { LocaleSwitcher } from "@/components/ui/locale-switcher"
-import { Search, Bell, User, Settings, Menu } from "lucide-react"
+import { Search, Bell, User, Settings, Menu, LogOut } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,10 +26,19 @@ interface DashboardHeaderProps {
 export function DashboardHeader({ title, description, onMenuClick }: DashboardHeaderProps) {
   const t = useTranslations()
   const params = useParams()
+  const { user, logout } = useAuth()
   
   // Get current locale from params
   const locale = params?.locale as string || 'ar'
   const isRTL = locale === 'ar'
+
+  const handleLogout = async () => {
+    try {
+      await logout()
+    } catch (error) {
+      console.error('Logout error:', error)
+    }
+  }
 
   return (
     <header className="bg-white border-b border-slate-200 sticky top-0 z-30">
@@ -120,11 +130,19 @@ export function DashboardHeader({ title, description, onMenuClick }: DashboardHe
                   <div className="w-7 h-7 lg:w-8 lg:h-8 bg-emerald-600 rounded-full flex items-center justify-center">
                     <User className="w-3 h-3 lg:w-4 lg:h-4 text-white" />
                   </div>
-                  <span className="hidden lg:block">{isRTL ? "أحمد محمد" : "Ahmad Mohammad"}</span>
+                  <span className="hidden lg:block">{user?.name || (isRTL ? "المستخدم" : "User")}</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuLabel>{isRTL ? "حسابي" : "My Account"}</DropdownMenuLabel>
+                <DropdownMenuLabel>
+                  <div className="flex flex-col">
+                    <span>{user?.name || (isRTL ? "المستخدم" : "User")}</span>
+                    <span className="text-xs text-slate-500 font-normal">{user?.email}</span>
+                    {user?.role && (
+                      <span className="text-xs text-emerald-600 font-normal">{user.role.role_name}</span>
+                    )}
+                  </div>
+                </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>
                   <User className={`w-4 h-4 ${isRTL ? 'ml-2' : 'mr-2'}`} />
@@ -135,7 +153,11 @@ export function DashboardHeader({ title, description, onMenuClick }: DashboardHe
                   {isRTL ? "الإعدادات" : "Settings"}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-red-600">
+                <DropdownMenuItem 
+                  className="text-red-600 cursor-pointer"
+                  onClick={handleLogout}
+                >
+                  <LogOut className={`w-4 h-4 ${isRTL ? 'ml-2' : 'mr-2'}`} />
                   {isRTL ? "تسجيل الخروج" : "Logout"}
                 </DropdownMenuItem>
               </DropdownMenuContent>

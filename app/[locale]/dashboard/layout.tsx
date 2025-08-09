@@ -2,6 +2,7 @@
 
 import React, { useState, createContext, useContext } from "react"
 import { useParams } from "next/navigation"
+import { AuthProtectedRoute } from "@/components/protected-route"
 
 import { DashboardSidebar } from "@/components/dashboard/sidebar"
 
@@ -42,26 +43,28 @@ export default function DashboardLayout({
   }
 
   return (
-    <SidebarContext.Provider value={{ 
-      sidebarOpen, 
-      setSidebarOpen, 
-      sidebarCollapsed, 
-      setSidebarCollapsed 
-    }}>
-      <div className="min-h-screen bg-slate-50">
-        {/* Main Content */}
-        <div className={`min-h-screen transition-all duration-300 ${getMarginClass()}`}>
-          {children}
-        </div>
+    <AuthProtectedRoute>
+      <SidebarContext.Provider value={{ 
+        sidebarOpen, 
+        setSidebarOpen, 
+        sidebarCollapsed, 
+        setSidebarCollapsed 
+      }}>
+        <div className="min-h-screen bg-slate-50">
+          {/* Main Content */}
+          <div className={`min-h-screen transition-all duration-300 ${getMarginClass()}`}>
+            {children}
+          </div>
 
-        {/* Sidebar */}
-        <DashboardSidebar 
-          isOpen={sidebarOpen} 
-          onClose={() => setSidebarOpen(false)}
-          isCollapsed={sidebarCollapsed}
-          onToggleCollapse={setSidebarCollapsed}
-        />
-      </div>
-    </SidebarContext.Provider>
+          {/* Sidebar */}
+          <DashboardSidebar 
+            isOpen={sidebarOpen} 
+            onClose={() => setSidebarOpen(false)}
+            isCollapsed={sidebarCollapsed}
+            onToggleCollapse={setSidebarCollapsed}
+          />
+        </div>
+      </SidebarContext.Provider>
+    </AuthProtectedRoute>
   )
 }

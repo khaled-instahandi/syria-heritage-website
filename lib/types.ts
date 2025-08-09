@@ -42,8 +42,10 @@ export interface Mosque {
   governorate_id: number
   district_id: number
   sub_district_id: number
+  image_url?: string
   neighborhood_id: number
   address_text?: string
+  description?: string
   latitude?: number
   longitude?: number
   damage_level: "جزئي" | "كامل"
@@ -57,11 +59,14 @@ export interface Mosque {
 
 export interface Project {
   id: number
+  title?: string
   image_url?: string
   mosque_id: number
   project_category: "ترميم" | "إعادة إعمار"
   status: "قيد الدراسة" | "قيد التنفيذ" | "مكتمل"
+  cost?: number
   total_cost?: number
+  collected_amount?: number
   progress_percentage: number
   approved_by?: number
   approved_at?: string
@@ -70,7 +75,6 @@ export interface Project {
   start_date?: string
   end_date?: string
   description: string
-  
   updated_at: string
 }
 

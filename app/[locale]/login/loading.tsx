@@ -1,4 +1,4 @@
-import { Building, Sparkles } from "lucide-react"
+import { Building2, Sparkles } from "lucide-react"
 
 export default function LoginLoading() {
   return (
@@ -14,7 +14,7 @@ export default function LoginLoading() {
       <div className="text-center relative z-10">
         <div className="flex items-center justify-center space-x-3 rtl:space-x-reverse mb-6">
           <div className="w-12 h-12 bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-xl flex items-center justify-center shadow-lg animate-pulse">
-            <Building className="w-7 h-7 text-white" />
+            <Building2 className="w-7 h-7 text-white" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-slate-800">إحياء تراث سوريا</h1>

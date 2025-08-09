@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -12,10 +12,12 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Eye, EyeOff, Lock, Mail, Building, Sparkles, AlertCircle } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { useAuth } from "@/hooks/use-auth"
 
 export default function LoginPage() {
   const t = useTranslations()
   const router = useRouter()
+  const { login, isAuthenticated, isLoading: authLoading } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
@@ -24,31 +26,42 @@ export default function LoginPage() {
     password: "",
   })
 
+  // إعادة توجيه إذا كان المستخدم مسجل دخول مسبقاً
+  useEffect(() => {
+    if (!authLoading && isAuthenticated) {
+      router.push("/dashboard")
+    }
+  }, [isAuthenticated, authLoading, router])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setError("")
 
     try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      })
-
-      const data = await response.json()
-
-      if (response.ok) {
-        localStorage.setItem("token", data.token)
-        localStorage.setItem("user", JSON.stringify(data.user))
-        router.push("/dashboard")
-      } else {
-        setError(data.message || t("login.errors.general"))
+      console.log('Attempting login with email:', formData.email)
+      await login(formData.email, formData.password)
+      // سيتم إعادة التوجيه تلقائياً بواسطة useAuth
+    } catch (error: any) {
+      console.error('Login error:', error)
+      
+      let errorMessage = "حدث خطأ أثناء تسجيل الدخول"
+      
+      if (error.message) {
+        if (error.message.includes('Failed to fetch') || 
+            error.message.includes('ERR_CERT_COMMON_NAME_INVALID') ||
+            error.message.includes('فشل في الاتصال')) {
+          errorMessage = "فشل في الاتصال بالخادم. تحقق من الاتصال بالإنترنت."
+        } else if (error.status === 401) {
+          errorMessage = "البريد الإلكتروني أو كلمة المرور غير صحيحة"
+        } else if (error.status === 422) {
+          errorMessage = "البيانات المدخلة غير صحيحة"
+        } else {
+          errorMessage = error.message
+        }
       }
-    } catch (error) {
-      setError(t("login.errors.connection"))
+      
+      setError(errorMessage)
     } finally {
       setIsLoading(false)
     }

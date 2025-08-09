@@ -2,6 +2,8 @@ import type React from "react"
 import { NextIntlClientProvider } from "next-intl"
 import { getMessages } from "next-intl/server"
 import { Cairo } from "next/font/google"
+import { AuthProvider } from "@/hooks/use-auth"
+import { Toaster } from "@/components/ui/sonner"
 import "./globals.css"
 
 const cairo = Cairo({ 
@@ -37,7 +39,14 @@ export default async function LocaleLayout({
     <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>
       <body className={cairo.className}>
         <NextIntlClientProvider locale={locale} messages={messages}>
-          {children}
+          <AuthProvider>
+            {children}
+            <Toaster 
+              position={locale === "ar" ? "top-left" : "top-right"}
+              richColors
+              closeButton
+            />
+          </AuthProvider>
         </NextIntlClientProvider>
       </body>
     </html>

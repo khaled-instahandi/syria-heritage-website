@@ -93,7 +93,7 @@ export default function MosquesPage() {
               >
                 <div className="relative overflow-hidden">
                   <Image
-                    src={mainImage || "/placeholder.svg"}
+                    src={mosque.image_url || "/placeholder.svg"}
                     alt={mosque.name}
                     width={400}
                     height={250}
@@ -150,12 +150,14 @@ export default function MosquesPage() {
                         </Button>
                       </Link>
                     )}
-                    <Button
-                      variant="outline"
-                      className="border-2 border-slate-300 hover:border-emerald-600 hover:text-emerald-600 transition-all duration-300 bg-transparent"
-                    >
-                      التفاصيل
-                    </Button>
+                    <Link href={`/mosques/${mosque.id}`}>
+                      <Button
+                        variant="outline"
+                        className="border-2 border-slate-300 hover:border-emerald-600 hover:text-emerald-600 transition-all duration-300 bg-transparent"
+                      >
+                        التفاصيل
+                      </Button>
+                    </Link>
                   </div>
                 </CardContent>
               </Card>

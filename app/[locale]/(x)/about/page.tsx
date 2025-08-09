@@ -19,8 +19,8 @@ export default function AboutPage() {
       <MissionVision />
       <ValuesSection />
       <ObjectivesSection />
-      <TimelineSection />
-      <TeamSection />
+      {/* <TimelineSection /> */}
+      {/* <TeamSection /> */}
       <AchievementsSection />
 
       {/* Call to Action Section */}

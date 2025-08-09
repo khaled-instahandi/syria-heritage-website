@@ -79,6 +79,78 @@
     "damageLevel": {
       "partial": "Partial Damage",
       "complete": "Complete Damage"
+    },
+    "details": {
+      "loading": "Loading mosque data...",
+      "notFound": "Mosque not found",
+      "notFoundDesc": "The requested mosque was not found",
+      "backToMosques": "Back to mosques list",
+      "backToMosquesList": "Back to Mosques",
+      "activeProjects": "Active Projects",
+      "estimatedCost": "Estimated Cost",
+      "undefined": "Undefined",
+      "tabs": {
+        "overview": "Overview",
+        "projects": "Projects",
+        "donations": "Donations",
+        "gallery": "Gallery"
+      },
+      "overview": {
+        "description": "Mosque Description",
+        "projectsProgress": "Projects Progress",
+        "totalRaised": "Total Amount Raised",
+        "totalTarget": "Total Target",
+        "completionRate": "Completion Rate",
+        "specifications": "Mosque Specifications",
+        "damageType": "Damage Type",
+        "status": "Status",
+        "governorate": "Governorate",
+        "district": "District",
+        "registrationDate": "Registration Date",
+        "lastUpdate": "Last Update"
+      },
+      "projects": {
+        "title": "Projects",
+        "noProjects": "No projects",
+        "noProjectsDesc": "No projects are currently associated with this mosque",
+        "raised": "Raised",
+        "target": "Target",
+        "completionRate": "Completion Rate",
+        "startDate": "Start Date",
+        "endDate": "End Date",
+        "viewDetails": "View Details",
+        "donate": "Donate"
+      },
+      "donations": {
+        "title": "Donations",
+        "noDonations": "No donations",
+        "noDonationsDesc": "No donations are currently registered for this mosque",
+        "totalDonations": "Total Donations",
+        "totalAmount": "Total Amount",
+        "averageDonation": "Average Donation",
+        "latestDonations": "Latest Donations",
+        "anonymousDonor": "Anonymous Donor"
+      },
+      "gallery": {
+        "title": "Gallery",
+        "noImages": "No images",
+        "noImagesDesc": "No images are currently available for this mosque",
+        "imageAlt": "Image {number} of the mosque"
+      },
+      "sidebar": {
+        "quickActions": "Quick Actions",
+        "donateToMosque": "Donate to Mosque",
+        "share": "Share",
+        "downloadReport": "Download Report",
+        "viewOnMap": "View on Map",
+        "contactInfo": "Contact Information",
+        "phone": "Phone",
+        "email": "Email",
+        "website": "Website",
+        "visitingHours": "Visiting Hours",
+        "dailyHours": "Daily 9:00 AM - 5:00 PM",
+        "relatedMosques": "Other Mosques in the Area"
+      }
     }
   },
   "dashboard": {
@@ -139,6 +211,148 @@
         "secondary": "Learn More"
       }
     },
+    "missionVision": {
+      "title": "Our Mission & Vision",
+      "subtitle": "Defining our path towards reviving Islamic architectural heritage in Syria",
+      "mission": {
+        "title": "Our Mission",
+        "description": "We strive to revive Islamic architectural heritage in Syria by documenting damaged mosques and organizing reconstruction and restoration efforts with transparency and high professionalism"
+      },
+      "vision": {
+        "title": "Our Vision",
+        "description": "To be the primary reference in documenting and reconstructing Syrian mosques, contributing to preserving Syria's cultural and religious identity"
+      }
+    },
+    "values": {
+      "title": "Our Core Values",
+      "subtitle": "The principles that guide our work towards reviving Syrian heritage",
+      "items": {
+        "heritage": {
+          "title": "Heritage Preservation",
+          "description": "We are committed to preserving authentic Islamic architectural heritage and maintaining its historical identity"
+        },
+        "community": {
+          "title": "Community",
+          "description": "We believe in the importance of involving the local community in all stages of reconstruction and restoration"
+        },
+        "authenticity": {
+          "title": "Authenticity",
+          "description": "We preserve the original architectural character of historical mosques in all restoration work"
+        },
+        "innovation": {
+          "title": "Innovation",
+          "description": "We use the latest technologies and innovative methods in documenting and reconstructing mosques"
+        }
+      }
+    },
+    "objectives": {
+      "title": "Our Strategic Objectives",
+      "subtitle": "The goals we strive to achieve in our journey to revive Syrian heritage",
+      "badge": "Objective",
+      "items": {
+        "documentation": {
+          "title": "Comprehensive Documentation",
+          "description": "Comprehensive and accurate documentation of all damaged mosques in Syria with recording of their historical and architectural details"
+        },
+        "restoration": {
+          "title": "Professional Restoration",
+          "description": "Reconstruction and restoration of mosques according to the highest heritage and professional standards"
+        },
+        "education": {
+          "title": "Education & Awareness",
+          "description": "Raising awareness about the importance of Islamic architectural heritage and methods of preserving it"
+        },
+        "community": {
+          "title": "Community Engagement",
+          "description": "Involving the local community and institutions in the reconstruction process and heritage preservation"
+        },
+        "technology": {
+          "title": "Modern Technologies",
+          "description": "Using the latest technologies in documentation and restoration to ensure accuracy and high quality"
+        },
+        "partnerships": {
+          "title": "Effective Partnerships",
+          "description": "Building strong partnerships with local and international institutions to enhance reconstruction efforts"
+        }
+      }
+    },
+    "timeline": {
+      "title": "Initiative Journey",
+      "subtitle": "Our journey through the years in reviving Syrian architectural heritage",
+      "badge": "Timeline",
+      "items": {
+        "launch": {
+          "title": "Initiative Launch",
+          "description": "Establishment of the initiative and beginning of initial documentation work for damaged mosques in Syria"
+        },
+        "expansion": {
+          "title": "Scope Expansion",
+          "description": "Expanding work to include new governorates and increasing the number of registered mosques"
+        },
+        "digitization": {
+          "title": "Digitization & Development",
+          "description": "Developing the digital platform and updating documentation and monitoring systems"
+        },
+        "partnerships": {
+          "title": "International Partnerships",
+          "description": "Establishing strategic partnerships with international organizations and heritage institutions"
+        },
+        "future": {
+          "title": "The Future",
+          "description": "Future plans to expand the initiative and develop specialized training programs"
+        }
+      }
+    },
+    "team": {
+      "title": "Our Specialized Team",
+      "subtitle": "Elite experts and specialists in Islamic architectural heritage",
+      "badge": "Our Team",
+      "members": {
+        "director": {
+          "name": "Dr. Ahmed Al Hassan",
+          "role": "Initiative Director",
+          "bio": "Expert in Islamic architectural heritage with over 20 years of experience in restoration"
+        },
+        "architect": {
+          "name": "Eng. Fatima Al Zahra",
+          "role": "Architect",
+          "bio": "Specialist in heritage architecture with extensive experience in restoring historical buildings"
+        },
+        "historian": {
+          "name": "Dr. Mohammed Al Turathi",
+          "role": "Architectural Historian",
+          "bio": "Researcher in Islamic architecture history and author of several books on Syrian heritage"
+        },
+        "developer": {
+          "name": "Eng. Sara Al Taqnia",
+          "role": "Software Developer",
+          "bio": "Expert in developing digital platforms and heritage database management systems"
+        }
+      }
+    },
+    "achievements": {
+      "title": "Our Distinguished Achievements",
+      "subtitle": "The results we have achieved since the initiative's launch in reconstruction",
+      "badge": "Achievements",
+      "items": {
+        "mosques": {
+          "title": "Documented Mosques",
+          "description": "Mosques documented and registered in the database"
+        },
+        "volunteers": {
+          "title": "Active Volunteers",
+          "description": "Volunteers contributing to various initiative activities"
+        },
+        "awards": {
+          "title": "Awards & Recognition",
+          "description": "Awards received by the initiative locally and internationally"
+        },
+        "years": {
+          "title": "Years of Work",
+          "description": "Years of continuous work in heritage service"
+        }
+      }
+    },
     "mission": {
       "title": "Our Mission",
       "description": "We strive to revive Islamic architectural heritage in Syria by documenting damaged mosques and organizing reconstruction and restoration efforts with transparency and high professionalism"
@@ -146,65 +360,6 @@
     "vision": {
       "title": "Our Vision",
       "description": "To be the primary reference in documenting and reconstructing Syrian mosques, contributing to preserving Syria's cultural and religious identity"
-    },
-    "values": {
-      "title": "Our Values",
-      "transparency": {
-        "title": "Transparency",
-        "description": "We commit to complete transparency in all our financial and administrative operations"
-      },
-      "authenticity": {
-        "title": "Authenticity",
-        "description": "We preserve the original architectural character of historical mosques"
-      },
-      "quality": {
-        "title": "Quality",
-        "description": "We ensure the highest quality standards in restoration and reconstruction work"
-      },
-      "collaboration": {
-        "title": "Collaboration",
-        "description": "We work as a team with all partners and volunteers"
-      }
-    },
-    "objectives": {
-      "title": "Our Objectives",
-      "documentation": "Comprehensive documentation of all damaged mosques in Syria",
-      "reconstruction": "Reconstruction and restoration of mosques according to heritage standards",
-      "fundraising": "Fundraising from diverse and reliable sources",
-      "transparency": "Ensuring transparency in the use of donations",
-      "heritage": "Preserving Islamic architectural heritage",
-      "community": "Engaging the community in the reconstruction process"
-    },
-    "team": {
-      "title": "Our Team",
-      "description": "Our team includes elite engineers, architects, and experts in Islamic heritage"
-    },
-    "achievements": {
-      "title": "Our Achievements",
-      "description": "Since the initiative's launch, we have achieved significant milestones in reconstruction"
-    },
-    "timeline": {
-      "title": "Initiative Journey",
-      "2020": {
-        "title": "Initiative Launch",
-        "description": "Establishment of the initiative and beginning of initial documentation work"
-      },
-      "2021": {
-        "title": "First Reconstruction Project",
-        "description": "Completion of the first historical mosque reconstruction project"
-      },
-      "2022": {
-        "title": "Scope Expansion",
-        "description": "Expanding work to include new governorates"
-      },
-      "2023": {
-        "title": "International Partnerships",
-        "description": "Establishing partnerships with international organizations"
-      },
-      "2024": {
-        "title": "Digital Platform",
-        "description": "Launch of the comprehensive digital platform"
-      }
     },
     "partners": {
       "title": "Our Partners",
