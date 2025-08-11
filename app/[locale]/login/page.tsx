@@ -44,23 +44,11 @@ export default function LoginPage() {
       // سيتم إعادة التوجيه تلقائياً بواسطة useAuth
     } catch (error: any) {
       console.error('Login error:', error)
-      
+
       let errorMessage = "حدث خطأ أثناء تسجيل الدخول"
-      
-      if (error.message) {
-        if (error.message.includes('Failed to fetch') || 
-            error.message.includes('ERR_CERT_COMMON_NAME_INVALID') ||
-            error.message.includes('فشل في الاتصال')) {
-          errorMessage = "فشل في الاتصال بالخادم. تحقق من الاتصال بالإنترنت."
-        } else if (error.status === 401) {
-          errorMessage = "البريد الإلكتروني أو كلمة المرور غير صحيحة"
-        } else if (error.status === 422) {
-          errorMessage = "البيانات المدخلة غير صحيحة"
-        } else {
-          errorMessage = error.message
-        }
-      }
-      
+
+
+
       setError(errorMessage)
     } finally {
       setIsLoading(false)

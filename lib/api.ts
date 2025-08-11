@@ -48,6 +48,15 @@ const BASE_URL_HTTP = process.env.NEXT_PUBLIC_API_BASE_URL_HTTP || 'http://back-
 // استخدام proxy في التطوير لتجنب مشاكل CORS/SSL
 const PROXY_URL = '/api/proxy'
 
+// تحديد URL المناسب حسب البيئة
+const getApiUrl = () => {
+  if (process.env.NODE_ENV === 'development') {
+    // في التطوير، استخدم الـ proxy لتجنب مشاكل CORS/SSL
+    return PROXY_URL
+  }
+  return BASE_URL
+}
+
 // فئة إدارة الباك اند
 class ApiClient {
   private baseURL: string
@@ -169,7 +178,7 @@ class ApiClient {
 
   // طلب GET
   async get<T>(endpoint: string, showErrorToast: boolean = true): Promise<T> {
-    const apiUrl = process.env.NODE_ENV === 'development' ? BASE_URL_HTTP : this.baseURL
+    const apiUrl = getApiUrl()
     
     try {
       const response = await fetch(`${apiUrl}${endpoint}`, {
@@ -186,7 +195,7 @@ class ApiClient {
 
   // طلب POST
   async post<T>(endpoint: string, data?: any, showErrorToast: boolean = true): Promise<T> {
-    const apiUrl = process.env.NODE_ENV === 'development' ? BASE_URL_HTTP : this.baseURL
+    const apiUrl = getApiUrl()
     
     try {
       const response = await fetch(`${apiUrl}${endpoint}`, {
@@ -204,50 +213,51 @@ class ApiClient {
 
   // طلب POST مع FormData
   async postForm<T>(endpoint: string, formData: FormData, showErrorToast: boolean = true): Promise<T> {
-    // تجربة عدة URLs بترتيب الأولوية
-    const urlsToTry = []
+    const apiUrl = getApiUrl()
     
-    if (process.env.NODE_ENV === 'development') {
-      // في التطوير، نجرب بالترتيب: Proxy -> HTTP -> HTTPS
-      urlsToTry.push(PROXY_URL, BASE_URL_HTTP, this.baseURL)
-    } else {
-      // في الإنتاج، نستخدم HTTPS فقط
-      urlsToTry.push(this.baseURL)
-    }
-    
-    let lastError: any = null
-    
-    for (const url of urlsToTry) {
-      try {
-        console.log(`Trying to connect to: ${url}${endpoint}`)
-        const response = await fetch(`${url}${endpoint}`, {
-          method: 'POST',
-          headers: this.getFormHeaders(),
-          body: formData,
-        })
+    try {
+      console.log(`Sending FormData to: ${apiUrl}${endpoint}`)
+      const response = await fetch(`${apiUrl}${endpoint}`, {
+        method: 'POST',
+        headers: this.getFormHeaders(),
+        body: formData,
+      })
 
-        return await this.handleResponse<T>(response)
-      } catch (error: any) {
-        console.warn(`Failed to connect to ${url}:`, error.message)
-        lastError = error
-        continue
+      return await this.handleResponse<T>(response)
+    } catch (error: any) {
+      console.warn(`Failed to connect:`, error.message)
+      
+      // إذا فشلت المحاولة الأولى في التطوير، جرب HTTP مباشرة
+      if (process.env.NODE_ENV === 'development' && apiUrl === PROXY_URL) {
+        try {
+          console.log(`Retrying with HTTP: ${BASE_URL_HTTP}${endpoint}`)
+          const response = await fetch(`${BASE_URL_HTTP}${endpoint}`, {
+            method: 'POST',
+            headers: this.getFormHeaders(),
+            body: formData,
+          })
+
+          return await this.handleResponse<T>(response)
+        } catch (httpError: any) {
+          console.warn(`HTTP fallback also failed:`, httpError.message)
+        }
       }
+      
+      // معالجة الخطأ النهائي
+      const customError = {
+        message: 'فشل في الاتصال بالخادم. تحقق من أن الخادم يعمل.',
+        status: 0,
+        originalError: error
+      }
+      
+      this.handleError(customError, showErrorToast)
+      throw customError
     }
-    
-    // إذا فشلت جميع المحاولات
-    const customError = {
-      message: 'فشل في الاتصال بالخادم من جميع المسارات المتاحة. تحقق من أن الخادم يعمل.',
-      status: 0,
-      originalError: lastError
-    }
-    
-    this.handleError(customError, showErrorToast)
-    throw customError
   }
 
   // طلب PUT
   async put<T>(endpoint: string, data?: any, showErrorToast: boolean = true): Promise<T> {
-    const apiUrl = process.env.NODE_ENV === 'development' ? BASE_URL_HTTP : this.baseURL
+    const apiUrl = getApiUrl()
     
     try {
       const response = await fetch(`${apiUrl}${endpoint}`, {
@@ -265,7 +275,7 @@ class ApiClient {
 
   // طلب DELETE
   async delete<T>(endpoint: string, showErrorToast: boolean = true): Promise<T> {
-    const apiUrl = process.env.NODE_ENV === 'development' ? BASE_URL_HTTP : this.baseURL
+    const apiUrl = getApiUrl()
     
     try {
       const response = await fetch(`${apiUrl}${endpoint}`, {

@@ -48,33 +48,33 @@ export default function DashboardLayout({
   }
 
   return (
-    // <AuthProtectedRoute>
-    <SidebarContext.Provider value={{
-      sidebarOpen,
-      setSidebarOpen,
-      sidebarCollapsed,
-      setSidebarCollapsed,
-      navigateWithLoading
-    }}>
-      <div className="min-h-screen bg-slate-50">
-        {/* Navigation Loading Overlay */}
-        {isLoading && <NavigationLoading />}
+    <AuthProtectedRoute>
+      <SidebarContext.Provider value={{
+        sidebarOpen,
+        setSidebarOpen,
+        sidebarCollapsed,
+        setSidebarCollapsed,
+        navigateWithLoading
+      }}>
+        <div className="min-h-screen bg-slate-50">
+          {/* Navigation Loading Overlay */}
+          {isLoading && <NavigationLoading />}
 
-        {/* Main Content */}
-        <div className={`min-h-screen transition-all duration-300 ${getMarginClass()}`}>
-          {children}
+          {/* Main Content */}
+          <div className={`min-h-screen transition-all duration-300 ${getMarginClass()}`}>
+            {children}
+          </div>
+
+          {/* Sidebar */}
+          <DashboardSidebar
+            isOpen={sidebarOpen}
+            onClose={() => setSidebarOpen(false)}
+            isCollapsed={sidebarCollapsed}
+            onToggleCollapse={setSidebarCollapsed}
+            navigateWithLoading={navigateWithLoading}
+          />
         </div>
-
-        {/* Sidebar */}
-        <DashboardSidebar
-          isOpen={sidebarOpen}
-          onClose={() => setSidebarOpen(false)}
-          isCollapsed={sidebarCollapsed}
-          onToggleCollapse={setSidebarCollapsed}
-          navigateWithLoading={navigateWithLoading}
-        />
-      </div>
-    </SidebarContext.Provider>
-    // </AuthProtectedRoute>
+      </SidebarContext.Provider>
+    </AuthProtectedRoute>
   )
 }
