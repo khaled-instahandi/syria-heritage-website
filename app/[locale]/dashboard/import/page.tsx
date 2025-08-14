@@ -33,6 +33,7 @@ import { ImportedMosque, ImportedMosquesResponse } from "@/types/imported-mosque
 import { ImportedMosquesService } from "@/lib/services/imported-mosques"
 import { MosqueDetailsDialog } from "@/components/ui/mosque-details-dialog"
 import { EditImportedMosqueDialog } from "@/components/ui/edit-imported-mosque-dialog"
+import { DeleteConfirmationDialog } from "@/components/ui/delete-confirmation-dialog"
 
 // Types for imported mosque data are now imported from types file
 
@@ -51,6 +52,8 @@ export default function ImportedMosquesPage() {
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [mosqueToEdit, setMosqueToEdit] = useState<ImportedMosque | null>(null)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [mosqueToDelete, setMosqueToDelete] = useState<ImportedMosque | null>(null)
 
   // Fetch imported mosques data
   const fetchImportedMosques = async () => {
@@ -159,12 +162,8 @@ export default function ImportedMosquesPage() {
 
   // Delete imported mosque
   const deleteImportedMosque = async (mosqueId: number) => {
-    if (!confirm("هل أنت متأكد من حذف هذا المسجد؟ لا يمكن التراجع عن هذا الإجراء.")) {
-      return
-    }
-
     setIsDeleting(prev => ({ ...prev, [mosqueId]: true }))
-
+    
     try {
       await ImportedMosquesService.deleteImportedMosque(mosqueId)
       toast({
@@ -181,6 +180,15 @@ export default function ImportedMosquesPage() {
       })
     } finally {
       setIsDeleting(prev => ({ ...prev, [mosqueId]: false }))
+      setIsDeleteDialogOpen(false)
+      setMosqueToDelete(null)
+    }
+  }
+
+  // Handle delete confirmation
+  const handleDeleteConfirm = () => {
+    if (mosqueToDelete) {
+      deleteImportedMosque(mosqueToDelete.id)
     }
   }
 
@@ -366,12 +374,13 @@ export default function ImportedMosquesPage() {
                         className="hidden"
                         id="file-upload"
                       />
-                      <label htmlFor="file-upload">
-                        <Button className="bg-emerald-600 hover:bg-emerald-700 cursor-pointer">
-                          <Upload className="w-4 h-4 ml-2" />
-                          اختيار ملف
-                        </Button>
-                      </label>
+                      <Button 
+                        className="bg-emerald-600 hover:bg-emerald-700"
+                        onClick={() => document.getElementById('file-upload')?.click()}
+                      >
+                        <Upload className="w-4 h-4 ml-2" />
+                        اختيار ملف
+                      </Button>
                     </div>
                   </div>
                 )}
@@ -612,7 +621,10 @@ export default function ImportedMosquesPage() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => deleteImportedMosque(mosque.id)}
+                              onClick={() => {
+                                setMosqueToDelete(mosque)
+                                setIsDeleteDialogOpen(true)
+                              }}
                               disabled={isDeleting[mosque.id]}
                               className="text-red-600 hover:text-red-700 hover:bg-red-50"
                               title="حذف المسجد"
@@ -692,6 +704,19 @@ export default function ImportedMosquesPage() {
           setMosqueToEdit(null)
         }}
         onUpdate={fetchImportedMosques}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <DeleteConfirmationDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={() => {
+          setIsDeleteDialogOpen(false)
+          setMosqueToDelete(null)
+        }}
+        onConfirm={handleDeleteConfirm}
+        itemName={mosqueToDelete?.name_ar}
+        isLoading={mosqueToDelete ? isDeleting[mosqueToDelete.id] || false : false}
+        description={`هل أنت متأكد من حذف مسجد "${mosqueToDelete?.name_ar}"؟ سيتم حذف جميع البيانات المرتبطة به نهائياً.`}
       />
     </div>
   )

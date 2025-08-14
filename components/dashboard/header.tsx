@@ -70,13 +70,13 @@ export function DashboardHeader({ title, description, onMenuClick }: DashboardHe
           {/* Right Section for LTR / Left Section for RTL */}
           <div className="flex items-center gap-2 lg:gap-4 flex-shrink-0">
             {/* Search - Hidden on mobile */}
-            <div className="relative hidden lg:block">
+            {/* <div className="relative hidden lg:block">
               <Search className={`absolute ${isRTL ? 'right-3' : 'left-3'} top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4`} />
               <Input 
                 placeholder={isRTL ? "بحث..." : "Search..."} 
                 className={`${isRTL ? 'pr-10' : 'pl-10'} w-48 xl:w-64`} 
               />
-            </div>
+            </div> */}
 
             {/* Language Switcher */}
             <div className="hidden md:block">
@@ -84,7 +84,7 @@ export function DashboardHeader({ title, description, onMenuClick }: DashboardHe
             </div>
 
             {/* Notifications */}
-            <DropdownMenu>
+            {/* <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="relative">
                   <Bell className="w-4 h-4 lg:w-5 lg:h-5" />
@@ -121,7 +121,7 @@ export function DashboardHeader({ title, description, onMenuClick }: DashboardHe
                   </div>
                 </DropdownMenuItem>
               </DropdownMenuContent>
-            </DropdownMenu>
+            </DropdownMenu> */}
 
             {/* User Menu */}
             <DropdownMenu>
@@ -144,14 +144,14 @@ export function DashboardHeader({ title, description, onMenuClick }: DashboardHe
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                {/* <DropdownMenuItem>
                   <User className={`w-4 h-4 ${isRTL ? 'ml-2' : 'mr-2'}`} />
                   {isRTL ? "الملف الشخصي" : "Profile"}
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                   <Settings className={`w-4 h-4 ${isRTL ? 'ml-2' : 'mr-2'}`} />
                   {isRTL ? "الإعدادات" : "Settings"}
-                </DropdownMenuItem>
+                </DropdownMenuItem> */}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem 
                   className="text-red-600 cursor-pointer"

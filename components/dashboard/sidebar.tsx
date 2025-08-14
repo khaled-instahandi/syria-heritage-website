@@ -21,6 +21,7 @@ import {
   LogOut,
   Home,
 } from "lucide-react"
+import { useAuth } from "@/hooks/use-auth"
 
 interface DashboardSidebarProps {
   isOpen?: boolean
@@ -44,7 +45,15 @@ export function DashboardSidebar({
   // Get current locale from params
   const locale = params?.locale as string || 'ar'
   const isRTL = locale === 'ar'
+  const { user, logout } = useAuth()
 
+  const handleLogout = async () => {
+    try {
+      await logout()
+    } catch (error) {
+      console.error('Logout error:', error)
+    }
+  }
   const menuItems = [
     {
       title: t("dashboard.overview"),
@@ -238,6 +247,7 @@ export function DashboardSidebar({
           {/* Footer */}
           <div className="p-4 border-t border-slate-200">
             <Button
+              onClick={handleLogout}
               variant="ghost"
               className={`w-full ${isRTL ? 'justify-start' : 'justify-start'} gap-3 text-red-600 hover:text-red-700 hover:bg-red-50 ${
                 isDesktopCollapsed ? "lg:px-2" : "px-4"
