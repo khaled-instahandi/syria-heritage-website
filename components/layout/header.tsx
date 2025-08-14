@@ -52,21 +52,21 @@ export function Header() {
             <LocaleSwitcher />
 
             {/* Authentication Button */}
-            {/* {isAuthenticated ? ( */}
+            {isAuthenticated ? (
               <Link href="/dashboard">
                 <Button className="hidden sm:flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white shadow-lg hover:shadow-xl transition-all duration-300">
                   <User className="w-4 h-4" />
                   {t("navigation.dashboard")}
                 </Button>
               </Link>
-            {/* ) : (
+            ) : (
               <Link href="/login">
                 <Button className="hidden sm:flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white shadow-lg hover:shadow-xl transition-all duration-300">
                   <LogIn className="w-4 h-4" />
                   {t("navigation.login")}
                 </Button>
               </Link>
-            )} */}
+            )}
 
             {/* Mobile Menu Button */}
             <Button variant="ghost" size="sm" className="md:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
@@ -96,12 +96,12 @@ export function Header() {
               </Link>
               <div className="pt-2">
                 {/* {isAuthenticated ? ( */}
-                  <Link href="/dashboard">
-                    <Button className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 text-white">
-                      <User className="w-4 h-4 ml-2" />
-                      {t("navigation.dashboard")}
-                    </Button>
-                  </Link>
+                <Link href="/dashboard">
+                  <Button className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 text-white">
+                    <User className="w-4 h-4 ml-2" />
+                    {t("navigation.dashboard")}
+                  </Button>
+                </Link>
                 {/* ) : (
                   <Link href="/login">
                     <Button className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 text-white">
