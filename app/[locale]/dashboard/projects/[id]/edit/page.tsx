@@ -1,8 +1,9 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback, useMemo } from "react"
 import { useRouter, useParams } from "next/navigation"
 import { useMosques } from '../../../../../../hooks/use-mosques'
+import { useProjects } from '../../../../../../hooks/use-projects'
 import { toast } from "sonner"
 import Link from "next/link"
 import { useTranslations } from "next-intl"
@@ -16,17 +17,18 @@ import { Textarea } from "../../../../../../components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../../../../components/ui/select"
 import { SearchableSelect } from "../../../../../../components/ui/searchable-select"
 import { Alert, AlertDescription } from "../../../../../../components/ui/alert"
-import { ArrowRight, AlertCircle, Building, DollarSign, Calendar, Save, Loader2, Target } from "lucide-react"
-import api from "../../../../../../lib/api"
+import { ArrowRight, AlertCircle, Building, DollarSign, Calendar, Save, Loader2, Target, RefreshCw } from "lucide-react"
 
 export default function EditProjectPage() {
   const router = useRouter()
   const params = useParams()
   const projectId = params.id as string
   const { mosques, isLoading: isLoadingMosques } = useMosques()
+  const { updateProject, projects, loading: projectsLoading } = useProjects({ autoFetch: true })
 
   const [isLoading, setIsLoading] = useState(false)
   const [isPageLoading, setIsPageLoading] = useState(true)
+  const [project, setProject] = useState<Project | null>(null)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
   const [formData, setFormData] = useState({
@@ -35,53 +37,50 @@ export default function EditProjectPage() {
     status: "قيد الدراسة",
     total_cost: "",
     progress_percentage: "0",
-    description: "",
-    start_date: "",
-    end_date: "",
-    priority: "medium",
-    objectives: "",
-    expected_outcomes: "",
-    required_materials: "",
-    team_members: "",
-    milestones: "",
   })
 
   // جلب بيانات المشروع
   useEffect(() => {
-    const fetchProject = async () => {
-      if (!projectId) return
+    const findProject = () => {
+      if (!projectId || projectsLoading) return
+      
+      // إذا كان المشروع محمل مسبقاً ولم يتغير ID، لا نعيد التحميل
+      if (project && project.id === parseInt(projectId)) {
+        setIsPageLoading(false)
+        return
+      }
       
       setIsPageLoading(true)
+      setError("")
+      
       try {
-        const response = await api.getProject(parseInt(projectId))
-        const project = response.data
+        // البحث عن المشروع المطلوب
+        const foundProject = projects.find(p => p.id === parseInt(projectId))
         
-        setFormData({
-          mosque_id: project.mosque_id?.toString() || "",
-          project_category: project.project_category,
-          status: project.status,
-          total_cost: project.total_cost?.toString() || "",
-          progress_percentage: project.progress_percentage?.toString() || "0",
-          description: "",
-          start_date: "",
-          end_date: "",
-          priority: "medium",
-          objectives: "",
-          expected_outcomes: "",
-          required_materials: "",
-          team_members: "",
-          milestones: "",
-        })
+        if (foundProject) {
+          setProject(foundProject)
+          setFormData({
+            mosque_id: foundProject.mosque_id?.toString() || "",
+            project_category: foundProject.project_category,
+            status: foundProject.status,
+            total_cost: foundProject.total_cost?.toString() || "",
+            progress_percentage: foundProject.progress_percentage?.toString() || "0",
+          })
+        } else if (!projectsLoading && projects.length > 0) {
+          setError('المشروع غير موجود')
+        }
       } catch (error: any) {
-        console.error('Error fetching project:', error)
+        console.error('Error finding project:', error)
         setError('خطأ في جلب بيانات المشروع')
       } finally {
-        setIsPageLoading(false)
+        if (!projectsLoading) {
+          setIsPageLoading(false)
+        }
       }
     }
 
-    fetchProject()
-  }, [projectId])
+    findProject()
+  }, [projectId, projects, projectsLoading, project])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -91,39 +90,65 @@ export default function EditProjectPage() {
     }))
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Memoized mosque data for current project
+  const currentMosque = useMemo(() => {
+    return project ? mosques.find(m => m.id === project.mosque_id) : null
+  }, [project, mosques])
+
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setError("")
     setSuccess("")
 
     try {
+      // التحقق من البيانات المطلوبة
+      if (!formData.mosque_id) {
+        setError("يرجى اختيار المسجد")
+        return
+      }
+
+      if (!formData.total_cost) {
+        setError("يرجى إدخال التكلفة الإجمالية")
+        return
+      }
+
       const saveData: UpdateProjectData = {
         mosque_id: parseInt(formData.mosque_id),
         project_category: formData.project_category as "ترميم" | "إعادة إعمار",
         status: formData.status as "قيد الدراسة" | "قيد التنفيذ" | "مكتمل",
         total_cost: formData.total_cost,
-        progress_percentage: parseInt(formData.progress_percentage)
+        progress_percentage: parseInt(formData.progress_percentage) || 0,
       }
 
-      await api.updateProject(parseInt(projectId), saveData)
-      setSuccess("تم تحديث بيانات المشروع بنجاح!")
+      const result = await updateProject(parseInt(projectId), saveData)
+      
+      if (result) {
+        setSuccess("تم تحديث بيانات المشروع بنجاح!")
+        toast.success("تم تحديث المشروع بنجاح!")
 
-      setTimeout(() => {
-        router.push("/dashboard/projects")
-      }, 1500)
+        setTimeout(() => {
+          router.push("/dashboard/projects")
+        }, 1500)
+      } else {
+        setError("حدث خطأ أثناء تحديث المشروع")
+      }
     } catch (err: any) {
       const errorMessage = err.message || "حدث خطأ أثناء تحديث المشروع. يرجى المحاولة مرة أخرى."
       setError(errorMessage)
+      toast.error(errorMessage)
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [formData, projectId, updateProject, router])
 
-  if (isPageLoading) {
+  if (isPageLoading || projectsLoading) {
     return (
       <div className="min-h-screen">
-        <DashboardHeader title="تحديث المشروع" description="جاري تحميل بيانات المشروع..." />
+        <DashboardHeader 
+          title="تحديث المشروع" 
+          description="جاري تحميل بيانات المشروع..." 
+        />
         <div className="flex items-center justify-center py-20">
           <div className="text-center">
             <Loader2 className="w-8 h-8 animate-spin text-emerald-600 mx-auto mb-4" />
@@ -134,9 +159,39 @@ export default function EditProjectPage() {
     )
   }
 
+  if (error && !project) {
+    return (
+      <div className="min-h-screen">
+        <DashboardHeader 
+          title="خطأ في تحميل المشروع" 
+          description="لم يتم العثور على المشروع المطلوب" 
+        />
+        <div className="p-6">
+          <div className="max-w-4xl mx-auto">
+            <Alert className="border-red-200 bg-red-50">
+              <AlertCircle className="h-4 w-4 text-red-600" />
+              <AlertDescription className="text-red-800">{error}</AlertDescription>
+            </Alert>
+            <div className="mt-6">
+              <Link href="/dashboard/projects">
+                <Button variant="outline">
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                  العودة إلى قائمة المشاريع
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen">
-      <DashboardHeader title="تحديث المشروع" description="تعديل وتحديث معلومات المشروع وتفاصيله" />
+      <DashboardHeader 
+        title={`تحديث المشروع #${projectId}`}
+        description={project ? `تعديل مشروع ${project.project_category} - ${currentMosque?.name_ar || 'غير محدد'}` : "تعديل وتحديث معلومات المشروع وتفاصيله"}
+      />
 
       <div className="p-6">
         <div className="max-w-4xl mx-auto">
@@ -150,13 +205,52 @@ export default function EditProjectPage() {
               إدارة المشاريع
             </Link>
             <ArrowRight className="w-4 h-4" />
-            <span className="text-slate-900 font-medium">تحديث المشروع</span>
+            <span className="text-slate-900 font-medium">تحديث المشروع #{projectId}</span>
           </div>
+
+          {/* معلومات المشروع الحالية */}
+          {project && (
+            <Card className="mb-6 bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <Building className="w-8 h-8 text-blue-600" />
+                    <div>
+                      <h3 className="font-semibold text-blue-900">
+                        {currentMosque?.name_ar || 'مسجد غير محدد'}
+                      </h3>
+                      <p className="text-sm text-blue-700">
+                        {project.project_category} - {project.status}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm text-blue-600">نسبة الإنجاز</p>
+                    <p className="text-lg font-bold text-blue-900">{project.progress_percentage}%</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {error && (
             <Alert className="mb-6 border-red-200 bg-red-50 animate-in slide-in-from-top-2">
               <AlertCircle className="h-4 w-4 text-red-600" />
-              <AlertDescription className="text-red-800">{error}</AlertDescription>
+              <AlertDescription className="text-red-800 flex items-center justify-between">
+                <span>{error}</span>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => {
+                    setError("")
+                    window.location.reload()
+                  }}
+                  className="text-red-600 hover:bg-red-100"
+                >
+                  <RefreshCw className="w-4 h-4 ml-2" />
+                  إعادة المحاولة
+                </Button>
+              </AlertDescription>
             </Alert>
           )}
 
@@ -240,22 +334,6 @@ export default function EditProjectPage() {
                     </select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="priority" className="text-slate-700 font-medium">
-                      الأولوية
-                    </Label>
-                    <select
-                      id="priority"
-                      name="priority"
-                      value={formData.priority}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-200"
-                    >
-                      <option value="low">منخفضة</option>
-                      <option value="medium">متوسطة</option>
-                      <option value="high">عالية</option>
-                    </select>
-                  </div>
-                  <div className="space-y-2">
                     <Label htmlFor="progress_percentage" className="text-slate-700 font-medium">
                       نسبة الإنجاز (%)
                     </Label>
@@ -271,85 +349,18 @@ export default function EditProjectPage() {
                       className="transition-all duration-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                     />
                   </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="description" className="text-slate-700 font-medium">
-                    وصف المشروع
-                  </Label>
-                  <Textarea
-                    id="description"
-                    name="description"
-                    value={formData.description}
-                    onChange={handleInputChange}
-                    placeholder="وصف تفصيلي للمشروع وأهدافه"
-                    rows={4}
-                    className="transition-all duration-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Financial Information */}
-            <Card className="shadow-lg border-0 hover:shadow-xl transition-all duration-300">
-              <CardHeader className="bg-gradient-to-r from-amber-50 to-amber-100 rounded-t-lg">
-                <CardTitle className="flex items-center gap-2 text-amber-800">
-                  <DollarSign className="w-5 h-5" />
-                  المعلومات المالية
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6 space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="total_cost" className="text-slate-700 font-medium">
-                    التكلفة الإجمالية (ل.س) *
-                  </Label>
-                  <Input
-                    id="total_cost"
-                    name="total_cost"
-                    type="number"
-                    value={formData.total_cost}
-                    onChange={handleInputChange}
-                    placeholder="0"
-                    required
-                    className="transition-all duration-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Timeline */}
-            <Card className="shadow-lg border-0 hover:shadow-xl transition-all duration-300">
-              <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-t-lg">
-                <CardTitle className="flex items-center gap-2 text-blue-800">
-                  <Calendar className="w-5 h-5" />
-                  الجدول الزمني
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6 space-y-4">
-                <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="start_date" className="text-slate-700 font-medium">
-                      تاريخ البداية
+                    <Label htmlFor="total_cost" className="text-slate-700 font-medium">
+                      التكلفة الإجمالية (ل.س) *
                     </Label>
                     <Input
-                      id="start_date"
-                      name="start_date"
-                      type="date"
-                      value={formData.start_date}
+                      id="total_cost"
+                      name="total_cost"
+                      type="number"
+                      value={formData.total_cost}
                       onChange={handleInputChange}
-                      className="transition-all duration-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="end_date" className="text-slate-700 font-medium">
-                      تاريخ الانتهاء المتوقع
-                    </Label>
-                    <Input
-                      id="end_date"
-                      name="end_date"
-                      type="date"
-                      value={formData.end_date}
-                      onChange={handleInputChange}
+                      placeholder="0"
+                      required
                       className="transition-all duration-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                     />
                   </div>
@@ -357,89 +368,46 @@ export default function EditProjectPage() {
               </CardContent>
             </Card>
 
-            {/* Project Details */}
+            {/* معلومات إضافية */}
             <Card className="shadow-lg border-0 hover:shadow-xl transition-all duration-300">
               <CardHeader className="bg-gradient-to-r from-purple-50 to-purple-100 rounded-t-lg">
                 <CardTitle className="flex items-center gap-2 text-purple-800">
                   <Target className="w-5 h-5" />
-                  تفاصيل المشروع
+                  معلومات المشروع
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-6 space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="objectives" className="text-slate-700 font-medium">
-                    الأهداف
-                  </Label>
-                  <Textarea
-                    id="objectives"
-                    name="objectives"
-                    value={formData.objectives}
-                    onChange={handleInputChange}
-                    placeholder="الأهداف الرئيسية للمشروع"
-                    rows={3}
-                    className="transition-all duration-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                  />
+              <CardContent className="p-6">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-slate-700 font-medium">المسجد</Label>
+                    <p className="text-slate-900 bg-slate-50 p-3 rounded-lg">
+                      {currentMosque?.name_ar || 'غير محدد'}
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-slate-700 font-medium">المحافظة</Label>
+                    <p className="text-slate-900 bg-slate-50 p-3 rounded-lg">
+                      {currentMosque?.governorate_ar || 'غير محدد'}
+                    </p>
+                  </div>
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="expected_outcomes" className="text-slate-700 font-medium">
-                    النتائج المتوقعة
-                  </Label>
-                  <Textarea
-                    id="expected_outcomes"
-                    name="expected_outcomes"
-                    value={formData.expected_outcomes}
-                    onChange={handleInputChange}
-                    placeholder="النتائج والمخرجات المتوقعة من المشروع"
-                    rows={3}
-                    className="transition-all duration-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="required_materials" className="text-slate-700 font-medium">
-                    المواد المطلوبة
-                  </Label>
-                  <Textarea
-                    id="required_materials"
-                    name="required_materials"
-                    value={formData.required_materials}
-                    onChange={handleInputChange}
-                    placeholder="قائمة بالمواد والأدوات المطلوبة"
-                    rows={3}
-                    className="transition-all duration-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="team_members" className="text-slate-700 font-medium">
-                    أعضاء الفريق
-                  </Label>
-                  <Textarea
-                    id="team_members"
-                    name="team_members"
-                    value={formData.team_members}
-                    onChange={handleInputChange}
-                    placeholder="أسماء أعضاء فريق العمل ومسؤولياتهم"
-                    rows={3}
-                    className="transition-all duration-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="milestones" className="text-slate-700 font-medium">
-                    المعالم الرئيسية
-                  </Label>
-                  <Textarea
-                    id="milestones"
-                    name="milestones"
-                    value={formData.milestones}
-                    onChange={handleInputChange}
-                    placeholder="المعالم والمراحل الرئيسية للمشروع"
-                    rows={3}
-                    className="transition-all duration-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                  />
-                </div>
+                
+                {project && (
+                  <div className="mt-4 grid md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-slate-700 font-medium">تاريخ الإنشاء</Label>
+                      <p className="text-slate-900 bg-slate-50 p-3 rounded-lg">
+                        {new Date(project.created_at).toLocaleDateString('ar-SA')}
+                      </p>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-slate-700 font-medium">آخر تحديث</Label>
+                      <p className="text-slate-900 bg-slate-50 p-3 rounded-lg">
+                        {project.updated_at ? new Date(project.updated_at).toLocaleDateString('ar-SA') : 'لم يتم التحديث'}
+                      </p>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
