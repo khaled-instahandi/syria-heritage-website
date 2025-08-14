@@ -1,62 +1,142 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { DashboardHeader } from "@/components/dashboard/header"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Save, ArrowRight, Building, DollarSign, Calendar, AlertCircle, Target } from 'lucide-react'
+import { useMosques } from '../../../../../hooks/use-mosques'
+import { toast } from "sonner"
 import Link from "next/link"
+import { useTranslations } from "next-intl"
+import { CreateProjectData, Mosque } from "../../../../../lib/types"
+import { DashboardHeader } from "../../../../../components/dashboard/header"
+import { Card, CardContent, CardHeader, CardTitle } from "../../../../../components/ui/card"
+import { Button } from "../../../../../components/ui/button"
+import { Input } from "../../../../../components/ui/input"
+import { Label } from "../../../../../components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../../../components/ui/select"
+import { SearchableSelect } from "../../../../../components/ui/searchable-select"
+import { Alert, AlertDescription } from "../../../../../components/ui/alert"
+import { ArrowRight, AlertCircle, Building, DollarSign, Calendar, Save, Loader2 } from "lucide-react"
+import api from "../../../../../lib/api"
+
+interface FormData {
+  mosque_id: number | null
+  project_category: "ترميم" | "إعادة إعمار"
+  status: "قيد الدراسة" | "قيد التنفيذ" | "مكتمل"
+  total_cost: string
+  progress_percentage: number
+  approved_at: string
+  published_at: string
+}
+
+const initialFormData: FormData = {
+  mosque_id: null,
+  project_category: "ترميم",
+  status: "قيد الدراسة",
+  total_cost: "",
+  progress_percentage: 0,
+  approved_at: "",
+  published_at: ""
+}
 
 export default function NewProjectPage() {
+  const t = useTranslations()
   const router = useRouter()
-  const [isLoading, setIsLoading] = useState(false)
+  const [formData, setFormData] = useState<FormData>(initialFormData)
+  const [mosques, setMosques] = useState<Mosque[]>([])
+  const [isSaving, setIsSaving] = useState(false)
+  const [isLoadingMosques, setIsLoadingMosques] = useState(false)
   const [error, setError] = useState("")
-  const [formData, setFormData] = useState({
-    mosque_id: "",
-    project_category: "ترميم",
-    status: "قيد الدراسة",
-    total_cost: "",
-    progress_percentage: "0",
-    description: "",
-    start_date: "",
-    end_date: "",
-    priority: "medium",
-    objectives: "",
-    expected_outcomes: "",
-    required_materials: "",
-    team_members: "",
-    milestones: "",
-  })
+  const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({})
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }))
+  // جلب المساجد
+  useEffect(() => {
+    const fetchMosques = async () => {
+      setIsLoadingMosques(true)
+      try {
+        const response = await api.getMosques({ per_page: 1000 })
+        setMosques(response.data)
+      } catch (error: any) {
+        console.error('Error fetching mosques:', error)
+        toast.error('خطأ في جلب المساجد')
+        setError('خطأ في جلب المساجد')
+      } finally {
+        setIsLoadingMosques(false)
+      }
+    }
+
+    fetchMosques()
+  }, [])
+
+  const validateForm = (): boolean => {
+    const newErrors: Partial<Record<keyof FormData, string>> = {}
+
+    if (!formData.mosque_id) {
+      newErrors.mosque_id = "يجب اختيار المسجد"
+    }
+
+    if (!formData.total_cost.trim()) {
+      newErrors.total_cost = "التكلفة الإجمالية مطلوبة"
+    } else {
+      const cost = parseFloat(formData.total_cost)
+      if (isNaN(cost) || cost < 0) {
+        newErrors.total_cost = "يجب أن تكون التكلفة رقماً صحيحاً وأكبر من صفر"
+      }
+    }
+
+    if (formData.progress_percentage < 0 || formData.progress_percentage > 100) {
+      newErrors.progress_percentage = "نسبة التقدم يجب أن تكون بين 0 و 100"
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
     setError("")
-
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-
-      // Redirect to projects list
-      router.push("/dashboard/projects")
-    } catch (err) {
-      setError("حدث خطأ أثناء إضافة المشروع. يرجى المحاولة مرة أخرى.")
-    } finally {
-      setIsLoading(false)
+    
+    if (!validateForm()) {
+      return
     }
+
+    setIsSaving(true)
+    try {
+      const saveData: CreateProjectData = {
+        mosque_id: formData.mosque_id!,
+        project_category: formData.project_category,
+        status: formData.status,
+        total_cost: formData.total_cost,
+        progress_percentage: formData.progress_percentage
+      }
+
+      if (formData.approved_at) {
+        saveData.approved_at = formData.approved_at
+      }
+
+      if (formData.published_at) {
+        saveData.published_at = formData.published_at
+      }
+
+      await api.createProject(saveData)
+      toast.success('تم إنشاء المشروع بنجاح')
+      router.push('/dashboard/projects')
+    } catch (error: any) {
+      console.error('Error creating project:', error)
+      const errorMessage = error.message || 'حدث خطأ في إنشاء المشروع'
+      setError(errorMessage)
+      toast.error(errorMessage)
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const handleInputChange = (field: keyof FormData, value: string | number) => {
+    setFormData(prev => ({ ...prev, [field]: value }))
+    // مسح الخطأ عند تغيير القيمة
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: undefined }))
+    }
+    setError("")
   }
 
   return (
@@ -99,93 +179,93 @@ export default function NewProjectPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid md:grid-cols-2 gap-4">
+                  {/* اختيار المسجد */}
                   <div>
                     <Label htmlFor="mosque_id">المسجد *</Label>
-                    <select
-                      id="mosque_id"
-                      name="mosque_id"
-                      value={formData.mosque_id}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                      required
-                    >
-                      <option value="">اختر المسجد</option>
-                      <option value="1">الجامع الأموي الكبير</option>
-                      <option value="2">مسجد خالد بن الوليد</option>
-                      <option value="3">مسجد السيدة زينب</option>
-                      <option value="4">مسجد التكية السليمانية</option>
-                    </select>
+                    {isLoadingMosques ? (
+                      <div className="flex items-center gap-2 text-slate-600">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        جارٍ تحميل المساجد...
+                      </div>
+                    ) : (
+                      <SearchableSelect
+                        value={formData.mosque_id?.toString() || ""}
+                        onValueChange={(value) => handleInputChange("mosque_id", parseInt(value))}
+                        options={mosques.map((mosque) => ({
+                          value: mosque.id.toString(),
+                          label: mosque.name_ar,
+                          description: `${mosque.governorate_ar}`
+                        }))}
+                        placeholder="اختر المسجد"
+                        searchPlaceholder="البحث عن المسجد..."
+                        emptyText="لا توجد مساجد متاحة"
+                        clearable
+                        className={errors.mosque_id ? "border-red-500" : ""}
+                      />
+                    )}
+                    {errors.mosque_id && (
+                      <p className="text-sm text-red-600">{errors.mosque_id}</p>
+                    )}
                   </div>
+
+                  {/* نوع المشروع */}
                   <div>
                     <Label htmlFor="project_category">نوع المشروع *</Label>
-                    <select
-                      id="project_category"
-                      name="project_category"
+                    <Select
                       value={formData.project_category}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                      required
+                      onValueChange={(value: "ترميم" | "إعادة إعمار") => 
+                        handleInputChange("project_category", value)
+                      }
                     >
-                      <option value="ترميم">ترميم</option>
-                      <option value="إعادة إعمار">إعادة إعمار</option>
-                    </select>
+                      <SelectTrigger>
+                        <SelectValue placeholder="اختر نوع المشروع" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="ترميم">ترميم</SelectItem>
+                        <SelectItem value="إعادة إعمار">إعادة إعمار</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
 
-                <div className="grid md:grid-cols-3 gap-4">
+                <div className="grid md:grid-cols-2 gap-4">
+                  {/* حالة المشروع */}
                   <div>
                     <Label htmlFor="status">حالة المشروع</Label>
-                    <select
-                      id="status"
-                      name="status"
+                    <Select
                       value={formData.status}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      onValueChange={(value: "قيد الدراسة" | "قيد التنفيذ" | "مكتمل") => 
+                        handleInputChange("status", value)
+                      }
                     >
-                      <option value="قيد الدراسة">قيد الدراسة</option>
-                      <option value="قيد التنفيذ">قيد التنفيذ</option>
-                      <option value="مكتمل">مكتمل</option>
-                    </select>
+                      <SelectTrigger>
+                        <SelectValue placeholder="اختر حالة المشروع" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="قيد الدراسة">قيد الدراسة</SelectItem>
+                        <SelectItem value="قيد التنفيذ">قيد التنفيذ</SelectItem>
+                        <SelectItem value="مكتمل">مكتمل</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
-                  <div>
-                    <Label htmlFor="priority">الأولوية</Label>
-                    <select
-                      id="priority"
-                      name="priority"
-                      value={formData.priority}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                    >
-                      <option value="low">منخفضة</option>
-                      <option value="medium">متوسطة</option>
-                      <option value="high">عالية</option>
-                    </select>
-                  </div>
+
+                  {/* نسبة التقدم */}
                   <div>
                     <Label htmlFor="progress_percentage">نسبة الإنجاز (%)</Label>
                     <Input
                       id="progress_percentage"
-                      name="progress_percentage"
                       type="number"
                       min="0"
                       max="100"
                       value={formData.progress_percentage}
-                      onChange={handleInputChange}
+                      onChange={(e) => handleInputChange("progress_percentage", Number(e.target.value))}
                       placeholder="0"
+                      className={errors.progress_percentage ? "border-red-500" : ""}
                     />
+                    {errors.progress_percentage && (
+                      <p className="text-sm text-red-600">{errors.progress_percentage}</p>
+                    )}
                   </div>
-                </div>
-
-                <div>
-                  <Label htmlFor="description">وصف المشروع</Label>
-                  <Textarea
-                    id="description"
-                    name="description"
-                    value={formData.description}
-                    onChange={handleInputChange}
-                    placeholder="وصف تفصيلي للمشروع وأهدافه"
-                    rows={4}
-                  />
                 </div>
               </CardContent>
             </Card>
@@ -203,13 +283,17 @@ export default function NewProjectPage() {
                   <Label htmlFor="total_cost">التكلفة الإجمالية (ل.س) *</Label>
                   <Input
                     id="total_cost"
-                    name="total_cost"
                     type="number"
+                    step="0.01"
                     value={formData.total_cost}
-                    onChange={handleInputChange}
-                    placeholder="0"
+                    onChange={(e) => handleInputChange("total_cost", e.target.value)}
+                    placeholder="0.00"
+                    className={errors.total_cost ? "border-red-500" : ""}
                     required
                   />
+                  {errors.total_cost && (
+                    <p className="text-sm text-red-600">{errors.total_cost}</p>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -219,102 +303,29 @@ export default function NewProjectPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Calendar className="w-5 h-5 text-blue-600" />
-                  الجدول الزمني
+                  التواريخ المهمة
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="start_date">تاريخ البداية</Label>
+                    <Label htmlFor="approved_at">تاريخ الموافقة</Label>
                     <Input
-                      id="start_date"
-                      name="start_date"
+                      id="approved_at"
                       type="date"
-                      value={formData.start_date}
-                      onChange={handleInputChange}
+                      value={formData.approved_at}
+                      onChange={(e) => handleInputChange("approved_at", e.target.value)}
                     />
                   </div>
                   <div>
-                    <Label htmlFor="end_date">تاريخ الانتهاء المتوقع</Label>
+                    <Label htmlFor="published_at">تاريخ النشر</Label>
                     <Input
-                      id="end_date"
-                      name="end_date"
+                      id="published_at"
                       type="date"
-                      value={formData.end_date}
-                      onChange={handleInputChange}
+                      value={formData.published_at}
+                      onChange={(e) => handleInputChange("published_at", e.target.value)}
                     />
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Project Details */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Target className="w-5 h-5 text-purple-600" />
-                  تفاصيل المشروع
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="objectives">الأهداف</Label>
-                  <Textarea
-                    id="objectives"
-                    name="objectives"
-                    value={formData.objectives}
-                    onChange={handleInputChange}
-                    placeholder="الأهداف الرئيسية للمشروع"
-                    rows={3}
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="expected_outcomes">النتائج المتوقعة</Label>
-                  <Textarea
-                    id="expected_outcomes"
-                    name="expected_outcomes"
-                    value={formData.expected_outcomes}
-                    onChange={handleInputChange}
-                    placeholder="النتائج والمخرجات المتوقعة من المشروع"
-                    rows={3}
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="required_materials">المواد المطلوبة</Label>
-                  <Textarea
-                    id="required_materials"
-                    name="required_materials"
-                    value={formData.required_materials}
-                    onChange={handleInputChange}
-                    placeholder="قائمة بالمواد والأدوات المطلوبة"
-                    rows={3}
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="team_members">أعضاء الفريق</Label>
-                  <Textarea
-                    id="team_members"
-                    name="team_members"
-                    value={formData.team_members}
-                    onChange={handleInputChange}
-                    placeholder="أسماء أعضاء فريق العمل ومسؤولياتهم"
-                    rows={3}
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="milestones">المعالم الرئيسية</Label>
-                  <Textarea
-                    id="milestones"
-                    name="milestones"
-                    value={formData.milestones}
-                    onChange={handleInputChange}
-                    placeholder="المعالم والمراحل الرئيسية للمشروع"
-                    rows={3}
-                  />
                 </div>
               </CardContent>
             </Card>
@@ -322,14 +333,18 @@ export default function NewProjectPage() {
             {/* Action Buttons */}
             <div className="flex gap-4 justify-end">
               <Link href="/dashboard/projects">
-                <Button type="button" variant="outline">
+                <Button type="button" variant="outline" disabled={isSaving}>
                   إلغاء
                 </Button>
               </Link>
-              <Button type="submit" disabled={isLoading} className="bg-emerald-600 hover:bg-emerald-700">
-                {isLoading ? (
+              <Button 
+                type="submit" 
+                disabled={isSaving} 
+                className="bg-emerald-600 hover:bg-emerald-700"
+              >
+                {isSaving ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin ml-2" />
+                    <Loader2 className="w-4 h-4 ml-2 animate-spin" />
                     جاري الحفظ...
                   </>
                 ) : (

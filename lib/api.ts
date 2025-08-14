@@ -8,7 +8,12 @@ import {
   SubDistrictsResponse, 
   NeighborhoodsResponse,
   MosqueFilters,
-  Mosque
+  Mosque,
+  ProjectsResponse,
+  ProjectFilters,
+  Project,
+  CreateProjectData,
+  UpdateProjectData
 } from "./types"
 
 // نوع البيانات للمستخدم
@@ -755,6 +760,76 @@ class ApiClient {
     
     return await this.postForm<any>(`/mosque-media/${mediaId}`, formData)
   }
+
+  // ==================== إدارة المشاريع ====================
+
+  // جلب قائمة المشاريع مع الفلترة والتقسيم
+  async getProjects(filters: ProjectFilters = {}): Promise<ProjectsResponse> {
+    const params = new URLSearchParams()
+    
+    // إضافة معايير البحث والفلترة
+    if (filters.page) params.append('page', filters.page.toString())
+    if (filters.per_page) params.append('per_page', filters.per_page.toString())
+    if (filters.search) params.append('search', filters.search)
+    if (filters.project_category) params.append('project_category', filters.project_category)
+    if (filters.status) params.append('status', filters.status)
+    if (filters.approved_by) params.append('approved_by', filters.approved_by)
+    if (filters.date_from) params.append('date_from', filters.date_from)
+    if (filters.date_to) params.append('date_to', filters.date_to)
+
+    const queryString = params.toString()
+    const endpoint = queryString ? `/projects?${queryString}` : '/projects'
+    
+    return await this.get<ProjectsResponse>(endpoint)
+  }
+
+  // جلب تفاصيل مشروع واحد
+  async getProject(id: number): Promise<{ data: Project }> {
+    return await this.get<{ data: Project }>(`/projects/${id}`)
+  }
+
+  // إنشاء مشروع جديد
+  async createProject(data: CreateProjectData): Promise<{ data: Project }> {
+    const formData = new FormData()
+    
+    formData.append('mosque_id', data.mosque_id.toString())
+    formData.append('project_category', data.project_category)
+    formData.append('status', data.status)
+    formData.append('total_cost', data.total_cost)
+    
+    if (data.progress_percentage !== undefined) {
+      formData.append('progress_percentage', data.progress_percentage.toString())
+    }
+    if (data.approved_at) formData.append('approved_at', data.approved_at)
+    if (data.published_at) formData.append('published_at', data.published_at)
+
+    return await this.postForm<{ data: Project }>('/projects', formData)
+  }
+
+  // تحديث مشروع
+  async updateProject(id: number, data: UpdateProjectData): Promise<{ data: Project }> {
+    const formData = new FormData()
+    
+    // إضافة _method للـ PUT request
+    formData.append('_method', 'PUT')
+    
+    if (data.mosque_id) formData.append('mosque_id', data.mosque_id.toString())
+    if (data.project_category) formData.append('project_category', data.project_category)
+    if (data.status) formData.append('status', data.status)
+    if (data.total_cost) formData.append('total_cost', data.total_cost)
+    if (data.progress_percentage !== undefined) {
+      formData.append('progress_percentage', data.progress_percentage.toString())
+    }
+    if (data.approved_at) formData.append('approved_at', data.approved_at)
+    if (data.published_at) formData.append('published_at', data.published_at)
+
+    return await this.postForm<{ data: Project }>(`/projects/${id}`, formData)
+  }
+
+  // حذف مشروع
+  async deleteProject(id: number): Promise<{ message: string }> {
+    return await this.delete<{ message: string }>(`/projects/${id}`)
+  }
 }
 
 // إنشاء instance مشترك
@@ -903,6 +978,28 @@ export const api = {
   // تحديد الصورة الرئيسية
   setMainMosqueMedia: (mediaId: number) =>
     apiClient.setMainMosqueMedia(mediaId),
+
+  // ==================== إدارة المشاريع ====================
+  
+  // جلب قائمة المشاريع مع الفلترة والتقسيم
+  getProjects: (filters?: ProjectFilters) =>
+    apiClient.getProjects(filters),
+
+  // جلب تفاصيل مشروع واحد
+  getProject: (id: number) =>
+    apiClient.getProject(id),
+
+  // إنشاء مشروع جديد
+  createProject: (data: CreateProjectData) =>
+    apiClient.createProject(data),
+
+  // تحديث مشروع
+  updateProject: (id: number, data: UpdateProjectData) =>
+    apiClient.updateProject(id, data),
+
+  // حذف مشروع
+  deleteProject: (id: number) =>
+    apiClient.deleteProject(id),
 
   // ==================== المساجد العامة ====================
 

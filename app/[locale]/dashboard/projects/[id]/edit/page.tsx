@@ -1,24 +1,29 @@
 "use client"
 
-import type React from "react"
-
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useRouter, useParams } from "next/navigation"
-import { DashboardHeader } from "@/components/dashboard/header"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Save, ArrowRight, Building, DollarSign, Calendar, AlertCircle, Target, Loader2 } from "lucide-react"
+import { useMosques } from '../../../../../../hooks/use-mosques'
+import { toast } from "sonner"
 import Link from "next/link"
-import { mockProjects } from "@/lib/mock-data"
+import { useTranslations } from "next-intl"
+import { UpdateProjectData, Mosque, Project } from "../../../../../../lib/types"
+import { DashboardHeader } from "../../../../../../components/dashboard/header"
+import { Card, CardContent, CardHeader, CardTitle } from "../../../../../../components/ui/card"
+import { Button } from "../../../../../../components/ui/button"
+import { Input } from "../../../../../../components/ui/input"
+import { Label } from "../../../../../../components/ui/label"
+import { Textarea } from "../../../../../../components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../../../../components/ui/select"
+import { SearchableSelect } from "../../../../../../components/ui/searchable-select"
+import { Alert, AlertDescription } from "../../../../../../components/ui/alert"
+import { ArrowRight, AlertCircle, Building, DollarSign, Calendar, Save, Loader2, Target } from "lucide-react"
+import api from "../../../../../../lib/api"
 
 export default function EditProjectPage() {
   const router = useRouter()
   const params = useParams()
   const projectId = params.id as string
+  const { mosques, isLoading: isLoadingMosques } = useMosques()
 
   const [isLoading, setIsLoading] = useState(false)
   const [isPageLoading, setIsPageLoading] = useState(true)
@@ -41,38 +46,41 @@ export default function EditProjectPage() {
     milestones: "",
   })
 
+  // جلب بيانات المشروع
   useEffect(() => {
-    const loadProjectData = async () => {
+    const fetchProject = async () => {
+      if (!projectId) return
+      
+      setIsPageLoading(true)
       try {
-        await new Promise((resolve) => setTimeout(resolve, 1000))
-
-        const project = mockProjects.find((p) => p.id.toString() === projectId)
-        if (project) {
-          setFormData({
-            mosque_id: project.mosque_id.toString(),
-            project_category: project.project_category,
-            status: project.status,
-            total_cost: project.total_cost?.toString() || "",
-            progress_percentage: project.progress_percentage?.toString() || "0",
-            description: project.description || "",
-            start_date: project.start_date || "",
-            end_date: project.end_date || "",
-            priority: (project as any).priority || "medium",
-            objectives: (project as any).objectives || "",
-            expected_outcomes: (project as any).expected_outcomes || "",
-            required_materials: (project as any).required_materials || "",
-            team_members: (project as any).team_members || "",
-            milestones: (project as any).milestones || "",
-          })
-        }
-      } catch (err) {
-        setError("حدث خطأ في تحميل بيانات المشروع")
+        const response = await api.getProject(parseInt(projectId))
+        const project = response.data
+        
+        setFormData({
+          mosque_id: project.mosque_id?.toString() || "",
+          project_category: project.project_category,
+          status: project.status,
+          total_cost: project.total_cost?.toString() || "",
+          progress_percentage: project.progress_percentage?.toString() || "0",
+          description: "",
+          start_date: "",
+          end_date: "",
+          priority: "medium",
+          objectives: "",
+          expected_outcomes: "",
+          required_materials: "",
+          team_members: "",
+          milestones: "",
+        })
+      } catch (error: any) {
+        console.error('Error fetching project:', error)
+        setError('خطأ في جلب بيانات المشروع')
       } finally {
         setIsPageLoading(false)
       }
     }
 
-    loadProjectData()
+    fetchProject()
   }, [projectId])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -90,15 +98,23 @@ export default function EditProjectPage() {
     setSuccess("")
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+      const saveData: UpdateProjectData = {
+        mosque_id: parseInt(formData.mosque_id),
+        project_category: formData.project_category as "ترميم" | "إعادة إعمار",
+        status: formData.status as "قيد الدراسة" | "قيد التنفيذ" | "مكتمل",
+        total_cost: formData.total_cost,
+        progress_percentage: parseInt(formData.progress_percentage)
+      }
 
+      await api.updateProject(parseInt(projectId), saveData)
       setSuccess("تم تحديث بيانات المشروع بنجاح!")
 
       setTimeout(() => {
         router.push("/dashboard/projects")
       }, 1500)
-    } catch (err) {
-      setError("حدث خطأ أثناء تحديث المشروع. يرجى المحاولة مرة أخرى.")
+    } catch (err: any) {
+      const errorMessage = err.message || "حدث خطأ أثناء تحديث المشروع. يرجى المحاولة مرة أخرى."
+      setError(errorMessage)
     } finally {
       setIsLoading(false)
     }
@@ -166,20 +182,27 @@ export default function EditProjectPage() {
                     <Label htmlFor="mosque_id" className="text-slate-700 font-medium">
                       المسجد *
                     </Label>
-                    <select
-                      id="mosque_id"
-                      name="mosque_id"
-                      value={formData.mosque_id}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-200"
-                      required
-                    >
-                      <option value="">اختر المسجد</option>
-                      <option value="1">الجامع الأموي الكبير</option>
-                      <option value="2">مسجد خالد بن الوليد</option>
-                      <option value="3">مسجد السيدة زينب</option>
-                      <option value="4">مسجد التكية السليمانية</option>
-                    </select>
+                    {isLoadingMosques ? (
+                      <div className="flex items-center gap-2 text-slate-600">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        جارٍ تحميل المساجد...
+                      </div>
+                    ) : (
+                      <SearchableSelect
+                        value={formData.mosque_id?.toString() || ""}
+                        onValueChange={(value) => handleInputChange({ target: { name: "mosque_id", value } } as any)}
+                        options={mosques.map((mosque) => ({
+                          value: mosque.id.toString(),
+                          label: mosque.name_ar,
+                          description: `${mosque.governorate_ar}`
+                        }))}
+                        placeholder="اختر المسجد"
+                        searchPlaceholder="البحث عن المسجد..."
+                        emptyText="لا توجد مساجد متاحة"
+                        clearable
+                        className="w-full"
+                      />
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="project_category" className="text-slate-700 font-medium">

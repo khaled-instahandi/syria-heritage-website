@@ -66,23 +66,57 @@ export interface Mosque {
 
 export interface Project {
   id: number
-  title?: string
-  image_url?: string
   mosque_id: number
+  mosque_ar?: string
+  mosque_en?: string
   project_category: "ترميم" | "إعادة إعمار"
   status: "قيد الدراسة" | "قيد التنفيذ" | "مكتمل"
-  cost?: number
-  total_cost?: number
-  collected_amount?: number
+  total_cost: string
   progress_percentage: number
-  approved_by?: number
+  approved_by?: string
   approved_at?: string
   published_at?: string
   created_at: string
-  start_date?: string
-  end_date?: string
-  description: string
-  updated_at: string
+  updated_at?: string
+}
+
+// معايير البحث والفلترة للمشاريع
+export interface ProjectFilters {
+  page?: number
+  per_page?: number
+  search?: string
+  mosque_id?: number | string
+  project_category?: "ترميم" | "إعادة إعمار" | ""
+  status?: "قيد الدراسة" | "قيد التنفيذ" | "مكتمل" | ""
+  governorate?: string
+  approved_by?: string
+  date_from?: string
+  date_to?: string
+}
+
+// استجابة المشاريع
+export interface ProjectsResponse extends PaginatedResponse<Project> {}
+
+// بيانات إنشاء مشروع جديد
+export interface CreateProjectData {
+  mosque_id: number
+  project_category: "ترميم" | "إعادة إعمار"
+  status: "قيد الدراسة" | "قيد التنفيذ" | "مكتمل"
+  total_cost: string
+  progress_percentage?: number
+  approved_at?: string
+  published_at?: string
+}
+
+// بيانات تحديث مشروع
+export interface UpdateProjectData {
+  mosque_id?: number
+  project_category?: "ترميم" | "إعادة إعمار"
+  status?: "قيد الدراسة" | "قيد التنفيذ" | "مكتمل"
+  total_cost?: string
+  progress_percentage?: number
+  approved_at?: string
+  published_at?: string
 }
 
 export interface Donation {
