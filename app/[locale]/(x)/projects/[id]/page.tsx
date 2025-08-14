@@ -184,7 +184,7 @@ export default function ProjectDetailPage() {
 
                 <div className="space-y-4 mb-6">
                   <div className="flex justify-between">
-                    <span className="text-slate-600">المبلغ المُجمع</span>
+                    <span className="text-slate-600">المبلغ التم جمع</span>
                     <span className="font-bold text-emerald-600">{formatCurrency(totalRaised)}</span>
                   </div>
                   <div className="flex justify-between">

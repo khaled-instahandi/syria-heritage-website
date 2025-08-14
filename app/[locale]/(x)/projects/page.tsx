@@ -5,7 +5,8 @@ import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ProjectCard } from "@/components/ui/project-card"
-import { Search, Grid, List } from "lucide-react"
+import { SearchableSelect } from "@/components/ui/searchable-select"
+import { Search, Grid, List, Filter } from "lucide-react"
 import { mockProjects } from "@/lib/mock-data"
 
 export default function ProjectsPage() {
@@ -15,6 +16,24 @@ export default function ProjectsPage() {
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [categoryFilter, setCategoryFilter] = useState<string>("all")
 
+  // خيارات الفلاتر
+  const statusOptions = [
+    { value: "all", label: "جميع الحالات" },
+    { value: "قيد الدراسة", label: "قيد الدراسة" },
+    { value: "قيد التنفيذ", label: "قيد التنفيذ" },
+    { value: "مكتمل", label: "مكتمل" },
+  ]
+
+  const categoryOptions = [
+    { value: "all", label: "جميع الفئات" },
+    { value: "بحاجة ترميم", label: "بحاجة ترميم" },
+    { value: "بحاجة إعادة إعمار", label: "بحاجة إعادة إعمار" },
+    { value: "قيد الترميم", label: "قيد الترميم" },
+    { value: "قيد إعادة الإعمار", label: "قيد إعادة الإعمار" },
+    { value: "تم ترميمها", label: "تم ترميمها" },
+    { value: "تمت إعادة إعمارها", label: "تمت إعادة إعمارها" },
+  ]
+
   const filteredProjects = mockProjects.filter((project) => {
     const matchesSearch = searchTerm === "" || project.mosque_id.toString().includes(searchTerm)
     const matchesStatus = statusFilter === "all" || project.status === statusFilter
@@ -22,6 +41,16 @@ export default function ProjectsPage() {
 
     return matchesSearch && matchesStatus && matchesCategory
   })
+
+  // إعادة تعيين الفلاتر
+  const resetFilters = () => {
+    setSearchTerm("")
+    setStatusFilter("all")
+    setCategoryFilter("all")
+  }
+
+  // حساب عدد الفلاتر النشطة
+  const activeFiltersCount = [statusFilter, categoryFilter].filter(filter => filter !== "all").length + (searchTerm ? 1 : 0)
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-8">
@@ -46,26 +75,39 @@ export default function ProjectsPage() {
                 />
               </div>
 
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              >
-                <option value="all">جميع الحالات</option>
-                <option value="قيد الدراسة">قيد الدراسة</option>
-                <option value="قيد التنفيذ">قيد التنفيذ</option>
-                <option value="مكتمل">مكتمل</option>
-              </select>
+              <div className="min-w-[180px]">
+                <SearchableSelect
+                  options={statusOptions}
+                  value={statusFilter}
+                  onValueChange={setStatusFilter}
+                  placeholder="حالة المشروع"
+                  searchPlaceholder="البحث في الحالات..."
+                  clearable
+                />
+              </div>
 
-              <select
-                value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
-                className="px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              >
-                <option value="all">جميع الفئات</option>
-                <option value="ترميم">ترميم</option>
-                <option value="إعادة إعمار">إعادة إعمار</option>
-              </select>
+              <div className="min-w-[200px]">
+                <SearchableSelect
+                  options={categoryOptions}
+                  value={categoryFilter}
+                  onValueChange={setCategoryFilter}
+                  placeholder="فئة المشروع"
+                  searchPlaceholder="البحث في الفئات..."
+                  clearable
+                />
+              </div>
+
+              {activeFiltersCount > 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={resetFilters}
+                  className="px-3"
+                >
+                  <Filter className="w-4 h-4 ml-2" />
+                  إعادة تعيين ({activeFiltersCount})
+                </Button>
+              )}
             </div>
 
             <div className="flex gap-2">
@@ -84,6 +126,18 @@ export default function ProjectsPage() {
                 <List className="w-4 h-4" />
               </Button>
             </div>
+          </div>
+
+          {/* عداد النتائج */}
+          <div className="mt-4 pt-4 border-t border-slate-200">
+            <p className="text-sm text-slate-600">
+              عرض {filteredProjects.length} من أصل {mockProjects.length} مشروع
+              {activeFiltersCount > 0 && (
+                <span className="text-emerald-600 font-medium mr-2">
+                  (تم تطبيق {activeFiltersCount} فلتر)
+                </span>
+              )}
+            </p>
           </div>
         </div>
 

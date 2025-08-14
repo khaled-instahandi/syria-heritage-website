@@ -37,10 +37,10 @@ export function ObjectivesSection() {
                       <CheckCircle className="w-5 h-5 text-emerald-600" />
                     </div>
                     <span className="text-sm font-medium text-emerald-600">
-                      {t("objectives.badge")} {index + 1}
+                      {t(`objectives.items.${objective}.title`)}
                     </span>
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-3">{t(`objectives.items.${objective}.title`)}</h3>
+                  {/* <h3 className="text-xl font-bold text-gray-900 mb-3">{t(`objectives.items.${objective}.title`)}</h3> */}
                   <p className="text-gray-600 leading-relaxed">{t(`objectives.items.${objective}.description`)}</p>
                 </div>
               </div>

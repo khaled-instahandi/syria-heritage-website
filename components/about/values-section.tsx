@@ -1,7 +1,7 @@
 "use client"
 
 import { useTranslations } from "next-intl"
-import { Heart, Users, Shield, Lightbulb, Sparkles, Star } from "lucide-react"
+import { Heart, Users, Shield, Lightbulb, Sparkles, Star, Target, Gift } from "lucide-react"
 
 export function ValuesSection() {
   const t = useTranslations("about")
@@ -13,19 +13,29 @@ export function ValuesSection() {
       color: "emerald",
     },
     {
-      icon: Users,
+      icon: Shield,
       key: "community",
       color: "blue",
     },
     {
-      icon: Shield,
+      icon: Users,
       key: "authenticity",
       color: "purple",
     },
     {
-      icon: Lightbulb,
+      icon: Target,
       key: "innovation",
       color: "amber",
+    },
+    {
+      icon: Lightbulb,
+      key: "responsibility",
+      color: "rose",
+    },
+    {
+      icon: Gift,
+      key: "giving",
+      color: "indigo",
     },
   ]
 
@@ -55,6 +65,18 @@ export function ValuesSection() {
         border: "border-amber-200",
         gradient: "from-amber-50 to-amber-100",
       },
+      rose: {
+        bg: "bg-rose-100",
+        text: "text-rose-600",
+        border: "border-rose-200",
+        gradient: "from-rose-50 to-rose-100",
+      },
+      indigo: {
+        bg: "bg-indigo-100",
+        text: "text-indigo-600",
+        border: "border-indigo-200",
+        gradient: "from-indigo-50 to-indigo-100",
+      },
     }
     return colors[color as keyof typeof colors]
   }
@@ -67,7 +89,7 @@ export function ValuesSection() {
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">{t("values.subtitle")}</p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {values.map((value, index) => {
             const Icon = value.icon
             const colors = getColorClasses(value.color)

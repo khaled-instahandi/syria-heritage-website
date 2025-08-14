@@ -33,10 +33,10 @@ export function HeroSection() {
             <Heart className="w-5 h-5" />
             {t("hero.cta.primary")}
           </button>
-          <button className="inline-flex items-center gap-2 px-8 py-4 bg-white text-emerald-600 border-2 border-emerald-600 rounded-lg hover:bg-emerald-50 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+          {/* <button className="inline-flex items-center gap-2 px-8 py-4 bg-white text-emerald-600 border-2 border-emerald-600 rounded-lg hover:bg-emerald-50 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
             <Star className="w-5 h-5" />
             {t("hero.cta.secondary")}
-          </button>
+          </button> */}
         </div>
       </div>
     </section>

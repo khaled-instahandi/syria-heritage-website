@@ -88,8 +88,9 @@ export function Footer() {
         </div>
 
         <div className="border-t border-slate-700 pt-8 text-center text-slate-400">
-          <p>{t("footer.copyright")}</p>
-        </div>
+            <p>{t("footer.copyright.line1")}</p>
+            <p>{t("footer.copyright.line2")}</p>
+          </div>        
       </div>
     </footer>
   )

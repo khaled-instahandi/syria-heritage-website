@@ -36,7 +36,7 @@
   "home": {
     "title": "Reviving Syria's Heritage",
     "subtitle": "One Mosque at a Time",
-    "description": "An initiative to document Syrian mosque restoration achievements, showcase projects needing funding, and receive supporter applications",
+    "description": "Reconstructing the Houses of Allah in Syria... A campaign that displays damaged mosques, welcomes your support, and documents the impact to remain a witness to your generosity.",
     "officialInitiative": "Official Approved Initiative",
     "becomePartner": "Become a Partner",
     "viewProjects": "Our Current Projects",
@@ -474,7 +474,10 @@
     "social": {
       "title": "Follow Us"
     },
-    "copyright": "© 2025 Syria Heritage Reconstruction Initiative. All rights reserved."
+    "copyright": {
+      "line1": "Syrian Mosques Reconstruction Campaign.",
+      "line2": "All rights reserved © 2025."
+    }
   },
   "login": {
     "title": "Login",
