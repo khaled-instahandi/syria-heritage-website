@@ -85,30 +85,30 @@ export function DashboardSidebar({
       icon: Upload,
       badge: null,
     },
-    {
-      title: t("dashboard.mediaManagement"),
-      href: `/${locale}/dashboard/media`,
-      icon: ImageIcon,
-      badge: null,
-    },
+    // {
+    //   title: t("dashboard.mediaManagement"),
+    //   href: `/${locale}/dashboard/media`,
+    //   icon: ImageIcon,
+    //   badge: null,
+    // },
     {
       title: t("dashboard.reports"),
       href: `/${locale}/dashboard/reports`,
       icon: BarChart3,
       badge: null,
     },
-    {
-      title: t("dashboard.users"),
-      href: `/${locale}/dashboard/users`,
-      icon: Users,
-      badge: null,
-    },
-    {
-      title: t("dashboard.settings"),
-      href: `/${locale}/dashboard/settings`,
-      icon: Settings,
-      badge: null,
-    },
+    // {
+    //   title: t("dashboard.users"),
+    //   href: `/${locale}/dashboard/users`,
+    //   icon: Users,
+    //   badge: null,
+    // },
+    // {
+    //   title: t("dashboard.settings"),
+    //   href: `/${locale}/dashboard/settings`,
+    //   icon: Settings,
+    //   badge: null,
+    // },
   ]
 
   // For mobile, use the isOpen prop, for desktop, use collapsed state from props
