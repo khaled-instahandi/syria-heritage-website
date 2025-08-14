@@ -1,5 +1,15 @@
 import { toast } from "sonner"
-import { FeaturedMosquesResponse, Statistics } from "./types"
+import { 
+  FeaturedMosquesResponse, 
+  Statistics, 
+  MosquesResponse, 
+  GovernoratesResponse, 
+  DistrictsResponse, 
+  SubDistrictsResponse, 
+  NeighborhoodsResponse,
+  MosqueFilters,
+  Mosque
+} from "./types"
 
 // نوع البيانات للمستخدم
 export interface User {
@@ -491,6 +501,141 @@ class ApiClient {
       }
     }
   }
+
+  // ==================== إدارة المساجد ====================
+
+  // جلب قائمة المساجد مع الفلترة والتقسيم
+  async getMosques(filters: MosqueFilters = {}): Promise<MosquesResponse> {
+    const params = new URLSearchParams()
+    
+    // إضافة معايير البحث والفلترة
+    if (filters.page) params.append('page', filters.page.toString())
+    if (filters.per_page) params.append('per_page', filters.per_page.toString())
+    if (filters.name) params.append('name', filters.name)
+    if (filters.governorate_id) params.append('governorate_id', filters.governorate_id.toString())
+    if (filters.district_id) params.append('district_id', filters.district_id.toString())
+    if (filters.sub_district_id) params.append('sub_district_id', filters.sub_district_id.toString())
+    if (filters.neighborhood_id) params.append('neighborhood_id', filters.neighborhood_id.toString())
+    if (filters.damage_level) params.append('damage_level', filters.damage_level)
+    if (filters.status) params.append('status', filters.status)
+    if (filters.is_reconstruction !== undefined) params.append('is_reconstruction', filters.is_reconstruction ? '1' : '0')
+    if (filters.created_from) params.append('created_from', filters.created_from)
+    if (filters.created_to) params.append('created_to', filters.created_to)
+
+    const queryString = params.toString()
+    const endpoint = queryString ? `/mosques?${queryString}` : '/mosques'
+    
+    return await this.get<MosquesResponse>(endpoint)
+  }
+
+  // جلب تفاصيل مسجد واحد
+  async getMosque(id: number): Promise<{ data: Mosque }> {
+    return await this.get<{ data: Mosque }>(`/mosques/${id}`)
+  }
+
+  // إنشاء مسجد جديد
+  async createMosque(data: {
+    name_ar: string
+    name_en: string
+    governorate_id: number
+    district_id: number
+    sub_district_id: number
+    neighborhood_id: number
+    address_text?: string
+    latitude?: string
+    longitude?: string
+    damage_level: "جزئي" | "كامل"
+    estimated_cost?: string
+    is_reconstruction: boolean
+    status: "نشط" | "موقوف" | "مكتمل"
+  }): Promise<{ data: Mosque }> {
+    const formData = new FormData()
+    
+    formData.append('name_ar', data.name_ar)
+    formData.append('name_en', data.name_en)
+    formData.append('governorate_id', data.governorate_id.toString())
+    formData.append('district_id', data.district_id.toString())
+    formData.append('sub_district_id', data.sub_district_id.toString())
+    formData.append('neighborhood_id', data.neighborhood_id.toString())
+    formData.append('damage_level', data.damage_level)
+    formData.append('is_reconstruction', data.is_reconstruction ? '1' : '0')
+    formData.append('status', data.status)
+    
+    if (data.address_text) formData.append('address_text', data.address_text)
+    if (data.latitude) formData.append('latitude', data.latitude)
+    if (data.longitude) formData.append('longitude', data.longitude)
+    if (data.estimated_cost) formData.append('estimated_cost', data.estimated_cost)
+
+    return await this.postForm<{ data: Mosque }>('/mosques', formData)
+  }
+
+  // تحديث مسجد
+  async updateMosque(id: number, data: {
+    name_ar?: string
+    name_en?: string
+    governorate_id?: number
+    district_id?: number
+    sub_district_id?: number
+    neighborhood_id?: number
+    address_text?: string
+    latitude?: string
+    longitude?: string
+    damage_level?: "جزئي" | "كامل"
+    estimated_cost?: string
+    is_reconstruction?: boolean
+    status?: "نشط" | "موقوف" | "مكتمل"
+  }): Promise<{ data: Mosque }> {
+    const formData = new FormData()
+    
+    // إضافة _method للـ PUT request
+    formData.append('_method', 'PUT')
+    
+    if (data.name_ar) formData.append('name_ar', data.name_ar)
+    if (data.name_en) formData.append('name_en', data.name_en)
+    if (data.governorate_id) formData.append('governorate_id', data.governorate_id.toString())
+    if (data.district_id) formData.append('district_id', data.district_id.toString())
+    if (data.sub_district_id) formData.append('sub_district_id', data.sub_district_id.toString())
+    if (data.neighborhood_id) formData.append('neighborhood_id', data.neighborhood_id.toString())
+    if (data.damage_level) formData.append('damage_level', data.damage_level)
+    if (data.is_reconstruction !== undefined) formData.append('is_reconstruction', data.is_reconstruction ? '1' : '0')
+    if (data.status) formData.append('status', data.status)
+    if (data.address_text) formData.append('address_text', data.address_text)
+    if (data.latitude) formData.append('latitude', data.latitude)
+    if (data.longitude) formData.append('longitude', data.longitude)
+    if (data.estimated_cost) formData.append('estimated_cost', data.estimated_cost)
+
+    return await this.postForm<{ data: Mosque }>(`/mosques/${id}`, formData)
+  }
+
+  // حذف مسجد
+  async deleteMosque(id: number): Promise<{ message: string }> {
+    return await this.delete<{ message: string }>(`/mosques/${id}`)
+  }
+
+  // ==================== البيانات المرجعية ====================
+
+  // جلب المحافظات
+  async getGovernorates(): Promise<GovernoratesResponse> {
+    return await this.get<GovernoratesResponse>('/governorates')
+  }
+
+  // جلب المناطق
+  async getDistricts(governorateId?: number): Promise<DistrictsResponse> {
+    const endpoint = governorateId ? `/districts?governorate_id=${governorateId}` : '/districts'
+    return await this.get<DistrictsResponse>(endpoint)
+  }
+
+  // جلب النواحي
+  async getSubDistricts(districtId?: number): Promise<SubDistrictsResponse> {
+    const endpoint = districtId ? `/sub-districts?district_id=${districtId}` : '/sub-districts'
+    return await this.get<SubDistrictsResponse>(endpoint)
+  }
+
+  // جلب الأحياء
+  async getNeighborhoods(subDistrictId?: number): Promise<NeighborhoodsResponse> {
+    const endpoint = subDistrictId ? `/neighborhoods?sub_district_id=${subDistrictId}` : '/neighborhoods'
+    return await this.get<NeighborhoodsResponse>(endpoint)
+  }
 }
 
 // إنشاء instance مشترك
@@ -543,6 +688,127 @@ export const api = {
   // جلب الإحصائيات العامة
   getStatistics: () =>
     apiClient.getStatistics(),
+
+  // ==================== إدارة المساجد ====================
+  
+  // جلب قائمة المساجد مع الفلترة والتقسيم
+  getMosques: (filters?: MosqueFilters) =>
+    apiClient.getMosques(filters),
+
+  // جلب تفاصيل مسجد واحد
+  getMosque: (id: number) =>
+    apiClient.getMosque(id),
+
+  // إنشاء مسجد جديد
+  createMosque: (data: {
+    name_ar: string
+    name_en: string
+    governorate_id: number
+    district_id: number
+    sub_district_id: number
+    neighborhood_id: number
+    address_text?: string
+    latitude?: string
+    longitude?: string
+    damage_level: "جزئي" | "كامل"
+    estimated_cost?: string
+    is_reconstruction: boolean
+    status: "نشط" | "موقوف" | "مكتمل"
+  }) =>
+    apiClient.createMosque(data),
+
+  // تحديث مسجد
+  updateMosque: (id: number, data: {
+    name_ar?: string
+    name_en?: string
+    governorate_id?: number
+    district_id?: number
+    sub_district_id?: number
+    neighborhood_id?: number
+    address_text?: string
+    latitude?: string
+    longitude?: string
+    damage_level?: "جزئي" | "كامل"
+    estimated_cost?: string
+    is_reconstruction?: boolean
+    status?: "نشط" | "موقوف" | "مكتمل"
+  }) =>
+    apiClient.updateMosque(id, data),
+
+  // حذف مسجد
+  deleteMosque: (id: number) =>
+    apiClient.deleteMosque(id),
+
+  // ==================== البيانات المرجعية ====================
+
+  // جلب المحافظات
+  getGovernorates: () =>
+    apiClient.getGovernorates(),
+
+  // جلب المناطق
+  getDistricts: (governorateId?: number) =>
+    apiClient.getDistricts(governorateId),
+
+  // جلب النواحي
+  getSubDistricts: (districtId?: number) =>
+    apiClient.getSubDistricts(districtId),
+
+  // جلب الأحياء
+  getNeighborhoods: (subDistrictId?: number) =>
+    apiClient.getNeighborhoods(subDistrictId),
+
+  // ==================== المساجد العامة ====================
+
+  // جلب المساجد العامة (بدون توثيق)
+  getPublicMosques: async (filters: {
+    page?: number
+    per_page?: number
+    search?: string
+    governorate_id?: number
+    district_id?: number
+    sub_district_id?: number
+    neighborhood_id?: number
+    damage_level?: "جزئي" | "كامل" | "all"
+    status?: "نشط" | "موقوف" | "مكتمل" | "all"
+    is_reconstruction?: boolean
+  } = {}): Promise<MosquesResponse> => {
+    const params = new URLSearchParams()
+    
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== "" && value !== "all") {
+        params.append(key, value.toString())
+      }
+    })
+
+    const response = await fetch(`${BASE_URL}/public/mosques?${params}`, {
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      }
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch public mosques')
+    }
+
+    return await response.json()
+  },
+
+  // جلب تفاصيل مسجد عام (بدون توثيق)
+  getPublicMosque: async (id: number): Promise<{ data: Mosque }> => {
+    const response = await fetch(`${BASE_URL}/api/public/mosques/${id}`, {
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      }
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch public mosque')
+    }
+
+    return await response.json()
+  },
 }
 
 export default api

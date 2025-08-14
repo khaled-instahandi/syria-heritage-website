@@ -22,6 +22,11 @@ interface InteractiveMapProps {
   className?: string
   markerTitle?: string
   markerDescription?: string
+  // خصائص للخريطة التفاعلية
+  interactive?: boolean
+  onLocationSelect?: (lat: number, lng: number) => void
+  selectedLocation?: [number, number] | null
+  showCurrentMarker?: boolean
 }
 
 export default function InteractiveMap(props: InteractiveMapProps) {

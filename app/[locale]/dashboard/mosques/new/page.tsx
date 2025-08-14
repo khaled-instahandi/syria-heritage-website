@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { DashboardHeader } from "@/components/dashboard/header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -8,17 +8,27 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Save, ArrowRight, Upload, MapPin, DollarSign, Calendar, AlertCircle } from 'lucide-react'
+import { Save, ArrowRight, MapPin, DollarSign, AlertCircle, Loader2, Check } from 'lucide-react'
 import Link from "next/link"
+import InteractiveMap from "@/components/ui/interactive-map"
+import MediaUpload from "@/components/ui/media-upload"
+import { GovernorateSelect, DistrictSelect, SubDistrictSelect, NeighborhoodSelect } from "@/components/ui/location-select"
+import { StatusSelect, DamageSelect } from "@/components/ui/status-select"
+import { MosqueService, LocationService, MosqueMediaService } from "@/lib/services/mosque-service"
+import { Governorate, District, SubDistrict, Neighborhood } from "@/lib/types"
+import { toast } from "sonner"
 
 export default function NewMosquePage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
+  const [savedMosque, setSavedMosque] = useState<any>(null)
+  const [step, setStep] = useState<"form" | "media">("form")
+
   const [formData, setFormData] = useState({
-    name: "",
+    name_ar: "",
+    name_en: "",
     governorate_id: "",
     district_id: "",
     sub_district_id: "",
@@ -26,22 +36,56 @@ export default function NewMosquePage() {
     address_text: "",
     latitude: "",
     longitude: "",
-    damage_level: "جزئي",
+    damage_level: "جزئي" as "جزئي" | "كامل",
     estimated_cost: "",
     is_reconstruction: false,
-    status: "نشط",
-    description: "",
-    historical_period: "",
-    architectural_style: "",
-    condition: "",
-    last_restoration: "",
+    status: "نشط" as "نشط" | "موقوف" | "مكتمل",
   })
 
+  // وظيفة للتعامل مع تغيير قيم النموذج
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target
     setFormData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
+    }))
+  }
+
+  // وظيفة للتعامل مع النقر على الخريطة لتحديد الإحداثيات
+  const handleMapClick = (lat: number, lng: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      latitude: lat.toFixed(6),
+      longitude: lng.toFixed(6),
+    }))
+    toast.success(`تم تحديد الموقع: ${lat.toFixed(6)}, ${lng.toFixed(6)}`)
+  }
+
+  // وظائف للتعامل مع تغيير المواقع
+  const handleGovernorateChange = (value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      governorate_id: value,
+      district_id: "",
+      sub_district_id: "",
+      neighborhood_id: ""
+    }))
+  }
+
+  const handleDistrictChange = (value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      district_id: value,
+      sub_district_id: "",
+      neighborhood_id: ""
+    }))
+  }
+
+  const handleSubDistrictChange = (value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      sub_district_id: value,
+      neighborhood_id: ""
     }))
   }
 
@@ -51,13 +95,49 @@ export default function NewMosquePage() {
     setError("")
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+      // التحقق من صحة البيانات
+      if (!formData.name_ar.trim()) {
+        throw new Error("اسم المسجد باللغة العربية مطلوب")
+      }
+      if (!formData.name_en.trim()) {
+        throw new Error("اسم المسجد باللغة الإنجليزية مطلوب")
+      }
+      if (!formData.governorate_id) {
+        throw new Error("المحافظة مطلوبة")
+      }
+      if (!formData.district_id) {
+        throw new Error("المنطقة مطلوبة")
+      }
+      if (!formData.sub_district_id) {
+        throw new Error("الناحية مطلوبة")
+      }
+      if (!formData.neighborhood_id) {
+        throw new Error("الحي مطلوب")
+      }
 
-      // Redirect to mosques list
-      router.push("/dashboard/mosques")
-    } catch (err) {
-      setError("حدث خطأ أثناء إضافة المسجد. يرجى المحاولة مرة أخرى.")
+      // إنشاء المسجد
+      const mosque = await MosqueService.createMosque({
+        name_ar: formData.name_ar.trim(),
+        name_en: formData.name_en.trim(),
+        governorate_id: parseInt(formData.governorate_id),
+        district_id: parseInt(formData.district_id),
+        sub_district_id: parseInt(formData.sub_district_id),
+        neighborhood_id: parseInt(formData.neighborhood_id),
+        address_text: formData.address_text.trim() || undefined,
+        latitude: formData.latitude.trim() || undefined,
+        longitude: formData.longitude.trim() || undefined,
+        damage_level: formData.damage_level,
+        estimated_cost: formData.estimated_cost.trim() || undefined,
+        is_reconstruction: formData.is_reconstruction,
+        status: formData.status,
+      })
+
+      setSavedMosque(mosque)
+      setStep("media")
+      toast.success('تم حفظ المسجد بنجاح! يمكنك الآن إضافة الصور')
+    } catch (err: any) {
+      console.error('Error creating mosque:', err)
+      setError(err.message || "حدث خطأ أثناء إضافة المسجد. يرجى المحاولة مرة أخرى.")
     } finally {
       setIsLoading(false)
     }
@@ -66,8 +146,11 @@ export default function NewMosquePage() {
   return (
     <div className="space-y-2">
       <DashboardHeader
-        title="إضافة مسجد جديد"
-        description="إضافة مسجد جديد إلى قاعدة البيانات مع جميع التفاصيل المطلوبة"
+        title={step === "form" ? "إضافة مسجد جديد" : "إضافة وسائط المسجد"}
+        description={step === "form" 
+          ? "إضافة مسجد جديد إلى قاعدة البيانات مع جميع التفاصيل المطلوبة"
+          : "قم بإضافة صور قبل وبعد الترميم لإظهار التقدم المحرز"
+        }
       />
 
       <div className="p-6">
@@ -82,7 +165,9 @@ export default function NewMosquePage() {
               إدارة المساجد
             </Link>
             <ArrowRight className="w-4 h-4" />
-            <span className="text-slate-900 font-medium">إضافة مسجد جديد</span>
+            <span className="text-slate-900 font-medium">
+              {step === "form" ? "إضافة مسجد جديد" : "إضافة وسائط"}
+            </span>
           </div>
 
           {error && (
@@ -92,7 +177,8 @@ export default function NewMosquePage() {
             </Alert>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          {step === "form" ? (
+            <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Information */}
             <Card>
               <CardHeader>
@@ -104,40 +190,52 @@ export default function NewMosquePage() {
               <CardContent className="space-y-4">
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="name">اسم المسجد *</Label>
+                    <Label htmlFor="name_ar">اسم المسجد (عربي) *</Label>
                     <Input
-                      id="name"
-                      name="name"
-                      value={formData.name}
+                      id="name_ar"
+                      name="name_ar"
+                      value={formData.name_ar}
                       onChange={handleInputChange}
-                      placeholder="أدخل اسم المسجد"
+                      placeholder="أدخل اسم المسجد باللغة العربية"
                       required
                     />
                   </div>
                   <div>
-                    <Label htmlFor="status">الحالة</Label>
-                    <select
-                      id="status"
-                      name="status"
-                      value={formData.status}
+                    <Label htmlFor="name_en">اسم المسجد (إنجليزي) *</Label>
+                    <Input
+                      id="name_en"
+                      name="name_en"
+                      value={formData.name_en}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                    >
-                      <option value="نشط">نشط</option>
-                      <option value="موقوف">موقوف</option>
-                      <option value="مكتمل">مكتمل</option>
-                    </select>
+                      placeholder="أدخل اسم المسجد باللغة الإنجليزية"
+                      required
+                    />
                   </div>
                 </div>
 
                 <div>
-                  <Label htmlFor="description">الوصف</Label>
-                  <Textarea
-                    id="description"
-                    name="description"
-                    value={formData.description}
+                  <Label htmlFor="status">الحالة</Label>
+                  <select
+                    id="status"
+                    name="status"
+                    value={formData.status}
                     onChange={handleInputChange}
-                    placeholder="وصف مختصر عن المسجد وأهميته التاريخية"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  >
+                    <option value="نشط">نشط</option>
+                    <option value="موقوف">موقوف</option>
+                    <option value="مكتمل">مكتمل</option>
+                  </select>
+                </div>
+
+                <div>
+                  <Label htmlFor="address_text">العنوان التفصيلي</Label>
+                  <Textarea
+                    id="address_text"
+                    name="address_text"
+                    value={formData.address_text}
+                    onChange={handleInputChange}
+                    placeholder="العنوان الكامل والتفصيلي للمسجد"
                     rows={3}
                   />
                 </div>
@@ -154,83 +252,44 @@ export default function NewMosquePage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid md:grid-cols-2 gap-4">
-                  <div>
+                  <div className="space-y-2">
                     <Label htmlFor="governorate_id">المحافظة *</Label>
-                    <select
-                      id="governorate_id"
-                      name="governorate_id"
+                    <GovernorateSelect
                       value={formData.governorate_id}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      onValueChange={handleGovernorateChange}
                       required
-                    >
-                      <option value="">اختر المحافظة</option>
-                      <option value="1">دمشق</option>
-                      <option value="2">حلب</option>
-                      <option value="3">حمص</option>
-                      <option value="4">حماة</option>
-                      <option value="5">اللاذقية</option>
-                    </select>
+                    />
                   </div>
-                  <div>
+                  <div className="space-y-2">
                     <Label htmlFor="district_id">المنطقة *</Label>
-                    <select
-                      id="district_id"
-                      name="district_id"
+                    <DistrictSelect
                       value={formData.district_id}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      onValueChange={handleDistrictChange}
+                      parentId={formData.governorate_id ? parseInt(formData.governorate_id) : undefined}
                       required
-                    >
-                      <option value="">اختر المنطقة</option>
-                      <option value="1">المدينة القديمة</option>
-                      <option value="2">الميدان</option>
-                      <option value="3">الصالحية</option>
-                    </select>
+                    />
                   </div>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="sub_district_id">الناحية</Label>
-                    <select
-                      id="sub_district_id"
-                      name="sub_district_id"
+                  <div className="space-y-2">
+                    <Label htmlFor="sub_district_id">الناحية *</Label>
+                    <SubDistrictSelect
                       value={formData.sub_district_id}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                    >
-                      <option value="">اختر الناحية</option>
-                      <option value="1">الناحية الأولى</option>
-                      <option value="2">الناحية الثانية</option>
-                    </select>
+                      onValueChange={handleSubDistrictChange}
+                      parentId={formData.district_id ? parseInt(formData.district_id) : undefined}
+                      required
+                    />
                   </div>
-                  <div>
-                    <Label htmlFor="neighborhood_id">الحي</Label>
-                    <select
-                      id="neighborhood_id"
-                      name="neighborhood_id"
+                  <div className="space-y-2">
+                    <Label htmlFor="neighborhood_id">الحي *</Label>
+                    <NeighborhoodSelect
                       value={formData.neighborhood_id}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                    >
-                      <option value="">اختر الحي</option>
-                      <option value="1">الحي الأول</option>
-                      <option value="2">الحي الثاني</option>
-                    </select>
+                      onValueChange={(value) => setFormData(prev => ({ ...prev, neighborhood_id: value }))}
+                      parentId={formData.sub_district_id ? parseInt(formData.sub_district_id) : undefined}
+                      required
+                    />
                   </div>
-                </div>
-
-                <div>
-                  <Label htmlFor="address_text">العنوان التفصيلي</Label>
-                  <Textarea
-                    id="address_text"
-                    name="address_text"
-                    value={formData.address_text}
-                    onChange={handleInputChange}
-                    placeholder="العنوان الكامل والتفصيلي للمسجد"
-                    rows={2}
-                  />
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-4">
@@ -259,6 +318,35 @@ export default function NewMosquePage() {
                     />
                   </div>
                 </div>
+
+                {/* الخريطة التفاعلية لتحديد الموقع */}
+                <div className="space-y-2">
+                  <Label className="text-slate-700 font-medium">
+                    تحديد الموقع على الخريطة
+                  </Label>
+                  <div className="border border-slate-300 rounded-lg overflow-hidden">
+                    <InteractiveMap
+                      center={
+                        formData.latitude && formData.longitude
+                          ? [parseFloat(formData.latitude), parseFloat(formData.longitude)]
+                          : [33.5138, 36.2765] // Damascus default
+                      }
+                      zoom={13}
+                      className="w-full h-96"
+                      interactive={true}
+                      onLocationSelect={handleMapClick}
+                      selectedLocation={
+                        formData.latitude && formData.longitude
+                          ? [parseFloat(formData.latitude), parseFloat(formData.longitude)]
+                          : null
+                      }
+                      showCurrentMarker={false}
+                    />
+                  </div>
+                  <p className="text-xs text-slate-500 mt-1">
+                    💡 انقر على الخريطة لتحديد موقع المسجد وسيتم تحديث الإحداثيات تلقائياً
+                  </p>
+                </div>
               </CardContent>
             </Card>
 
@@ -272,21 +360,15 @@ export default function NewMosquePage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid md:grid-cols-2 gap-4">
-                  <div>
+                  <div className="space-y-2">
                     <Label htmlFor="damage_level">مستوى الضرر *</Label>
-                    <select
-                      id="damage_level"
-                      name="damage_level"
+                    <DamageSelect
                       value={formData.damage_level}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                      required
-                    >
-                      <option value="جزئي">ضرر جزئي</option>
-                      <option value="كامل">ضرر كامل</option>
-                    </select>
+                      onValueChange={(value) => setFormData(prev => ({ ...prev, damage_level: value as "جزئي" | "كامل" }))}
+                      placeholder="اختر مستوى الضرر"
+                    />
                   </div>
-                  <div>
+                  <div className="space-y-2">
                     <Label htmlFor="estimated_cost">التكلفة المقدرة (ل.س)</Label>
                     <Input
                       id="estimated_cost"
@@ -299,95 +381,28 @@ export default function NewMosquePage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id="is_reconstruction"
-                    name="is_reconstruction"
-                    checked={formData.is_reconstruction}
-                    onChange={handleInputChange}
-                    className="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500"
+                <div className="space-y-2">
+                  <Label htmlFor="status">الحالة</Label>
+                  <StatusSelect
+                    value={formData.status}
+                    onValueChange={(value) => setFormData(prev => ({ ...prev, status: value as "نشط" | "موقوف" | "مكتمل" }))}
+                    placeholder="اختر حالة المسجد"
                   />
-                  <Label htmlFor="is_reconstruction">يحتاج إعادة إعمار كاملة</Label>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Historical Information */}
-            {/* <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-purple-600" />
-                  المعلومات التاريخية
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="historical_period">الفترة التاريخية</Label>
-                    <Input
-                      id="historical_period"
-                      name="historical_period"
-                      value={formData.historical_period}
-                      onChange={handleInputChange}
-                      placeholder="العصر الأموي، العصر العثماني، إلخ"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="architectural_style">الطراز المعماري</Label>
-                    <Input
-                      id="architectural_style"
-                      name="architectural_style"
-                      value={formData.architectural_style}
-                      onChange={handleInputChange}
-                      placeholder="أموي، عثماني، مملوكي، إلخ"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="condition">الحالة العامة</Label>
-                    <select
-                      id="condition"
-                      name="condition"
-                      value={formData.condition}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                    >
-                      <option value="">اختر الحالة</option>
-                      <option value="ممتازة">ممتازة</option>
-                      <option value="جيدة">جيدة</option>
-                      <option value="متوسطة">متوسطة</option>
-                      <option value="سيئة">سيئة</option>
-                      <option value="متهدمة">متهدمة</option>
-                    </select>
-                  </div>
-                  <div>
-                    <Label htmlFor="last_restoration">آخر ترميم</Label>
-                    <Input
-                      id="last_restoration"
-                      name="last_restoration"
-                      type="date"
-                      value={formData.last_restoration}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                </div>
-              </CardContent>
-            </Card> */}
-
             {/* Action Buttons */}
             <div className="flex gap-4 justify-end">
               <Link href="/dashboard/mosques">
-                <Button type="button" variant="outline">
+                <Button type="button" variant="outline" disabled={isLoading}>
                   إلغاء
                 </Button>
               </Link>
               <Button type="submit" disabled={isLoading} className="bg-emerald-600 hover:bg-emerald-700">
                 {isLoading ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin ml-2" />
+                    <Loader2 className="w-4 h-4 animate-spin ml-2" />
                     جاري الحفظ...
                   </>
                 ) : (
@@ -399,6 +414,61 @@ export default function NewMosquePage() {
               </Button>
             </div>
           </form>
+          ) : (
+            <div className="space-y-6">
+              {/* معلومات المسجد المحفوظ */}
+              <Card className="bg-green-50 border-green-200">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                      <Check className="w-5 h-5 text-green-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-green-900">
+                        تم حفظ المسجد بنجاح!
+                      </h3>
+                      <p className="text-sm text-green-700">
+                        {savedMosque?.name_ar} - يمكنك الآن إضافة الصور
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* مكون رفع الوسائط */}
+              <MediaUpload
+                mosqueId={savedMosque?.id}
+                onMediaUpdate={() => {
+                  // يمكن إضافة منطق تحديث هنا إذا لزم الأمر
+                }}
+              />
+
+              {/* أزرار التحكم */}
+              <div className="flex gap-4 justify-between">
+                <Button
+                  variant="outline"
+                  onClick={() => setStep("form")}
+                >
+                  العودة للنموذج
+                </Button>
+                
+                <div className="flex gap-4">
+                  <Button
+                    variant="outline"
+                    onClick={() => router.push(`/dashboard/mosques/${savedMosque?.id}`)}
+                  >
+                    عرض المسجد
+                  </Button>
+                  <Button
+                    onClick={() => router.push("/dashboard/mosques")}
+                    className="bg-emerald-600 hover:bg-emerald-700"
+                  >
+                    إنهاء والعودة للقائمة
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
