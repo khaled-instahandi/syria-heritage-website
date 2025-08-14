@@ -1,4 +1,5 @@
 import { toast } from "sonner"
+import { FeaturedMosquesResponse } from "./types"
 
 // نوع البيانات للمستخدم
 export interface User {
@@ -459,6 +460,19 @@ class ApiClient {
       localStorage.setItem('user', JSON.stringify(user))
     }
   }
+
+  // جلب المساجد المميزة
+  async getFeaturedMosques(): Promise<FeaturedMosquesResponse> {
+    try {
+      const response = await this.get<FeaturedMosquesResponse>('/public/latest-mosques', false)
+      return response
+    } catch (error: any) {
+      console.error('Error fetching featured mosques:', error)
+      
+      // في حالة فشل الطلب، أرجع بيانات فارغة بدلاً من إرسال خطأ
+      return { data: [] }
+    }
+  }
 }
 
 // إنشاء instance مشترك
@@ -503,6 +517,10 @@ export const api = {
 
   updateUser: (user: User) =>
     apiClient.updateUser(user),
+
+  // جلب المساجد المميزة
+  getFeaturedMosques: () =>
+    apiClient.getFeaturedMosques(),
 }
 
 export default api

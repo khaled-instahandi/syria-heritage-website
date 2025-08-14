@@ -1,17 +1,52 @@
 "use client"
 
-import { useTranslations } from "next-intl"
+import { useTranslations, useLocale } from "next-intl"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { StatsSection } from "@/components/ui/stats-section"
 import { ProjectCard } from "@/components/ui/project-card"
 import { Star, Heart, Target, ChevronDown, Sparkles } from "lucide-react"
 import { mockProjects } from "@/lib/mock-data"
+import { transformMosquesToProjects, DisplayProject } from "@/lib/data-transformers"
+import { api } from "@/lib/api"
 import Link from "next/link"
+import { useEffect, useState } from "react"
 
 export default function HomePage() {
   const t = useTranslations()
-  const featuredProjects = mockProjects.slice(0, 3)
+  const locale = useLocale()
+  const [featuredProjects, setFeaturedProjects] = useState<DisplayProject[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  // جلب المساجد المميزة من API
+  useEffect(() => {
+    const fetchFeaturedMosques = async () => {
+      try {
+        setIsLoading(true)
+        setError(null)
+        
+        const response = await api.getFeaturedMosques()
+        if (response.data && response.data.length > 0) {
+          // تحويل المساجد إلى مشاريع وأخذ أول 3
+          const projects = transformMosquesToProjects(response.data, locale).slice(0, 3)
+          setFeaturedProjects(projects)
+        } else {
+          // في حالة عدم وجود بيانات، استخدم البيانات الوهمية
+          setFeaturedProjects(mockProjects.slice(0, 3) as any)
+        }
+      } catch (err) {
+        console.error('Error fetching featured mosques:', err)
+        setError('فشل في جلب البيانات')
+        // استخدم البيانات الوهمية في حالة الخطأ
+        setFeaturedProjects(mockProjects.slice(0, 3) as any)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchFeaturedMosques()
+  }, [locale])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
@@ -88,11 +123,49 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-            {featuredProjects.map((project, index) => (
-              <ProjectCard key={project.id} project={project} index={index} />
-            ))}
-          </div>
+          {/* حالة التحميل */}
+          {isLoading && (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="animate-pulse">
+                  <div className="bg-slate-200 rounded-lg h-48 mb-4"></div>
+                  <div className="bg-slate-200 rounded h-6 mb-2"></div>
+                  <div className="bg-slate-200 rounded h-4 mb-4 w-3/4"></div>
+                  <div className="bg-slate-200 rounded h-3 mb-2"></div>
+                  <div className="bg-slate-200 rounded h-8"></div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* رسالة الخطأ */}
+          {error && !isLoading && (
+            <div className="text-center py-12">
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 max-w-md mx-auto">
+                <p className="text-yellow-800 mb-4">{error}</p>
+                <p className="text-yellow-600 text-sm">عرض البيانات التجريبية بدلاً من ذلك</p>
+              </div>
+            </div>
+          )}
+
+          {/* المشاريع المميزة */}
+          {!isLoading && featuredProjects.length > 0 && (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+              {featuredProjects.map((project, index) => (
+                <ProjectCard key={project.id} project={project} index={index} />
+              ))}
+            </div>
+          )}
+
+          {/* رسالة عدم وجود بيانات */}
+          {!isLoading && featuredProjects.length === 0 && !error && (
+            <div className="text-center py-12">
+              <div className="bg-slate-50 border border-slate-200 rounded-lg p-8 max-w-md mx-auto">
+                <p className="text-slate-600 mb-4">لا توجد مشاريع متاحة حالياً</p>
+                <p className="text-slate-500 text-sm">سيتم إضافة مشاريع جديدة قريباً</p>
+              </div>
+            </div>
+          )}
 
           <div className="text-center">
             <Link href="/projects">

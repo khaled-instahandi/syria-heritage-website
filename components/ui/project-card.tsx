@@ -9,16 +9,115 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { MapPin, Heart } from "lucide-react"
 import type { Project } from "@/lib/types"
+import type { DisplayProject } from "@/lib/data-transformers"
 import { getMosqueById, getGovernorateById, getDonationsByProjectId, getMainImageForMosque } from "@/lib/mock-data"
 import { formatCurrency, calculateProgress } from "@/lib/utils"
+import { getFullImageUrl } from "@/lib/data-transformers"
 
 interface ProjectCardProps {
-  project: Project
+  project: Project | DisplayProject
   index?: number
+}
+
+// type guard لتحديد نوع Project
+function isDisplayProject(project: Project | DisplayProject): project is DisplayProject {
+  return 'location' in project
 }
 
 export function ProjectCard({ project, index = 0 }: ProjectCardProps) {
   const t = useTranslations()
+
+  if (isDisplayProject(project)) {
+    // التعامل مع DisplayProject (البيانات من API)
+    const progress = project.progress_percentage || 0
+    const totalRaised = project.collected_amount || 0
+    const imageUrl = getFullImageUrl(project.image_url)
+
+    return (
+      <Card
+        className="group hover:shadow-2xl transition-all duration-500 transform hover:scale-105 border-0 shadow-lg bg-white/80 backdrop-blur-sm overflow-hidden animate-in fade-in-50 slide-in-from-bottom-4"
+        style={{ animationDelay: `${index * 200}ms` }}
+      >
+        <div className="relative overflow-hidden">
+          <Image
+            src={imageUrl}
+            alt={project.title}
+            width={400}
+            height={300}
+            className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-700"
+            onError={(e) => {
+              const img = e.currentTarget
+              img.src = '/placeholder.jpg'
+            }}
+          />
+          <div className="absolute top-4 right-4">
+            <Badge
+              className={`${project.project_category === "إعادة إعمار" ? "bg-emerald-600" : "bg-blue-600"} text-white shadow-lg`}
+            >
+              {t(`projects.category.${project.project_category === "إعادة إعمار" ? "reconstruction" : "restoration"}`)}
+            </Badge>
+          </div>
+          <div className="absolute top-4 left-4">
+            <Badge variant="secondary" className="bg-white/90 text-slate-700 shadow-lg">
+              {t(
+                `projects.status.${project.status === "قيد الدراسة" ? "study" : project.status === "قيد التنفيذ" ? "progress" : "completed"}`,
+              )}
+            </Badge>
+          </div>
+        </div>
+
+        <CardContent className="p-6">
+          <div className="flex items-start justify-between mb-4">
+            <div>
+              <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-emerald-600 transition-colors">
+                {project.title}
+              </h3>
+              <div className="flex items-center gap-2 text-slate-600">
+                <MapPin className="w-4 h-4" />
+                <span className="text-sm">{project.location}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="mb-6">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm text-slate-600">{t("projects.progress")}</span>
+              <span className="text-sm font-semibold text-emerald-600">{progress}%</span>
+            </div>
+            <Progress value={progress} className="h-2 bg-slate-200">
+              <div
+                className="h-full bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full transition-all duration-1000 ease-out"
+                style={{ width: `${progress}%` }}
+              />
+            </Progress>
+            <div className="flex justify-between items-center mt-2 text-sm">
+              <span className="text-slate-600">{formatCurrency(totalRaised)} {t("projects.raised")}</span>
+              <span className="font-semibold text-slate-900">
+                {project.total_cost ? formatCurrency(project.total_cost) : t("projects.undefined")} {t("projects.target")}
+              </span>
+            </div>
+          </div>
+
+          <div className="flex gap-3">
+            <Button className="flex-1 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white shadow-lg hover:shadow-xl transition-all duration-300">
+              <Heart className="w-4 h-4 ml-2" />
+              {t("projects.donate")}
+            </Button>
+            <Link href={`/projects/${project.id}`}>
+              <Button
+                variant="outline"
+                className="border-2 border-slate-300 hover:border-emerald-600 hover:text-emerald-600 transition-all duration-300 bg-transparent"
+              >
+                {t("projects.viewDetails")}
+              </Button>
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  // التعامل مع Project التقليدي (للحفاظ على التوافق مع المكونات الأخرى)
   const mosque = getMosqueById(project.mosque_id)
   const governorate = mosque ? getGovernorateById(mosque.governorate_id) : null
   const donations = getDonationsByProjectId(project.id)

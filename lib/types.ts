@@ -126,8 +126,37 @@ export interface MosqueMedia {
   file_url: string
   is_main: boolean
   media_order: number
+  media_stage: "before" | "after"
   created_at: string
   updated_at: string
+}
+
+export interface FeaturedMosque {
+  id: number
+  name_ar: string
+  name_en: string
+  governorate_ar: string
+  governorate_en: string
+  district_ar: string
+  district_en: string
+  sub_district_ar: string
+  sub_district_en: string
+  neighborhood_ar: string
+  neighborhood_en: string
+  address_text: string
+  latitude: string
+  longitude: string
+  damage_level: string
+  estimated_cost: string
+  is_reconstruction: number
+  created_by: string
+  status: string
+  created_at: string
+  media: MosqueMedia[]
+}
+
+export interface FeaturedMosquesResponse {
+  data: FeaturedMosque[]
 }
 
 export interface Log {
