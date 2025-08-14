@@ -8,7 +8,7 @@
 ### 1. Dropdown Menu للحالات
 - **أيقونة**: CheckCircle مع tooltip "تغيير الحالة"
 - **الحالات المتاحة**:
-  - 🟢 نشط (أخضر)
+  - 🟢 مفعل (أخضر)
   - 🟡 موقوف (برتقالي)
   - 🔵 مكتمل (أزرق)
 
@@ -20,7 +20,7 @@
 ### 3. الوظائف التقنية
 ```typescript
 // وظيفة تحديث الحالة
-const handleStatusChange = async (mosqueId: number, newStatus: "نشط" | "موقوف" | "مكتمل") => {
+const handleStatusChange = async (mosqueId: number, newStatus: "مفعل" | "موقوف" | "مكتمل") => {
   // تحديث فوري على UI
   setMosques(prev => prev.map(mosque => 
     mosque.id === mosqueId ? { ...mosque, status: newStatus } : mosque
@@ -38,7 +38,7 @@ const handleStatusChange = async (mosqueId: number, newStatus: "نشط" | "مو�
 ### 4. خدمة API جديدة
 ```typescript
 // في mosque-service.ts
-static async updateMosqueStatus(id: number, status: "نشط" | "موقوف" | "مكتمل"): Promise<Mosque> {
+static async updateMosqueStatus(id: number, status: "مفعل" | "موقوف" | "مكتمل"): Promise<Mosque> {
   const response = await api.updateMosque(id, { status })
   return response.data
 }
@@ -49,7 +49,7 @@ static async updateMosqueStatus(id: number, status: "نشط" | "موقوف" | "�
 ### الشكل النهائي:
 ```
 [👁️ عرض] [✏️ تعديل] [✅ حالة ▼] [🗑️ حذف]
-                      ├─ 🟢 نشط
+                      ├─ 🟢 مفعل
                       ├─ 🟡 موقوف  
                       └─ 🔵 مكتمل
 ```

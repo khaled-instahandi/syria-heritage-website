@@ -230,7 +230,7 @@ export default function MosqueDetailsPage() {
                     </CardHeader>
                     <CardContent>
                       <p className="text-slate-700 leading-relaxed">
-                        {mosque.description || "مسجد تاريخي في منطقة " + district?.name + " بمحافظة " + governorate?.name + ". يحتاج إلى أعمال ترميم وإعادة إعمار للحفاظ على تراثه المعماري الأصيل."}
+                        {mosque.description || "مسجد تاريخي في منطقة " + district?.name + " بمحافظة " + governorate?.name + ". يحتاج إلى أعمال ترميم وإعادة إعمار للحفاظ على مساجده المعماري الأصيل."}
                       </p>
                     </CardContent>
                   </Card>

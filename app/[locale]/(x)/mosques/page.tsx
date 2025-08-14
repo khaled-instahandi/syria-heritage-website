@@ -47,7 +47,7 @@ export default function MosquesPage() {
     sub_district_id: "",
     neighborhood_id: "",
     damage_level: "all" as "جزئي" | "كامل" | "all",
-    status: "all" as "نشط" | "موقوف" | "مكتمل" | "all",
+    status: "all" as "مفعل" | "موقوف" | "مكتمل" | "all",
     is_reconstruction: undefined as boolean | undefined,
     per_page: 12
   })
@@ -358,7 +358,7 @@ export default function MosquesPage() {
                     <div className="absolute top-3 right-3">
                       <Badge
                         className={`
-                          ${mosque.status === "نشط" ? "bg-green-500" :
+                          ${mosque.status === "مفعل" ? "bg-green-500" :
                             mosque.status === "مكتمل" ? "bg-blue-500" : "bg-red-500"}
                         `}
                       >

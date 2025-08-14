@@ -28,7 +28,7 @@ const mockMedia = [
     uploadedAt: "2024-01-15T10:30:00Z",
     isMain: true,
     description: "صورة رئيسية للمسجد من الخارج",
-    tags: ["مسجد", "دمشق", "تراث"],
+    tags: ["مسجد", "دمشق", "مساجد"],
   },
   {
     id: 2,

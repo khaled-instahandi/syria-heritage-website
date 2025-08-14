@@ -395,7 +395,7 @@ export default function EditProjectPage() {
                 {project && (
                   <div className="mt-4 grid md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label className="text-slate-700 font-medium">تاريخ الإنشاء</Label>
+                      <Label className="text-slate-700 font-medium"> تاريخ البناء</Label>
                       <p className="text-slate-900 bg-slate-50 p-3 rounded-lg">
                         {new Date(project.created_at).toLocaleDateString('ar-SA')}
                       </p>

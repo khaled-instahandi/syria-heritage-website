@@ -25,7 +25,7 @@ export default function HomePage() {
       try {
         setIsLoading(true)
         setError(null)
-        
+
         const response = await api.getFeaturedMosques()
         if (response.data && response.data.length > 0) {
           // تحويل المساجد إلى مشاريع وأخذ أول 3
@@ -53,7 +53,7 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="relative py-20 lg:py-32 overflow-hidden hero-section">
         {/* Background Image */}
-        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{backgroundImage: 'url("/images/bg-hero.jpg")'}}></div>
+        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url("/images/bg-hero.jpg")' }}></div>
         {/* Dark Overlay */}
         <div className="absolute inset-0 bg-black/40"></div>
         {/* Gradient Overlay */}
@@ -84,18 +84,18 @@ export default function HomePage() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-in fade-in-50 slide-in-from-bottom-10 duration-1200">
-              <Button
+              {/* <Button
                 size="lg"
                 className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white px-8 py-4 text-lg shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
               >
                 <Heart className="w-5 h-5 ml-2" />
                 {t("home.becomePartner")}
-              </Button>
+              </Button> */}
               <Link href="/projects">
                 <Button
                   size="lg"
-                  variant="outline"
-                  className="px-8 py-4 text-lg border-2 border-slate-300 hover:border-emerald-600 text-white hover:text-emerald-600 transition-all duration-300 bg-transparent"
+                  // variant="outline"
+                  className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white px-8 py-4 text-lg shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
                 >
                   <Target className="w-5 h-5 ml-2" />
                   {t("home.viewProjects")}

@@ -46,7 +46,7 @@ export class MosqueService {
     damage_level: "جزئي" | "كامل"
     estimated_cost?: string
     is_reconstruction: boolean
-    status: "نشط" | "موقوف" | "مكتمل"
+    status: "مفعل" | "موقوف" | "مكتمل"
   }): Promise<Mosque> {
     try {
       const response = await api.createMosque(data)
@@ -71,7 +71,7 @@ export class MosqueService {
     damage_level?: "جزئي" | "كامل"
     estimated_cost?: string
     is_reconstruction?: boolean
-    status?: "نشط" | "موقوف" | "مكتمل"
+    status?: "مفعل" | "موقوف" | "مكتمل"
   }): Promise<Mosque> {
     try {
       const response = await api.updateMosque(id, data)
@@ -94,7 +94,7 @@ export class MosqueService {
   }
 
   // تحديث حالة المسجد فقط
-  static async updateMosqueStatus(id: number, status: "نشط" | "موقوف" | "مكتمل"): Promise<Mosque> {
+  static async updateMosqueStatus(id: number, status: "مفعل" | "موقوف" | "مكتمل"): Promise<Mosque> {
     try {
       // استخدام نفس endpoint التحديث لكن مع إرسال الحالة فقط
       const response = await api.updateMosque(id, { status })
@@ -131,7 +131,7 @@ export class MosqueService {
   }
 
   // تصفية المساجد حسب الحالة
-  static async getMosquesByStatus(status: "نشط" | "موقوف" | "مكتمل", page = 1): Promise<MosquesResponse> {
+  static async getMosquesByStatus(status: "مفعل" | "موقوف" | "مكتمل", page = 1): Promise<MosquesResponse> {
     return this.getMosques({
       status,
       page

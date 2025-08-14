@@ -573,7 +573,7 @@ class ApiClient {
     damage_level: "جزئي" | "كامل"
     estimated_cost?: string
     is_reconstruction: boolean
-    status: "نشط" | "موقوف" | "مكتمل"
+    status: "مفعل" | "موقوف" | "مكتمل"
   }): Promise<{ data: Mosque }> {
     const formData = new FormData()
     
@@ -609,7 +609,7 @@ class ApiClient {
     damage_level?: "جزئي" | "كامل"
     estimated_cost?: string
     is_reconstruction?: boolean
-    status?: "نشط" | "موقوف" | "مكتمل"
+    status?: "مفعل" | "موقوف" | "مكتمل"
   }): Promise<{ data: Mosque }> {
     const formData = new FormData()
     
@@ -907,7 +907,7 @@ export const api = {
     damage_level: "جزئي" | "كامل"
     estimated_cost?: string
     is_reconstruction: boolean
-    status: "نشط" | "موقوف" | "مكتمل"
+    status: "مفعل" | "موقوف" | "مكتمل"
   }) =>
     apiClient.createMosque(data),
 
@@ -925,7 +925,7 @@ export const api = {
     damage_level?: "جزئي" | "كامل"
     estimated_cost?: string
     is_reconstruction?: boolean
-    status?: "نشط" | "موقوف" | "مكتمل"
+    status?: "مفعل" | "موقوف" | "مكتمل"
   }) =>
     apiClient.updateMosque(id, data),
 
@@ -1013,7 +1013,7 @@ export const api = {
     sub_district_id?: number
     neighborhood_id?: number
     damage_level?: "جزئي" | "كامل" | "all"
-    status?: "نشط" | "موقوف" | "مكتمل" | "all"
+    status?: "مفعل" | "موقوف" | "مكتمل" | "all"
     is_reconstruction?: boolean
   } = {}): Promise<MosquesResponse> => {
     const params = new URLSearchParams()

@@ -18,9 +18,9 @@ export async function generateMetadata({
   params: { locale: string }
 }) {
   return {
-    title: locale === 'ar' ? 'إحياء تراث سوريا' : 'Reviving Syria\'s Heritage',
+    title: locale === 'ar' ? 'إحياء مساجد سوريا' : 'Reviving Syria\'s Heritage',
     description: locale === 'ar' 
-      ? 'مبادرة لتوثيق إنجازات ترميم المساجد السورية' 
+      ? 'حملة لتوثيق إنجازات ترميم المساجد السورية' 
       : 'Initiative to document Syrian mosque restoration achievements',
   }
 }

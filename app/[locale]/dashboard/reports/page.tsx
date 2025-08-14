@@ -94,7 +94,7 @@ export default function ReportsPage() {
 
   return (
     <div className="min-h-screen">
-      <DashboardHeader title={t("dashboard.reports")} description="تقارير وإحصائيات شاملة عن المبادرة" />
+      <DashboardHeader title={t("dashboard.reports")} description="تقارير وإحصائيات شاملة عن الحملة" />
 
       <div className="p-6 space-y-6">
         {/* Report Controls */}
@@ -191,7 +191,7 @@ export default function ReportsPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-purple-600 text-sm font-medium">مشاريع نشطة</p>
+                  <p className="text-purple-600 text-sm font-medium">مشاريع مفعلة</p>
                   <p className="text-3xl font-bold text-slate-900">{stats.activeProjects}</p>
                   <p className="text-purple-600 text-sm mt-1">-3% من الشهر الماضي</p>
                 </div>

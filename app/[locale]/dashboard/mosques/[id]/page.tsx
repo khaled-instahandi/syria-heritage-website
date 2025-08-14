@@ -212,7 +212,7 @@ export default function MosqueDetailsPage() {
                   <label className="text-sm font-medium text-slate-600">الحالة</label>
                   <div className="mt-1">
                     <Badge
-                      className={`${mosque.status === "نشط"
+                      className={`${mosque.status === "مفعل"
                           ? "bg-emerald-100 text-emerald-800"
                           : mosque.status === "مكتمل"
                             ? "bg-blue-100 text-blue-800"

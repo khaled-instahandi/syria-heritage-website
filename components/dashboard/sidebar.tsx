@@ -152,7 +152,7 @@ export function DashboardSidebar({
                     {isRTL ? "لوحة التحكم" : "Dashboard"}
                   </h2>
                   <p className="text-xs text-slate-600">
-                    {isRTL ? "إدارة المبادرة" : "Management Panel"}
+                    {isRTL ? "إدارة الحملة" : "Management Panel"}
                   </p>
                 </div>
               </div>

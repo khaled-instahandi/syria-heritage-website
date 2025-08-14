@@ -75,7 +75,7 @@ import { GovernorateSelect, DistrictSelect } from "@/components/ui/location-sele
 **المسار**: `components/ui/status-select.tsx`
 
 #### المكونات المتاحة:
-- ✅ `StatusSelect` - حالة المسجد (نشط/موقوف/مكتمل)
+- ✅ `StatusSelect` - حالة المسجد (مفعل/موقوف/مكتمل)
 - 💥 `DamageSelect` - مستوى الضرر (جزئي/كامل)
 - 🔨 `WorkTypeSelect` - نوع العمل (ترميم/إعادة إعمار)
 
@@ -120,7 +120,7 @@ import { StatusSelect, DamageSelect } from "@/components/ui/status-select"
 // قبل: select عادي
 <select value={statusFilter} onChange={...}>
   <option value="all">جميع الحالات</option>
-  <option value="نشط">نشط</option>
+  <option value="مفعل">مفعل</option>
 </select>
 
 // بعد: مكون جميل مع بحث
@@ -163,7 +163,7 @@ import { StatusSelect, DamageSelect } from "@/components/ui/status-select"
   value={formData.status}
   onValueChange={(value) => setFormData(prev => ({ 
     ...prev, 
-    status: value as "نشط" | "موقوف" | "مكتمل" 
+    status: value as "مفعل" | "موقوف" | "مكتمل" 
   }))}
   placeholder="اختر حالة المسجد"
 />

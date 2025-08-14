@@ -4,7 +4,7 @@ import { SearchableSelect, SelectOption } from "@/components/ui/searchable-selec
 
 // خيارات حالة المسجد
 const statusOptions: SelectOption[] = [
-  { value: "نشط", label: "نشط", description: "المسجد في حالة نشطة" },
+  { value: "مفعل", label: "مفعل", description: "المسجد في حالة مفعلة" },
   { value: "موقوف", label: "موقوف", description: "المسجد متوقف مؤقتاً" },
   { value: "مكتمل", label: "مكتمل", description: "اكتمل العمل في المسجد" }
 ]
@@ -24,7 +24,7 @@ const workTypeOptions: SelectOption[] = [
 // خيارات الفلاتر العامة
 const filterOptions = {
   all: { value: "all", label: "الكل", description: "عرض جميع العناصر" },
-  active: { value: "نشط", label: "النشطة فقط", description: "عرض العناصر النشطة" },
+  active: { value: "مفعل", label: "المفعلة فقط", description: "عرض العناصر المفعلة" },
   completed: { value: "مكتمل", label: "المكتملة فقط", description: "عرض العناصر المكتملة" }
 }
 

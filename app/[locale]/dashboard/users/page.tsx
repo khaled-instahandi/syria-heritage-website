@@ -148,9 +148,9 @@ export default function UsersManagementPage() {
   const getStatusName = (status: string) => {
     switch (status) {
       case "active":
-        return "نشط"
+        return "مفعل"
       case "inactive":
-        return "غير نشط"
+        return "غير مفعل"
       case "suspended":
         return "موقوف"
       default:
@@ -186,7 +186,7 @@ export default function UsersManagementPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-emerald-600 text-sm font-medium">المستخدمين النشطين</p>
+                  <p className="text-emerald-600 text-sm font-medium">المستخدمين المفعلين</p>
                   <p className="text-3xl font-bold text-slate-900">{userStats.active}</p>
                   <p className="text-xs text-emerald-600 mt-1">
                     {Math.round((userStats.active / userStats.total) * 100)}% من الإجمالي
@@ -201,7 +201,7 @@ export default function UsersManagementPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-amber-600 text-sm font-medium">غير النشطين</p>
+                  <p className="text-amber-600 text-sm font-medium">غير المفعلين</p>
                   <p className="text-3xl font-bold text-slate-900">{userStats.inactive}</p>
                   <p className="text-xs text-amber-600 mt-1">يحتاجون متابعة</p>
                 </div>
@@ -256,8 +256,8 @@ export default function UsersManagementPage() {
                   className="px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 >
                   <option value="all">جميع الحالات</option>
-                  <option value="active">نشط</option>
-                  <option value="inactive">غير نشط</option>
+                  <option value="active">مفعل</option>
+                  <option value="inactive">غير مفعل</option>
                   <option value="suspended">موقوف</option>
                 </select>
               </div>

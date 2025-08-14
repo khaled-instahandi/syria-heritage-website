@@ -24,7 +24,7 @@ export function Header() {
             </div>
             <div>
               <h1 className="text-xl font-bold text-slate-800">إعمار</h1>
-              <p className="text-xs text-slate-600">تراث سوريا</p>
+              <p className="text-xs text-slate-600">مساجد سوريا</p>
             </div>
           </Link>
 

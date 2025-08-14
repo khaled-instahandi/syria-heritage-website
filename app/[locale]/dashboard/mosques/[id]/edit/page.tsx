@@ -55,7 +55,7 @@ export default function EditMosquePage() {
     damage_level: "جزئي" as "جزئي" | "كامل",
     estimated_cost: "",
     is_reconstruction: false,
-    status: "نشط" as "نشط" | "موقوف" | "مكتمل",
+    status: "مفعل" as "مفعل" | "موقوف" | "مكتمل",
   })
 
   // تحميل البيانات عند تحميل الصفحة
@@ -393,7 +393,7 @@ export default function EditMosquePage() {
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-200"
                   >
-                    <option value="نشط">نشط</option>
+                    <option value="مفعل">مفعل</option>
                     <option value="موقوف">موقوف</option>
                     <option value="مكتمل">مكتمل</option>
                   </select>

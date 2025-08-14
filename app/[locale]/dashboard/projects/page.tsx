@@ -126,7 +126,7 @@ export default function ProjectsManagementPage() {
       }))
   ]
 
-  // حساب عدد الفلاتر النشطة
+  // حساب عدد الفلاتر المفعلة
   const activeFiltersCount = Object.entries(filters).filter(([key, value]) => 
     value && value !== "" && value !== "all" && key !== "page" && key !== "per_page"
   ).length
@@ -334,12 +334,12 @@ export default function ProjectsManagementPage() {
               </div>
             </div>
 
-            {/* مؤشر الفلاتر النشطة */}
+            {/* مؤشر الفلاتر المفعلة */}
             {activeFiltersCount > 0 && (
               <div className="mt-4 pt-4 border-t border-slate-200">
                 <div className="flex items-center gap-2 text-sm text-slate-600">
                   <Filter className="w-4 h-4" />
-                  <span>الفلاتر النشطة ({activeFiltersCount}):</span>
+                  <span>الفلاتر المفعلة ({activeFiltersCount}):</span>
                   <div className="flex flex-wrap gap-2">
                     {filters.search && (
                       <Badge variant="secondary" className="gap-1">
@@ -448,7 +448,7 @@ export default function ProjectsManagementPage() {
                       <TableHead className="text-right">التقدم</TableHead>
                       <TableHead className="text-right">التكلفة</TableHead>
                       <TableHead className="text-right">الحالة</TableHead>
-                      <TableHead className="text-right">تاريخ الإنشاء</TableHead>
+                      <TableHead className="text-right"> تاريخ البناء</TableHead>
                       <TableHead className="text-right">الإجراءات</TableHead>
                     </TableRow>
                   </TableHeader>

@@ -17,8 +17,8 @@ export default function LoginLoading() {
             <Building2 className="w-7 h-7 text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-slate-800">إحياء تراث سوريا</h1>
-            <p className="text-sm text-slate-600">الحفاظ على التراث</p>
+            <h1 className="text-2xl font-bold text-slate-800">إحياء مساجد سوريا</h1>
+            <p className="text-sm text-slate-600">الحفاظ على المساجد</p>
           </div>
         </div>
 

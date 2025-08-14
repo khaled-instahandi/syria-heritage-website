@@ -39,7 +39,7 @@ export default function NewMosquePage() {
     damage_level: "جزئي" as "جزئي" | "كامل",
     estimated_cost: "",
     is_reconstruction: false,
-    status: "نشط" as "نشط" | "موقوف" | "مكتمل",
+    status: "مفعل" as "مفعل" | "موقوف" | "مكتمل",
   })
 
   // وظيفة للتعامل مع تغيير قيم النموذج
@@ -275,7 +275,7 @@ export default function NewMosquePage() {
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   >
-                    <option value="نشط">نشط</option>
+                    <option value="مفعل">مفعل</option>
                     <option value="موقوف">موقوف</option>
                     <option value="مكتمل">مكتمل</option>
                   </select>
@@ -438,7 +438,7 @@ export default function NewMosquePage() {
                   <Label htmlFor="status">الحالة</Label>
                   <StatusSelect
                     value={formData.status}
-                    onValueChange={(value) => setFormData(prev => ({ ...prev, status: value as "نشط" | "موقوف" | "مكتمل" }))}
+                    onValueChange={(value) => setFormData(prev => ({ ...prev, status: value as "مفعل" | "موقوف" | "مكتمل" }))}
                     placeholder="اختر حالة المسجد"
                   />
                 </div>

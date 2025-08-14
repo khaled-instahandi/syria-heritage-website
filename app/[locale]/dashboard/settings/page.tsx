@@ -117,7 +117,7 @@ export default function SettingsPage() {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-slate-700 mb-2">المنصب</label>
-                      <Input defaultValue="مدير المبادرة" />
+                      <Input defaultValue="مدير الحملة" />
                     </div>
                   </div>
 
@@ -125,7 +125,7 @@ export default function SettingsPage() {
                     <label className="block text-sm font-medium text-slate-700 mb-2">نبذة شخصية</label>
                     <Textarea
                       rows={4}
-                      defaultValue="مدير مبادرة إحياء تراث سوريا، مهندس معماري متخصص في التراث الإسلامي مع خبرة 15 عام في مجال ترميم وإعادة إعمار المساجد التاريخية."
+                      defaultValue="مدير حملة إحياء مساجد سوريا، مهندس معماري متخصص في المساجد الإسلامي مع خبرة 15 عام في مجال ترميم وإعادة إعمار المساجد التاريخية."
                     />
                   </div>
 
@@ -288,10 +288,10 @@ export default function SettingsPage() {
                     </div>
 
                     <div className="border-t pt-6">
-                      <h4 className="font-medium text-slate-900 mb-4">الجلسات النشطة</h4>
+                      <h4 className="font-medium text-slate-900 mb-4">الجلسات المفعلة</h4>
                       <div className="space-y-3">
                         {[
-                          { device: "Chrome على Windows", location: "دمشق، سوريا", time: "نشط الآن", current: true },
+                          { device: "Chrome على Windows", location: "دمشق، سوريا", time: "مفعل الآن", current: true },
                           { device: "Safari على iPhone", location: "دمشق، سوريا", time: "منذ ساعتين", current: false },
                           { device: "Firefox على Linux", location: "حلب، سوريا", time: "منذ يوم", current: false },
                         ].map((session, index) => (

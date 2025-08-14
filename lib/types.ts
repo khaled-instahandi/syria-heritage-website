@@ -59,7 +59,7 @@ export interface Mosque {
   estimated_cost?: string
   is_reconstruction: number
   created_by: string
-  status: "نشط" | "موقوف" | "مكتمل"
+  status: "مفعل" | "موقوف" | "مكتمل"
   created_at: string
   media?: MosqueMedia[]
 }
@@ -283,7 +283,7 @@ export interface MosqueFilters {
   sub_district_id?: number
   neighborhood_id?: number
   damage_level?: "جزئي" | "كامل" | ""
-  status?: "نشط" | "موقوف" | "مكتمل" | ""
+  status?: "مفعل" | "موقوف" | "مكتمل" | ""
   is_reconstruction?: boolean
   created_from?: string
   created_to?: string
@@ -299,6 +299,6 @@ export interface PublicMosqueFilters {
   sub_district_id?: number
   neighborhood_id?: number
   damage_level?: "جزئي" | "كامل" | "all"
-  status?: "نشط" | "موقوف" | "مكتمل" | "all"
+  status?: "مفعل" | "موقوف" | "مكتمل" | "all"
   is_reconstruction?: boolean
 }

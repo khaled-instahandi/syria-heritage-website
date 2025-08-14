@@ -49,7 +49,7 @@ interface Project {
   approved_by?: string      // الموافق عليه من قبل
   approved_at?: string      // تاريخ الموافقة
   published_at?: string     // تاريخ النشر
-  created_at: string        // تاريخ الإنشاء
+  created_at: string        //  تاريخ البناء
 }
 ```
 

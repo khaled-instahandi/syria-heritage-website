@@ -109,7 +109,7 @@ export default function ProjectDetailPage() {
                       <Calendar className="w-5 h-5 text-amber-600" />
                     </div>
                     <div>
-                      <p className="text-sm text-slate-600">تاريخ الإنشاء</p>
+                      <p className="text-sm text-slate-600"> تاريخ البناء</p>
                       <p className="font-semibold">{formatDate(project.created_at)}</p>
                     </div>
                   </div>

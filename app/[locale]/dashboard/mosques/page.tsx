@@ -87,7 +87,7 @@ export default function MosquesManagementPage() {
       }
 
       if (statusFilter !== "all") {
-        filters.status = statusFilter as "نشط" | "موقوف" | "مكتمل"
+        filters.status = statusFilter as "مفعل" | "موقوف" | "مكتمل"
       }
 
       if (damageFilter !== "all") {
@@ -136,7 +136,7 @@ export default function MosquesManagementPage() {
   }
 
   // تغيير حالة المسجد
-  const handleStatusChange = async (mosqueId: number, newStatus: "نشط" | "موقوف" | "مكتمل") => {
+  const handleStatusChange = async (mosqueId: number, newStatus: "مفعل" | "موقوف" | "مكتمل") => {
     try {
       // تحديث الحالة مباشرة على واجهة المستخدم أولاً للاستجابة السريعة
       setMosques(prev => prev.map(mosque => 
@@ -334,7 +334,7 @@ export default function MosquesManagementPage() {
                           <TableCell>
                             <Badge
                               className={`${
-                                mosque.status === "نشط"
+                                mosque.status === "مفعل"
                                   ? "bg-emerald-100 text-emerald-800"
                                   : mosque.status === "مكتمل"
                                     ? "bg-blue-100 text-blue-800"
@@ -385,12 +385,12 @@ export default function MosquesManagementPage() {
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end" className="w-40">
                                   <DropdownMenuItem
-                                    onClick={() => handleStatusChange(mosque.id, "نشط")}
-                                    className={`cursor-pointer ${mosque.status === "نشط" ? "bg-emerald-50 text-emerald-700" : ""}`}
+                                    onClick={() => handleStatusChange(mosque.id, "مفعل")}
+                                    className={`cursor-pointer ${mosque.status === "مفعل" ? "bg-emerald-50 text-emerald-700" : ""}`}
                                   >
                                     <div className="flex items-center gap-2">
                                       <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
-                                      نشط
+                                      مفعل
                                     </div>
                                   </DropdownMenuItem>
                                   <DropdownMenuItem
