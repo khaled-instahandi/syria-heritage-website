@@ -49,10 +49,10 @@
     "subscribeNow": "اشترك الآن",
     "viewAll": "عرض الكل",
     "stats": {
-      "mosques": "مسجد مسجل",
+      "mosques": "مسجد متضرر",
       "donations": "دولار تم جمعه",
-      "completed": "مسجد مكتمل",
-      "projects": "مشروع نشط"
+      "completed": "مشروع مكتمل",
+      "projects": "مشروع مسجل"
     }
   },
   "projects": {

@@ -1,5 +1,5 @@
 import { toast } from "sonner"
-import { FeaturedMosquesResponse } from "./types"
+import { FeaturedMosquesResponse, Statistics } from "./types"
 
 // نوع البيانات للمستخدم
 export interface User {
@@ -473,6 +473,24 @@ class ApiClient {
       return { data: [] }
     }
   }
+
+  // جلب الإحصائيات العامة
+  async getStatistics(): Promise<Statistics> {
+    try {
+      const response = await this.get<Statistics>('/public/stats', false)
+      return response
+    } catch (error: any) {
+      console.error('Error fetching statistics:', error)
+      
+      // في حالة فشل الطلب، أرجع بيانات افتراضية
+      return {
+        damaged_mosques: 0,
+        total_projects: 0,
+        completed_projects: 0,
+        total_donations: 0
+      }
+    }
+  }
 }
 
 // إنشاء instance مشترك
@@ -521,6 +539,10 @@ export const api = {
   // جلب المساجد المميزة
   getFeaturedMosques: () =>
     apiClient.getFeaturedMosques(),
+
+  // جلب الإحصائيات العامة
+  getStatistics: () =>
+    apiClient.getStatistics(),
 }
 
 export default api

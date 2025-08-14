@@ -3,59 +3,102 @@
 import { useState, useEffect } from "react"
 import { useTranslations } from "next-intl"
 import { Building2 as Mosque, DollarSign, Award, TrendingUp } from "lucide-react"
-import { getStatistics } from "@/lib/mock-data"
+import { api } from "@/lib/api"
+import { Statistics } from "@/lib/types"
 
 export function StatsSection() {
   const t = useTranslations()
   const [animatedStats, setAnimatedStats] = useState({
-    totalMosques: 0,
+    damagedMosques: 0,
     totalDonations: 0,
-    completedMosques: 0,
-    activeProjects: 0,
+    completedProjects: 0,
+    totalProjects: 0,
+  })
+  const [isLoading, setIsLoading] = useState(true)
+  const [finalStats, setFinalStats] = useState<Statistics>({
+    damaged_mosques: 0,
+    total_projects: 0,
+    completed_projects: 0,
+    total_donations: 0
   })
 
-  const finalStats = getStatistics()
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        setIsLoading(true)
+        const stats = await api.getStatistics()
+        setFinalStats(stats)
+      } catch (error) {
+        console.error('Error fetching statistics:', error)
+        // في حالة الخطأ، استخدم قيم افتراضية
+        setFinalStats({
+          damaged_mosques: 0,
+          total_projects: 0,
+          completed_projects: 0,
+          total_donations: 0
+        })
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchStats()
+  }, [])
 
   useEffect(() => {
-    const animateStats = () => {
-      const duration = 2000
-      const steps = 60
-      const stepDuration = duration / steps
+    if (!isLoading) {
+      const animateStats = () => {
+        const duration = 2000
+        // get min final value from array
+        const minFinalValue = Math.max(
+          finalStats.damaged_mosques,
+          finalStats.total_donations,
+          finalStats.completed_projects,
+          finalStats.total_projects
+        )
+        const steps = minFinalValue
+        const stepDuration = duration / steps
 
-      let step = 0
-      const timer = setInterval(() => {
-        step++
-        const progress = step / steps
-        const easeOut = 1 - Math.pow(1 - progress, 3)
+        let step = 0
+        const timer = setInterval(() => {
+          step++
+          const progress = step / steps
+          const easeOut = 1 - Math.pow(1 - progress, 3)
 
-        setAnimatedStats({
-          totalMosques: Math.floor(finalStats.totalMosques * easeOut),
-          totalDonations: Math.floor(finalStats.totalDonations * easeOut),
-          completedMosques: Math.floor(finalStats.completedMosques * easeOut),
-          activeProjects: Math.floor(finalStats.activeProjects * easeOut),
-        })
+          setAnimatedStats({
+            damagedMosques: Math.floor(finalStats.damaged_mosques * easeOut),
+            totalDonations: Math.floor(finalStats.total_donations * easeOut),
+            completedProjects: Math.floor(finalStats.completed_projects * easeOut),
+            totalProjects: Math.floor(finalStats.total_projects * easeOut),
+          })
 
-        if (step >= steps) {
-          clearInterval(timer)
-          setAnimatedStats(finalStats)
-        }
-      }, stepDuration)
-    }
-
-    const observer = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting) {
-        animateStats()
-        observer.disconnect()
+          if (step >= steps) {
+            clearInterval(timer)
+            setAnimatedStats({
+              damagedMosques: finalStats.damaged_mosques,
+              totalDonations: finalStats.total_donations,
+              completedProjects: finalStats.completed_projects,
+              totalProjects: finalStats.total_projects,
+            })
+          }
+        }, stepDuration)
       }
-    })
 
-    const statsElement = document.getElementById("stats-section")
-    if (statsElement) {
-      observer.observe(statsElement)
+      const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          animateStats()
+          observer.disconnect()
+        }
+      })
+
+      const statsElement = document.getElementById("stats-section")
+      if (statsElement) {
+        observer.observe(statsElement)
+      }
+
+      return () => observer.disconnect()
     }
-
-    return () => observer.disconnect()
-  }, [])
+  }, [isLoading, finalStats])
 
   return (
     <section id="stats-section" className="py-16 bg-white relative overflow-hidden">
@@ -68,7 +111,11 @@ export function StatsSection() {
                 <Mosque className="w-6 h-6 text-white" />
               </div>
               <div className="text-3xl lg:text-4xl font-bold text-emerald-600 mb-2">
-                {animatedStats.totalMosques.toLocaleString()}
+                {isLoading ? (
+                  <div className="h-8 bg-emerald-200 rounded animate-pulse"></div>
+                ) : (
+                  animatedStats.damagedMosques.toLocaleString()
+                )}
               </div>
               <div className="text-slate-600 font-medium">{t("home.stats.mosques")}</div>
             </div>
@@ -80,7 +127,11 @@ export function StatsSection() {
                 <DollarSign className="w-6 h-6 text-white" />
               </div>
               <div className="text-3xl lg:text-4xl font-bold text-blue-600 mb-2">
-                ${animatedStats.totalDonations.toLocaleString()}
+                {isLoading ? (
+                  <div className="h-8 bg-blue-200 rounded animate-pulse"></div>
+                ) : (
+                  `$${animatedStats.totalDonations.toLocaleString()}`
+                )}
               </div>
               <div className="text-slate-600 font-medium">{t("home.stats.donations")}</div>
             </div>
@@ -91,7 +142,13 @@ export function StatsSection() {
               <div className="w-12 h-12 bg-gradient-to-br from-amber-600 to-amber-700 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                 <Award className="w-6 h-6 text-white" />
               </div>
-              <div className="text-3xl lg:text-4xl font-bold text-amber-600 mb-2">{animatedStats.completedMosques}</div>
+              <div className="text-3xl lg:text-4xl font-bold text-amber-600 mb-2">
+                {isLoading ? (
+                  <div className="h-8 bg-amber-200 rounded animate-pulse"></div>
+                ) : (
+                  animatedStats.completedProjects
+                )}
+              </div>
               <div className="text-slate-600 font-medium">{t("home.stats.completed")}</div>
             </div>
           </div>
@@ -101,7 +158,13 @@ export function StatsSection() {
               <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-purple-700 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                 <TrendingUp className="w-6 h-6 text-white" />
               </div>
-              <div className="text-3xl lg:text-4xl font-bold text-purple-600 mb-2">{animatedStats.activeProjects}</div>
+              <div className="text-3xl lg:text-4xl font-bold text-purple-600 mb-2">
+                {isLoading ? (
+                  <div className="h-8 bg-purple-200 rounded animate-pulse"></div>
+                ) : (
+                  animatedStats.totalProjects
+                )}
+              </div>
               <div className="text-slate-600 font-medium">{t("home.stats.projects")}</div>
             </div>
           </div>

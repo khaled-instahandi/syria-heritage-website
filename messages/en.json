@@ -49,10 +49,10 @@
     "subscribeNow": "Subscribe Now",
     "viewAll": "View All",
     "stats": {
-      "mosques": "Registered Mosques",
+      "mosques": "Damaged Mosques",
       "donations": "Dollars Raised",
-      "completed": "Completed Mosques",
-      "projects": "Active Projects"
+      "completed": "Completed Projects",
+      "projects": "Total Projects"
     }
   },
   "projects": {

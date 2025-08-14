@@ -174,3 +174,10 @@ export interface Tag {
   id: number
   name: string
 }
+
+export interface Statistics {
+  damaged_mosques: number
+  total_projects: number
+  completed_projects: number
+  total_donations: number
+}
