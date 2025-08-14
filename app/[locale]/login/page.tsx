@@ -26,6 +26,7 @@ export default function LoginPage() {
     password: "",
   })
 
+
   // إعادة توجيه إذا كان المستخدم مسجل دخول مسبقاً
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
@@ -44,12 +45,7 @@ export default function LoginPage() {
       // سيتم إعادة التوجيه تلقائياً بواسطة useAuth
     } catch (error: any) {
       console.error('Login error:', error)
-
-      let errorMessage = "حدث خطأ أثناء تسجيل الدخول"
-
-
-
-      setError(errorMessage)
+      setError(error.userMessage || t("login.error"))
     } finally {
       setIsLoading(false)
     }
@@ -64,6 +60,8 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-slate-50 flex items-center justify-center p-4 relative overflow-hidden">
+      {/* إضافة CSS للأنيميشن */}
+
       {/* Decorative Background */}
       <div className="absolute inset-0 overflow-hidden">
         <Sparkles className="absolute top-20 left-20 w-6 h-6 text-emerald-200 opacity-60 animate-pulse" />
@@ -96,9 +94,11 @@ export default function LoginPage() {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               {error && (
-                <Alert className="border-red-200 bg-red-50">
+                <Alert className="border-red-200 bg-red-50 animate-in slide-in-from-top duration-300">
                   <AlertCircle className="h-4 w-4 text-red-600" />
-                  <AlertDescription className="text-red-700">{error}</AlertDescription>
+                  <AlertDescription className="text-red-700 whitespace-pre-line leading-relaxed">
+                    {error}
+                  </AlertDescription>
                 </Alert>
               )}
 
@@ -154,15 +154,17 @@ export default function LoginPage() {
                 <p className="text-sm text-slate-600 mb-2 font-medium">{t("login.demoCredentials")}</p>
                 <div className="text-xs text-slate-500 space-y-1">
                   <p>{t("login.adminDemo")}</p>
-                  <p>{t("login.userDemo")}</p>
+                  {/* <p>{t("login.userDemo")}</p> */}
                 </div>
               </div>
+
+
 
               {/* Submit Button */}
               <Button
                 type="submit"
-                disabled={isLoading}
-                className="w-full h-12 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                disabled={isLoading || !formData.email || !formData.password}
+                className="w-full h-12 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
                   <div className="flex items-center space-x-2 rtl:space-x-reverse">

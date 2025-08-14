@@ -485,13 +485,13 @@
     "submitting": "Signing in...",
     "backHome": "Back to Homepage",
     "demoCredentials": "Demo Credentials:",
-    "adminDemo": "Admin: admin@syria-heritage.org / password",
-    "userDemo": "User: user@syria-heritage.org / password",
+    "adminDemo": "Admin: admin@example.com / password",
+    "userDemo": "User: user@example.com / password",
     "brandTitle": "Reviving Syria's Heritage",
     "brandSubtitle": "Preserving Heritage",
     "errors": {
       "general": "An error occurred during login",
-      "connection": "Connection error with server"
+      "connection": "Connection error with server"  
     }
   }
 }

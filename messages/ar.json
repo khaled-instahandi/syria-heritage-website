@@ -485,13 +485,26 @@
     "submitting": "جاري تسجيل الدخول...",
     "backHome": "العودة إلى الصفحة الرئيسية",
     "demoCredentials": "بيانات تجريبية:",
-    "adminDemo": "المدير: admin@syria-heritage.org / password",
-    "userDemo": "المستخدم: user@syria-heritage.org / password",
+    "adminDemo": "المدير: admin@example.com / password",
+    "userDemo": "المستخدم: user@example.com / password",
     "brandTitle": "إحياء تراث سوريا",
     "brandSubtitle": "الحفاظ على التراث",
     "errors": {
       "general": "حدث خطأ في تسجيل الدخول",
-      "connection": "حدث خطأ في الاتصال بالخادم"
+      "connection": "حدث خطأ في الاتصال بالخادم",
+      "invalidCredentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة",
+      "networkError": "تعذر الاتصال بالخادم. تحقق من اتصالك بالإنترنت",
+      "serverError": "خطأ في الخادم. حاول مرة أخرى لاحقاً",
+      "tooManyAttempts": "تم تجاوز عدد المحاولات المسموح. انتظر قليلاً وحاول مرة أخرى",
+      "accessDenied": "ليس لديك صلاحية للوصول إلى هذا النظام",
+      "invalidData": "البيانات المدخلة غير صالحة"
+    },
+    "tips": {
+      "title": "نصائح لحل المشكلة:",
+      "checkCredentials": "تأكد من صحة البريد الإلكتروني وكلمة المرور",
+      "checkConnection": "تحقق من اتصالك بالإنترنت",
+      "refreshPage": "جرب تحديث الصفحة والمحاولة مرة أخرى",
+      "contactSupport": "إذا استمرت المشكلة، تواصل مع الدعم الفني"
     }
   }
 }

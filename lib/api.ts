@@ -40,22 +40,12 @@ export interface ApiResponse<T = any> {
 export interface ApiError {
   message: string
   errors?: Record<string, string[]>
+  status?: number
+  userMessage?: string
 }
 
 // الـ Base URL للباك اند
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://back-aamar.academy-lead.com/api'
-const BASE_URL_HTTP = process.env.NEXT_PUBLIC_API_BASE_URL_HTTP || 'http://back-aamar.academy-lead.com/api'
-// استخدام proxy في التطوير لتجنب مشاكل CORS/SSL
-const PROXY_URL = '/api/proxy'
-
-// تحديد URL المناسب حسب البيئة
-const getApiUrl = () => {
-  if (process.env.NODE_ENV === 'development') {
-    // في التطوير، استخدم الـ proxy لتجنب مشاكل CORS/SSL
-    return PROXY_URL
-  }
-  return BASE_URL
-}
 
 // فئة إدارة الباك اند
 class ApiClient {
@@ -121,18 +111,23 @@ class ApiClient {
   // معالجة الاستجابة
   private async handleResponse<T>(response: Response): Promise<T> {
     const contentType = response.headers.get('content-type')
-    
+
     let data: any
     if (contentType && contentType.includes('application/json')) {
-      data = await response.json()
+      try {
+        data = await response.json()
+      } catch (parseError) {
+        data = { message: `خطأ في تحليل الاستجابة: ${response.status} ${response.statusText}` }
+      }
     } else {
-      data = { message: await response.text() }
+      data = { message: await response.text() || `HTTP ${response.status}: ${response.statusText}` }
     }
 
     if (!response.ok) {
-      const error: ApiError = {
-        message: data.message || `HTTP error! status: ${response.status}`,
-        errors: data.errors
+      const error: ApiError & { status: number } = {
+        message: data.message || this.getStatusMessage(response.status),
+        errors: data.errors,
+        status: response.status
       }
       throw error
     }
@@ -140,30 +135,57 @@ class ApiClient {
     return data
   }
 
+  // رسائل حالة HTTP مترجمة
+  private getStatusMessage(status: number): string {
+    const statusMessages: Record<number, string> = {
+      400: 'طلب غير صالح - تحقق من البيانات المُرسلة',
+      401: 'البريد الإلكتروني أو كلمة المرور غير صحيحة',
+      403: 'ليس لديك صلاحية للوصول',
+      404: 'الخدمة المطلوبة غير موجودة',
+      422: 'البيانات المدخلة غير صالحة',
+      429: 'تم تجاوز عدد المحاولات المسموح',
+      500: 'خطأ في الخادم - حاول لاحقاً',
+      502: 'الخادم غير متاح حالياً',
+      503: 'الخدمة متوقفة مؤقتاً',
+      504: 'انتهت مهلة الاتصال بالخادم'
+    }
+
+    return statusMessages[status] || `خطأ HTTP: ${status}`
+  }
+
   // معالجة الأخطاء وعرضها
   private handleError(error: any, showToast: boolean = true): void {
     console.error('API Error:', error)
-    
+
     if (showToast) {
       let errorMessage = 'حدث خطأ غير متوقع'
-      
+
       // معالجة أنواع مختلفة من الأخطاء
       if (error.message) {
-        if (error.message.includes('Failed to fetch') || error.message.includes('ERR_CERT_COMMON_NAME_INVALID')) {
+        if (error.message.includes('Failed to fetch') || 
+            error.message.includes('ERR_CERT_COMMON_NAME_INVALID') ||
+            error.message.includes('ERR_NETWORK') ||
+            error.message.includes('ERR_INTERNET_DISCONNECTED')) {
           errorMessage = 'فشل في الاتصال بالخادم. تحقق من اتصالك بالإنترنت.'
-        } else if (error.message.includes('ERR_NETWORK')) {
-          errorMessage = 'خطأ في الشبكة. تحقق من اتصالك بالإنترنت.'
         } else if (error.message.includes('CORS')) {
           errorMessage = 'خطأ في إعدادات الخادم. يرجى المحاولة لاحقاً.'
+        } else if (error.message.includes('timeout')) {
+          errorMessage = 'انتهت مهلة الاتصال. حاول مرة أخرى.'
         } else {
           errorMessage = error.message
         }
       }
-      
-      if (error.errors) {
-        // عرض أخطاء التحقق
-        Object.values(error.errors).flat().forEach((msg: any) => {
-          toast.error(msg)
+
+      // عرض أخطاء التحقق من الصحة
+      if (error.errors && typeof error.errors === 'object') {
+        Object.entries(error.errors).forEach(([field, messages]: [string, any]) => {
+          if (Array.isArray(messages)) {
+            messages.forEach((msg: string) => {
+              toast.error(`${this.translateFieldName(field)}: ${msg}`)
+            })
+          } else if (typeof messages === 'string') {
+            toast.error(`${this.translateFieldName(field)}: ${messages}`)
+          }
         })
       } else {
         toast.error(errorMessage)
@@ -176,10 +198,24 @@ class ApiClient {
     }
   }
 
+  // ترجمة أسماء الحقول
+  private translateFieldName(fieldName: string): string {
+    const fieldTranslations: Record<string, string> = {
+      'email': 'البريد الإلكتروني',
+      'password': 'كلمة المرور',
+      'name': 'الاسم',
+      'phone': 'رقم الهاتف',
+      'role': 'الدور',
+      'branch': 'الفرع'
+    }
+
+    return fieldTranslations[fieldName] || fieldName
+  }
+
   // طلب GET
   async get<T>(endpoint: string, showErrorToast: boolean = true): Promise<T> {
-    const apiUrl = getApiUrl()
-    
+    const apiUrl = BASE_URL
+
     try {
       const response = await fetch(`${apiUrl}${endpoint}`, {
         method: 'GET',
@@ -195,8 +231,8 @@ class ApiClient {
 
   // طلب POST
   async post<T>(endpoint: string, data?: any, showErrorToast: boolean = true): Promise<T> {
-    const apiUrl = getApiUrl()
-    
+    const apiUrl = BASE_URL
+
     try {
       const response = await fetch(`${apiUrl}${endpoint}`, {
         method: 'POST',
@@ -213,11 +249,10 @@ class ApiClient {
 
   // طلب POST مع FormData
   async postForm<T>(endpoint: string, formData: FormData, showErrorToast: boolean = true): Promise<T> {
-    const apiUrl = getApiUrl()
-    
+
     try {
-      console.log(`Sending FormData to: ${apiUrl}${endpoint}`)
-      const response = await fetch(`${apiUrl}${endpoint}`, {
+      console.log(`Sending FormData to: ${BASE_URL}${endpoint}`)
+      const response = await fetch(`${BASE_URL}${endpoint}`, {
         method: 'POST',
         headers: this.getFormHeaders(),
         body: formData,
@@ -225,13 +260,13 @@ class ApiClient {
 
       return await this.handleResponse<T>(response)
     } catch (error: any) {
-      console.warn(`Failed to connect:`, error.message)
-      
+      // console.warn(`Failed to connect:`, error.message)
+
       // إذا فشلت المحاولة الأولى في التطوير، جرب HTTP مباشرة
-      if (process.env.NODE_ENV === 'development' && apiUrl === PROXY_URL) {
+      if (process.env.NODE_ENV === 'development') {
         try {
-          console.log(`Retrying with HTTP: ${BASE_URL_HTTP}${endpoint}`)
-          const response = await fetch(`${BASE_URL_HTTP}${endpoint}`, {
+          console.log(`Retrying with HTTP: ${BASE_URL}${endpoint}`)
+          const response = await fetch(`${BASE_URL}${endpoint}`, {
             method: 'POST',
             headers: this.getFormHeaders(),
             body: formData,
@@ -242,14 +277,14 @@ class ApiClient {
           console.warn(`HTTP fallback also failed:`, httpError.message)
         }
       }
-      
+
       // معالجة الخطأ النهائي
       const customError = {
-        message: 'فشل في الاتصال بالخادم. تحقق من أن الخادم يعمل.',
+        message: error.message,
         status: 0,
         originalError: error
       }
-      
+
       this.handleError(customError, showErrorToast)
       throw customError
     }
@@ -257,8 +292,8 @@ class ApiClient {
 
   // طلب PUT
   async put<T>(endpoint: string, data?: any, showErrorToast: boolean = true): Promise<T> {
-    const apiUrl = getApiUrl()
-    
+    const apiUrl = process.env.NODE_ENV === 'development' ? BASE_URL : this.baseURL
+
     try {
       const response = await fetch(`${apiUrl}${endpoint}`, {
         method: 'PUT',
@@ -275,8 +310,8 @@ class ApiClient {
 
   // طلب DELETE
   async delete<T>(endpoint: string, showErrorToast: boolean = true): Promise<T> {
-    const apiUrl = getApiUrl()
-    
+    const apiUrl = process.env.NODE_ENV === 'development' ? BASE_URL : this.baseURL
+
     try {
       const response = await fetch(`${apiUrl}${endpoint}`, {
         method: 'DELETE',
@@ -299,36 +334,80 @@ class ApiClient {
     try {
       console.log('Attempting login with:', { email, baseURL: this.baseURL })
       const response = await this.postForm<AuthResponse>('/login', formData, false)
-      
+
       if (response.status === 'success' && response.authorisation) {
         this.saveToken(response.authorisation.token)
-        
+
         // حفظ بيانات المستخدم
         if (typeof window !== 'undefined') {
           localStorage.setItem('user', JSON.stringify(response.user))
         }
-        
+
         toast.success('تم تسجيل الدخول بنجاح')
       }
-      
+
       return response
     } catch (error: any) {
       console.error('Login error details:', error)
-      
-      // معالجة خاصة لأخطاء تسجيل الدخول
-      let errorMessage = 'فشل في تسجيل الدخول'
-      
-      if (error.message?.includes('Failed to fetch') || error.message?.includes('ERR_CERT_COMMON_NAME_INVALID')) {
-        errorMessage = 'فشل في الاتصال بالخادم. تحقق من أن الخادم يعمل أو جرب لاحقاً.'
-      } else if (error.status === 401) {
-        errorMessage = 'البريد الإلكتروني أو كلمة المرور غير صحيحة'
-      } else if (error.status === 422) {
-        errorMessage = 'بيانات غير صحيحة. تحقق من البريد الإلكتروني وكلمة المرور'
+
+      // إنشاء رسالة خطأ محسنة
+      const enhancedError = {
+        ...error,
+        userMessage: this.getLoginErrorMessage(error)
       }
-      
-      toast.error(errorMessage)
-      throw error
+
+      throw enhancedError
     }
+  }
+
+  // رسائل خطأ مخصصة لتسجيل الدخول
+  private getLoginErrorMessage(error: any): string {
+    if (!error) return 'حدث خطأ في تسجيل الدخول'
+
+    // أخطاء الشبكة
+    if (error.message?.includes('Failed to fetch') || 
+        error.message?.includes('ERR_NETWORK') ||
+        error.message?.includes('ERR_INTERNET_DISCONNECTED')) {
+      return 'تعذر الاتصال بالخادم. تحقق من اتصالك بالإنترنت'
+    }
+
+    // أخطاء SSL
+    if (error.message?.includes('ERR_CERT') || 
+        error.message?.includes('SSL') ||
+        error.message?.includes('certificate')) {
+      return 'مشكلة في أمان الاتصال. تحقق من إعدادات الشبكة'
+    }
+
+    // أخطاء المصادقة
+    if (error.status === 401 || error.message?.includes('Unauthorized')) {
+      return 'البريد الإلكتروني أو كلمة المرور غير صحيحة'
+    }
+
+    if (error.status === 403) {
+      return 'ليس لديك صلاحية للوصول إلى هذا النظام'
+    }
+
+    if (error.status === 422) {
+      return 'البيانات المدخلة غير صالحة. تحقق من صحة البريد الإلكتروني وكلمة المرور'
+    }
+
+    if (error.status === 429) {
+      return 'تم تجاوز عدد المحاولات المسموح. انتظر قليلاً ثم حاول مرة أخرى'
+    }
+
+    if (error.status >= 500) {
+      return 'خطأ في الخادم. حاول مرة أخرى لاحقاً'
+    }
+
+    // رسائل مخصصة من الخادم
+    if (error.message && typeof error.message === 'string') {
+      // إذا كانت الرسالة باللغة العربية، أعدها كما هي
+      if (/[\u0600-\u06FF]/.test(error.message)) {
+        return error.message
+      }
+    }
+
+    return 'حدث خطأ في تسجيل الدخول. تحقق من بياناتك وحاول مرة أخرى'
   }
 
   // تسجيل الخروج
@@ -342,7 +421,7 @@ class ApiClient {
     } finally {
       this.removeToken()
       toast.success('تم تسجيل الخروج بنجاح')
-      
+
       // إعادة توجيه إلى صفحة تسجيل الدخول
       if (typeof window !== 'undefined') {
         window.location.href = '/login'
@@ -388,41 +467,41 @@ export const apiClient = new ApiClient()
 // دوال مساعدة للاستخدام المباشر
 export const api = {
   // طلبات البيانات
-  get: <T>(endpoint: string, showErrorToast?: boolean) => 
+  get: <T>(endpoint: string, showErrorToast?: boolean) =>
     apiClient.get<T>(endpoint, showErrorToast),
-  
-  post: <T>(endpoint: string, data?: any, showErrorToast?: boolean) => 
+
+  post: <T>(endpoint: string, data?: any, showErrorToast?: boolean) =>
     apiClient.post<T>(endpoint, data, showErrorToast),
-  
-  postForm: <T>(endpoint: string, formData: FormData, showErrorToast?: boolean) => 
+
+  postForm: <T>(endpoint: string, formData: FormData, showErrorToast?: boolean) =>
     apiClient.postForm<T>(endpoint, formData, showErrorToast),
-  
-  put: <T>(endpoint: string, data?: any, showErrorToast?: boolean) => 
+
+  put: <T>(endpoint: string, data?: any, showErrorToast?: boolean) =>
     apiClient.put<T>(endpoint, data, showErrorToast),
-  
-  delete: <T>(endpoint: string, showErrorToast?: boolean) => 
+
+  delete: <T>(endpoint: string, showErrorToast?: boolean) =>
     apiClient.delete<T>(endpoint, showErrorToast),
 
   // المصادقة
-  login: (email: string, password: string) => 
+  login: (email: string, password: string) =>
     apiClient.login(email, password),
-  
-  logout: () => 
+
+  logout: () =>
     apiClient.logout(),
-  
-  isAuthenticated: () => 
+
+  isAuthenticated: () =>
     apiClient.isAuthenticated(),
-  
-  getCurrentUser: () => 
+
+  getCurrentUser: () =>
     apiClient.getCurrentUser(),
-  
-  getToken: () => 
+
+  getToken: () =>
     apiClient.getToken(),
-  
-  setToken: (token: string) => 
+
+  setToken: (token: string) =>
     apiClient.setToken(token),
-  
-  updateUser: (user: User) => 
+
+  updateUser: (user: User) =>
     apiClient.updateUser(user),
 }
 

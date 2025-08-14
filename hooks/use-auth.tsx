@@ -50,16 +50,90 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       setIsLoading(true)
       const response = await api.login(email, password)
-      
+      console.log(response);
+
       if (response.status === 'success') {
         setUser(response.user)
         router.push('/dashboard')
       }
-    } catch (error) {
-      throw error
+    } catch (error: any) {
+      // تمرير خطأ مفصل مع معلومات أكثر وضوحاً
+      const enhancedError = {
+        ...error,
+        userMessage: getErrorMessage(error)
+      }
+      throw enhancedError
     } finally {
       setIsLoading(false)
     }
+  }
+
+  // دالة لتحويل الأخطاء إلى رسائل مفهومة
+  const getErrorMessage = (error: any): string => {
+    if (!error) return 'حدث خطأ غير متوقع'
+
+    // أخطاء الشبكة
+    if (error.message?.includes('Failed to fetch') || 
+        error.message?.includes('ERR_NETWORK') ||
+        error.message?.includes('ERR_INTERNET_DISCONNECTED')) {
+      return 'تعذر الاتصال بالخادم. تحقق من اتصالك بالإنترنت وحاول مرة أخرى'
+    }
+
+    // أخطاء SSL/HTTPS
+    if (error.message?.includes('ERR_CERT') || 
+        error.message?.includes('SSL') ||
+        error.message?.includes('certificate')) {
+      return 'مشكلة في أمان الاتصال. تحقق من إعدادات الشبكة'
+    }
+
+    // خطأ 401 - بيانات خاطئة
+    if (error.status === 401 || error.message?.includes('Unauthorized')) {
+      return 'البريد الإلكتروني أو كلمة المرور غير صحيحة'
+    }
+
+    // خطأ 403 - ممنوع
+    if (error.status === 403) {
+      return 'ليس لديك صلاحية للوصول إلى هذا النظام'
+    }
+
+    // خطأ 422 - بيانات غير صالحة
+    if (error.status === 422) {
+      return 'البيانات المدخلة غير صالحة. تحقق من صحة البريد الإلكتروني وكلمة المرور'
+    }
+
+    // خطأ 429 - طلبات كثيرة
+    if (error.status === 429) {
+      return 'تم تجاوز عدد المحاولات المسموح. انتظر قليلاً ثم حاول مرة أخرى'
+    }
+
+    // خطأ 500 - خطأ في الخادم
+    if (error.status >= 500) {
+      return 'خطأ في الخادم. حاول مرة أخرى لاحقاً أو تواصل مع الدعم الفني'
+    }
+
+    // رسائل خطأ مخصصة من الخادم
+    if (error.message && typeof error.message === 'string') {
+      // ترجمة بعض الرسائل الإنجليزية الشائعة
+      const translations: Record<string, string> = {
+        'Invalid credentials': 'البريد الإلكتروني أو كلمة المرور غير صحيحة',
+        'User not found': 'لم يتم العثور على المستخدم',
+        'Account disabled': 'الحساب معطل. تواصل مع الإدارة',
+        'Too many attempts': 'تم تجاوز عدد المحاولات المسموح',
+        'Server error': 'خطأ في الخادم',
+        'Unauthorized': 'البريد الإلكتروني أو كلمة المرور غير صحيحة'
+      }
+
+      const translatedMessage = translations[error.message]
+      if (translatedMessage) return translatedMessage
+
+      // إذا كانت الرسالة باللغة العربية، أعدها كما هي
+      if (/[\u0600-\u06FF]/.test(error.message)) {
+        return error.message
+      }
+    }
+
+    // رسالة افتراضية
+    return 'حدث خطأ في تسجيل الدخول. تحقق من بياناتك وحاول مرة أخرى'
   }
 
   const logout = async () => {
