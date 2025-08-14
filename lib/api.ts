@@ -110,10 +110,14 @@ class ApiClient {
   private getFormHeaders(includeAuth: boolean = true): HeadersInit {
     const headers: HeadersInit = {
       'Accept': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest', // Laravel يتوقع هذا للـ AJAX requests
     }
 
     if (includeAuth && this.token) {
       headers['Authorization'] = `Bearer ${this.token}`
+      console.log('Using token for request:', this.token.substring(0, 20) + '...')
+    } else if (includeAuth) {
+      console.warn('No token available for authenticated request!')
     }
 
     return headers
@@ -262,16 +266,33 @@ class ApiClient {
   async postForm<T>(endpoint: string, formData: FormData, showErrorToast: boolean = true): Promise<T> {
 
     try {
-      console.log(`Sending FormData to: ${BASE_URL}${endpoint}`)
+      console.log(`=== Sending FormData to: ${BASE_URL}${endpoint} ===`)
+      
+      const headers = this.getFormHeaders()
+      console.log('Request headers:', headers)
+      
+      // تسجيل محتويات FormData للتشخيص
+      console.log('=== FormData contents in postForm ===')
+      for (let [key, value] of formData.entries()) {
+        if (value instanceof File) {
+          console.log(`${key}: File(${value.name}, ${value.size} bytes, ${value.type})`)
+        } else {
+          console.log(`${key}: ${value}`)
+        }
+      }
+      
       const response = await fetch(`${BASE_URL}${endpoint}`, {
         method: 'POST',
-        headers: this.getFormHeaders(),
+        headers: headers,
         body: formData,
       })
 
+      console.log('Response status:', response.status)
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()))
+
       return await this.handleResponse<T>(response)
     } catch (error: any) {
-      // console.warn(`Failed to connect:`, error.message)
+      console.error('postForm error:', error)
 
       // إذا فشلت المحاولة الأولى في التطوير، جرب HTTP مباشرة
       if (process.env.NODE_ENV === 'development') {
@@ -636,6 +657,104 @@ class ApiClient {
     const endpoint = subDistrictId ? `/neighborhoods?sub_district_id=${subDistrictId}` : '/neighborhoods'
     return await this.get<NeighborhoodsResponse>(endpoint)
   }
+
+  // ==================== إدارة وسائط المساجد ====================
+
+  // رفع وسائط جديدة للمسجد
+  async uploadMosqueMedia(data: {
+    mosque_id: number
+    media_stage: "before" | "after"
+    is_main?: boolean
+    media_order?: number
+    files: File[]
+  }): Promise<any> {
+    // التحقق من صحة البيانات قبل الإرسال
+    if (!data.mosque_id) {
+      throw new Error('معرف المسجد مطلوب')
+    }
+    if (!data.media_stage) {
+      throw new Error('مرحلة الوسائط مطلوبة')
+    }
+    if (!data.files || data.files.length === 0) {
+      throw new Error('الملفات مطلوبة')
+    }
+
+    console.log('=== Starting media upload ===')
+    console.log('Input data:', {
+      mosque_id: data.mosque_id,
+      media_stage: data.media_stage,
+      is_main: data.is_main,
+      media_order: data.media_order,
+      filesCount: data.files.length,
+      fileNames: data.files.map(f => f.name)
+    })
+
+    const formData = new FormData()
+    
+    // إضافة البيانات الأساسية بشكل صريح
+    console.log('Adding mosque_id:', data.mosque_id, typeof data.mosque_id)
+    formData.append('mosque_id', String(data.mosque_id))
+    
+    console.log('Adding media_stage:', data.media_stage, typeof data.media_stage)
+    formData.append('media_stage', String(data.media_stage))
+    
+    console.log('Adding is_main:', data.is_main, typeof data.is_main)
+    formData.append('is_main', String(data.is_main ? 1 : 0))
+    
+    console.log('Adding media_order:', data.media_order, typeof data.media_order)
+    formData.append('media_order', String(data.media_order || 1))
+    
+    // إضافة الملفات - جرب كلا الطريقتين
+    data.files.forEach((file, index) => {
+      formData.append('files[]', file, file.name)
+      console.log(`Added file ${index} as files[]:`, file.name, file.size, file.type)
+    })
+
+    // أضف أيضاً كـ files بدون []
+    data.files.forEach((file, index) => {
+      formData.append('files', file, file.name)
+      console.log(`Added file ${index} as files:`, file.name, file.size, file.type)
+    })
+
+    // التحقق من محتويات FormData قبل الإرسال
+    console.log('=== FormData contents before sending ===')
+    for (let [key, value] of formData.entries()) {
+      if (value instanceof File) {
+        console.log(`${key}: File(${value.name}, ${value.size} bytes, ${value.type})`)
+      } else {
+        console.log(`${key}: ${value}`)
+      }
+    }
+
+    return await this.postForm<any>('/mosque-media', formData)
+  }
+
+  // جلب وسائط مسجد معين
+  async getMosqueMedia(mosqueId: number): Promise<any> {
+    return await this.get<any>(`/mosque-media?mosque_id=${mosqueId}`)
+  }
+
+  // حذف وسائط
+  async deleteMosqueMedia(mediaId: number): Promise<any> {
+    return await this.delete<any>(`/mosque-media/${mediaId}`)
+  }
+
+  // تحديث ترتيب الوسائط
+  async updateMosqueMediaOrder(mediaId: number, newOrder: number): Promise<any> {
+    return await this.put<any>(`/mosque-media/${mediaId}`, {
+      media_order: newOrder
+    })
+  }
+
+  // تحديد الصورة الرئيسية
+  async setMainMosqueMedia(mediaId: number): Promise<any> {
+    // استخدام PUT request مع تحديث is_main
+    const formData = new FormData()
+    formData.append('_method', 'PUT')
+    formData.append('is_main', '1')
+    
+    return await this.postForm<any>(`/mosque-media/${mediaId}`, formData)
+  }
 }
 
 // إنشاء instance مشترك
@@ -756,6 +875,34 @@ export const api = {
   // جلب الأحياء
   getNeighborhoods: (subDistrictId?: number) =>
     apiClient.getNeighborhoods(subDistrictId),
+
+  // ==================== إدارة وسائط المساجد ====================
+
+  // رفع وسائط جديدة للمسجد
+  uploadMosqueMedia: (data: {
+    mosque_id: number
+    media_stage: "before" | "after"
+    is_main?: boolean
+    media_order?: number
+    files: File[]
+  }) =>
+    apiClient.uploadMosqueMedia(data),
+
+  // جلب وسائط مسجد معين
+  getMosqueMedia: (mosqueId: number) =>
+    apiClient.getMosqueMedia(mosqueId),
+
+  // حذف وسائط
+  deleteMosqueMedia: (mediaId: number) =>
+    apiClient.deleteMosqueMedia(mediaId),
+
+  // تحديث ترتيب الوسائط
+  updateMosqueMediaOrder: (mediaId: number, newOrder: number) =>
+    apiClient.updateMosqueMediaOrder(mediaId, newOrder),
+
+  // تحديد الصورة الرئيسية
+  setMainMosqueMedia: (mediaId: number) =>
+    apiClient.setMainMosqueMedia(mediaId),
 
   // ==================== المساجد العامة ====================
 

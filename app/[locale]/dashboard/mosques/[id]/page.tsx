@@ -7,17 +7,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { 
-  ArrowRight, 
-  MapPin, 
-  DollarSign, 
-  Calendar, 
-  User, 
-  Edit, 
-  Trash2, 
-  AlertCircle, 
+import {
+  ArrowRight,
+  MapPin,
+  DollarSign,
+  Calendar,
+  User,
+  Edit,
+  Trash2,
+  AlertCircle,
   Loader2,
-  ExternalLink 
+  ExternalLink
 } from 'lucide-react'
 import Link from "next/link"
 import MediaGallery from "@/components/ui/media-gallery"
@@ -26,17 +26,18 @@ import { Mosque } from "@/lib/types"
 import { formatCurrency, formatDate } from "@/lib/utils"
 import { toast } from "sonner"
 import { DeleteDialog } from "@/components/ui/delete-dialog"
+import { getFullImageUrl } from "@/lib/data-transformers"
 
 export default function MosqueDetailsPage() {
   const params = useParams()
   const router = useRouter()
   const mosqueId = parseInt(params.id as string)
-  
+
   const [mosque, setMosque] = useState<Mosque | null>(null)
   const [loading, setLoading] = useState(true)
   const [deleting, setDeleting] = useState(false)
   const [error, setError] = useState("")
-  
+
   const [deleteDialog, setDeleteDialog] = useState(false)
 
   useEffect(() => {
@@ -142,7 +143,8 @@ export default function MosqueDetailsPage() {
 
   const getMainImage = () => {
     const mainImage = mosque.media?.find(media => media.is_main && media.type === 'image')
-    return mainImage?.file_url
+    const fullImageUrl = getFullImageUrl(mainImage?.file_url || '')
+    return fullImageUrl
   }
 
   return (
@@ -210,13 +212,12 @@ export default function MosqueDetailsPage() {
                   <label className="text-sm font-medium text-slate-600">الحالة</label>
                   <div className="mt-1">
                     <Badge
-                      className={`${
-                        mosque.status === "نشط"
+                      className={`${mosque.status === "نشط"
                           ? "bg-emerald-100 text-emerald-800"
                           : mosque.status === "مكتمل"
                             ? "bg-blue-100 text-blue-800"
                             : "bg-amber-100 text-amber-800"
-                      }`}
+                        }`}
                     >
                       {mosque.status}
                     </Badge>

@@ -39,6 +39,7 @@ export function MediaUpload({ mosqueId, existingMedia = [], onMediaUpdate, class
   const [afterFiles, setAfterFiles] = useState<MediaFile[]>([])
   const [uploading, setUploading] = useState(false)
   const [dragOver, setDragOver] = useState<"before" | "after" | null>(null)
+  const [settingMainMedia, setSettingMainMedia] = useState<number | null>(null)
 
   // تصفية الوسائط الموجودة
   const beforeMedia = existingMedia.filter(media => media.media_stage === "before")
@@ -160,14 +161,17 @@ export function MediaUpload({ mosqueId, existingMedia = [], onMediaUpdate, class
   }, [onMediaUpdate])
 
   // تعيين صورة رئيسية
-  const setMainMedia = useCallback(async (mediaId: number) => {
+  const setMainMedia = useCallback(async (mediaId: number, stage: "before" | "after") => {
     try {
+      setSettingMainMedia(mediaId)
       await MosqueMediaService.setMainMedia(mediaId)
-      toast.success('تم تعيين الصورة الرئيسية')
+      toast.success(`تم تعيين الصورة الرئيسية لمرحلة ${stage === "before" ? "قبل" : "بعد"} الترميم`)
       onMediaUpdate?.()
     } catch (error) {
       console.error('Set main media error:', error)
       toast.error('حدث خطأ أثناء تعيين الصورة الرئيسية')
+    } finally {
+      setSettingMainMedia(null)
     }
   }, [onMediaUpdate])
 
@@ -285,22 +289,33 @@ export function MediaUpload({ mosqueId, existingMedia = [], onMediaUpdate, class
               <ImageIcon className="w-5 h-5" />
               الصور الموجودة - {stage === "before" ? "قبل" : "بعد"} الترميم
               <Badge variant="secondary">{media.length}</Badge>
+              {/* {media.length > 0 && !media.some(item => item.is_main) && (
+                <Badge variant="outline" className="text-amber-600 border-amber-300">
+                  ⚠️ لا توجد صورة رئيسية
+                </Badge>
+              )} */}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {media.map((item) => (
-                <div key={item.id} className="relative group">
+                <div key={item.id} className={cn(
+                  "relative group transition-all duration-200 hover:scale-105",
+                  item.is_main ? "ring-2 ring-yellow-400 ring-offset-2" : ""
+                )}>
                   <img
                     src={item.file_url}
                     alt="صورة المسجد"
-                    className="w-full h-24 object-cover rounded-lg border"
+                    className={cn(
+                      "w-full h-24 object-cover rounded-lg border",
+                      item.is_main ? "border-yellow-400 border-2" : "border-gray-200"
+                    )}
                   />
                   
                   {/* شارة الصورة الرئيسية */}
                   {item.is_main && (
                     <div className="absolute top-2 left-2">
-                      <Badge className="bg-yellow-500 text-white">
+                      <Badge className="bg-yellow-500 text-white text-xs">
                         <Star className="w-3 h-3 ml-1" />
                         رئيسية
                       </Badge>
@@ -309,21 +324,28 @@ export function MediaUpload({ mosqueId, existingMedia = [], onMediaUpdate, class
 
                   {/* أزرار التحكم */}
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
-                    {!item.is_main && (
+                    {/* {!item.is_main && (
                       <Button
                         variant="secondary"
                         size="sm"
-                        onClick={() => setMainMedia(item.id)}
+                        onClick={() => setMainMedia(item.id, stage)}
                         className="p-2"
+                        title="تعيين كصورة رئيسية"
+                        disabled={settingMainMedia === item.id}
                       >
-                        <Star className="w-4 h-4" />
+                        {settingMainMedia === item.id ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Star className="w-4 h-4" />
+                        )}
                       </Button>
-                    )}
+                    )} */}
                     <Button
                       variant="destructive"
                       size="sm"
                       onClick={() => deleteExistingMedia(item.id)}
                       className="p-2"
+                      title="حذف الصورة"
                     >
                       <X className="w-4 h-4" />
                     </Button>
@@ -351,7 +373,9 @@ export function MediaUpload({ mosqueId, existingMedia = [], onMediaUpdate, class
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
           قم برفع الصور قبل وبعد الترميم لإظهار التقدم المحرز في المشروع. 
-          يمكنك رفع عدة صور لكل مرحلة وتحديد الصورة الرئيسية لكل قسم.
+          يمكنك رفع عدة صور لكل مرحلة وتحديد الصورة الرئيسية لكل قسم بالنقر على أيقونة النجمة.
+          <br />
+          💡 <strong>نصيحة:</strong> الصور الرئيسية ستظهر مع إطار ذهبي وعلامة "رئيسية".
         </AlertDescription>
       </Alert>
 

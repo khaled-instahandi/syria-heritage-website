@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Save, ArrowRight, MapPin, DollarSign, AlertCircle, Loader2, Check } from 'lucide-react'
+import { Save, ArrowRight, MapPin, DollarSign, AlertCircle, Loader2, Check, Image as ImageIcon, Upload, X } from 'lucide-react'
 import Link from "next/link"
 import InteractiveMap from "@/components/ui/interactive-map"
 import MediaUpload from "@/components/ui/media-upload"
@@ -23,8 +23,8 @@ export default function NewMosquePage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
-  const [savedMosque, setSavedMosque] = useState<any>(null)
-  const [step, setStep] = useState<"form" | "media">("form")
+  const [beforeFiles, setBeforeFiles] = useState<File[]>([])
+  const [afterFiles, setAfterFiles] = useState<File[]>([])
 
   const [formData, setFormData] = useState({
     name_ar: "",
@@ -89,6 +89,15 @@ export default function NewMosquePage() {
     }))
   }
 
+  // وظائف للتعامل مع رفع الملفات
+  const handleBeforeFilesChange = (files: File[]) => {
+    setBeforeFiles(files)
+  }
+
+  const handleAfterFilesChange = (files: File[]) => {
+    setAfterFiles(files)
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
@@ -115,7 +124,9 @@ export default function NewMosquePage() {
         throw new Error("الحي مطلوب")
       }
 
-      // إنشاء المسجد
+      console.log('Form validation passed, creating mosque...')
+
+      // إنشاء المسجد أولاً
       const mosque = await MosqueService.createMosque({
         name_ar: formData.name_ar.trim(),
         name_en: formData.name_en.trim(),
@@ -132,9 +143,54 @@ export default function NewMosquePage() {
         status: formData.status,
       })
 
-      setSavedMosque(mosque)
-      setStep("media")
-      toast.success('تم حفظ المسجد بنجاح! يمكنك الآن إضافة الصور')
+      console.log('Created mosque:', mosque) // للتشخيص
+      console.log('Before files:', beforeFiles.length) // للتشخيص
+      console.log('After files:', afterFiles.length) // للتشخيص
+
+      // رفع الوسائط إذا كانت موجودة
+      let uploadPromises = []
+      
+      if (beforeFiles.length > 0) {
+        console.log('Uploading before files:', beforeFiles)
+        uploadPromises.push(
+          MosqueMediaService.uploadMedia({
+            mosque_id: mosque.id,
+            media_stage: "before",
+            is_main: false,
+            media_order: 1,
+            files: beforeFiles
+          })
+        )
+      }
+
+      if (afterFiles.length > 0) {
+        console.log('Uploading after files:', afterFiles)
+        uploadPromises.push(
+          MosqueMediaService.uploadMedia({
+            mosque_id: mosque.id,
+            media_stage: "after", 
+            is_main: false,
+            media_order: 1,
+            files: afterFiles
+          })
+        )
+      }
+
+      // انتظار رفع جميع الوسائط
+      if (uploadPromises.length > 0) {
+        try {
+          await Promise.all(uploadPromises)
+          toast.success(`تم حفظ المسجد وتم رفع ${beforeFiles.length + afterFiles.length} صورة بنجاح!`)
+        } catch (uploadError) {
+          console.error('Media upload error:', uploadError)
+          toast.warning(`تم حفظ المسجد بنجاح، لكن حدث خطأ في رفع بعض الصور. يمكنك رفعها لاحقاً من صفحة تحرير المسجد.`)
+        }
+      } else {
+        toast.success('تم حفظ المسجد بنجاح!')
+      }
+
+      // الانتقال إلى صفحة عرض المساجد
+      router.push('/dashboard/mosques')
     } catch (err: any) {
       console.error('Error creating mosque:', err)
       setError(err.message || "حدث خطأ أثناء إضافة المسجد. يرجى المحاولة مرة أخرى.")
@@ -146,11 +202,8 @@ export default function NewMosquePage() {
   return (
     <div className="space-y-2">
       <DashboardHeader
-        title={step === "form" ? "إضافة مسجد جديد" : "إضافة وسائط المسجد"}
-        description={step === "form" 
-          ? "إضافة مسجد جديد إلى قاعدة البيانات مع جميع التفاصيل المطلوبة"
-          : "قم بإضافة صور قبل وبعد الترميم لإظهار التقدم المحرز"
-        }
+        title="إضافة مسجد جديد"
+        description="إضافة مسجد جديد إلى قاعدة البيانات مع جميع التفاصيل والوسائط المطلوبة"
       />
 
       <div className="p-6">
@@ -166,7 +219,7 @@ export default function NewMosquePage() {
             </Link>
             <ArrowRight className="w-4 h-4" />
             <span className="text-slate-900 font-medium">
-              {step === "form" ? "إضافة مسجد جديد" : "إضافة وسائط"}
+              إضافة مسجد جديد
             </span>
           </div>
 
@@ -177,8 +230,8 @@ export default function NewMosquePage() {
             </Alert>
           )}
 
-          {step === "form" ? (
-            <form onSubmit={handleSubmit} className="space-y-6">
+          {/* النموذج الموحد */}
+          <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Information */}
             <Card>
               <CardHeader>
@@ -392,6 +445,152 @@ export default function NewMosquePage() {
               </CardContent>
             </Card>
 
+            {/* Media Upload Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <ImageIcon className="w-5 h-5 text-purple-600" />
+                  الوسائط والصور
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  {/* رسالة تعليمات */}
+                  <Alert>
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>
+                      قم برفع الصور قبل وبعد الترميم لإظهار التقدم المحرز في المشروع (اختياري). 
+                      سيتم رفع الصور تلقائياً عند حفظ المسجد.
+                    </AlertDescription>
+                  </Alert>
+
+                  <div className="grid md:grid-cols-2 gap-6">
+                    {/* قسم صور قبل الترميم */}
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold text-red-700">صور قبل الترميم</h3>
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+                        <input
+                          type="file"
+                          multiple
+                          accept="image/*"
+                          onChange={(e) => handleBeforeFilesChange(Array.from(e.target.files || []))}
+                          className="hidden"
+                          id="before-upload"
+                        />
+                        <label
+                          htmlFor="before-upload"
+                          className="cursor-pointer flex flex-col items-center gap-4"
+                        >
+                          <div className="p-4 bg-gray-100 rounded-full">
+                            <Upload className="w-8 h-8 text-gray-600" />
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-600 mb-2">
+                              اختر صور قبل الترميم
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              PNG, JPG, GIF حتى 10MB
+                            </p>
+                          </div>
+                        </label>
+                      </div>
+                      
+                      {/* معاينة الملفات المحددة */}
+                      {beforeFiles.length > 0 && (
+                        <div className="space-y-2">
+                          <h4 className="font-medium">الملفات المحددة ({beforeFiles.length})</h4>
+                          <div className="grid grid-cols-2 gap-2">
+                            {beforeFiles.map((file, index) => (
+                              <div key={index} className="relative group">
+                                <img
+                                  src={URL.createObjectURL(file)}
+                                  alt="معاينة"
+                                  className="w-full h-20 object-cover rounded-lg border"
+                                />
+                                <Button
+                                  type="button"
+                                  variant="destructive"
+                                  size="sm"
+                                  className="absolute -top-2 -right-2 w-6 h-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                                  onClick={() => {
+                                    const newFiles = beforeFiles.filter((_, i) => i !== index)
+                                    handleBeforeFilesChange(newFiles)
+                                  }}
+                                >
+                                  <X className="w-3 h-3" />
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* قسم صور بعد الترميم */}
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold text-green-700">صور بعد الترميم</h3>
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+                        <input
+                          type="file"
+                          multiple
+                          accept="image/*"
+                          onChange={(e) => handleAfterFilesChange(Array.from(e.target.files || []))}
+                          className="hidden"
+                          id="after-upload"
+                        />
+                        <label
+                          htmlFor="after-upload"
+                          className="cursor-pointer flex flex-col items-center gap-4"
+                        >
+                          <div className="p-4 bg-gray-100 rounded-full">
+                            <Upload className="w-8 h-8 text-gray-600" />
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-600 mb-2">
+                              اختر صور بعد الترميم
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              PNG, JPG, GIF حتى 10MB
+                            </p>
+                          </div>
+                        </label>
+                      </div>
+                      
+                      {/* معاينة الملفات المحددة */}
+                      {afterFiles.length > 0 && (
+                        <div className="space-y-2">
+                          <h4 className="font-medium">الملفات المحددة ({afterFiles.length})</h4>
+                          <div className="grid grid-cols-2 gap-2">
+                            {afterFiles.map((file, index) => (
+                              <div key={index} className="relative group">
+                                <img
+                                  src={URL.createObjectURL(file)}
+                                  alt="معاينة"
+                                  className="w-full h-20 object-cover rounded-lg border"
+                                />
+                                <Button
+                                  type="button"
+                                  variant="destructive"
+                                  size="sm"
+                                  className="absolute -top-2 -right-2 w-6 h-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                                  onClick={() => {
+                                    const newFiles = afterFiles.filter((_, i) => i !== index)
+                                    handleAfterFilesChange(newFiles)
+                                  }}
+                                >
+                                  <X className="w-3 h-3" />
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Action Buttons */}
             <div className="flex gap-4 justify-end">
               <Link href="/dashboard/mosques">
@@ -408,67 +607,12 @@ export default function NewMosquePage() {
                 ) : (
                   <>
                     <Save className="w-4 h-4 ml-2" />
-                    حفظ المسجد
+                    حفظ المسجد والوسائط
                   </>
                 )}
               </Button>
             </div>
           </form>
-          ) : (
-            <div className="space-y-6">
-              {/* معلومات المسجد المحفوظ */}
-              <Card className="bg-green-50 border-green-200">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                      <Check className="w-5 h-5 text-green-600" />
-                    </div>
-                    <div>
-                      <h3 className="font-medium text-green-900">
-                        تم حفظ المسجد بنجاح!
-                      </h3>
-                      <p className="text-sm text-green-700">
-                        {savedMosque?.name_ar} - يمكنك الآن إضافة الصور
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* مكون رفع الوسائط */}
-              <MediaUpload
-                mosqueId={savedMosque?.id}
-                onMediaUpdate={() => {
-                  // يمكن إضافة منطق تحديث هنا إذا لزم الأمر
-                }}
-              />
-
-              {/* أزرار التحكم */}
-              <div className="flex gap-4 justify-between">
-                <Button
-                  variant="outline"
-                  onClick={() => setStep("form")}
-                >
-                  العودة للنموذج
-                </Button>
-                
-                <div className="flex gap-4">
-                  <Button
-                    variant="outline"
-                    onClick={() => router.push(`/dashboard/mosques/${savedMosque?.id}`)}
-                  >
-                    عرض المسجد
-                  </Button>
-                  <Button
-                    onClick={() => router.push("/dashboard/mosques")}
-                    className="bg-emerald-600 hover:bg-emerald-700"
-                  >
-                    إنهاء والعودة للقائمة
-                  </Button>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>

@@ -230,11 +230,11 @@ export function DashboardSidebar({
                       {(!isDesktopCollapsed || isMobileOpen) && (
                         <>
                           <span className={`flex-1 ${isRTL ? 'text-right' : 'text-left'}`}>{item.title}</span>
-                          {item.badge && (
+                          {/* {item.badge && (
                             <Badge variant="secondary" className="bg-emerald-100 text-emerald-800 text-xs">
                               {item.badge}
                             </Badge>
-                          )}
+                          )} */}
                         </>
                       )}
                     </Button>

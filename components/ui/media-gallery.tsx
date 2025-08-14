@@ -16,6 +16,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { MosqueMedia } from "@/lib/types"
+import { getFullImageUrl } from "@/lib/data-transformers"
 
 interface MediaGalleryProps {
   media: MosqueMedia[]
@@ -82,7 +83,7 @@ export function MediaGallery({ media, className }: MediaGalleryProps) {
               >
                 <div className="aspect-square rounded-lg overflow-hidden border-2 border-gray-200 hover:border-primary transition-colors">
                   <img
-                    src={item.file_url}
+                    src={getFullImageUrl(item.file_url)}
                     alt={`صورة المسجد ${index + 1}`}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
@@ -150,7 +151,7 @@ export function MediaGallery({ media, className }: MediaGalleryProps) {
               {/* الصورة الرئيسية */}
               <div className="relative max-w-full max-h-full">
                 <img
-                  src={selectedImage.file_url}
+                  src={getFullImageUrl(selectedImage.file_url)}
                   alt="صورة المسجد"
                   className="max-w-full max-h-[60vh] object-contain rounded-lg"
                 />

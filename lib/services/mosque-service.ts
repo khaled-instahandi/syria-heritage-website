@@ -197,33 +197,7 @@ export class MosqueMediaService {
     files: File[]
   }): Promise<any> {
     try {
-      const formData = new FormData()
-      
-      // إضافة البيانات الأساسية
-      formData.append('mosque_id', data.mosque_id.toString())
-      formData.append('media_stage', data.media_stage)
-      formData.append('is_main', data.is_main ? '1' : '0')
-      formData.append('media_order', (data.media_order || 1).toString())
-      
-      // إضافة الملفات
-      data.files.forEach((file, index) => {
-        formData.append(`files[]`, file)
-      })
-
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/mosque-media`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Accept': 'application/json',
-        },
-        body: formData
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to upload media')
-      }
-
-      return await response.json()
+      return await api.uploadMosqueMedia(data)
     } catch (error) {
       console.error('Error uploading media:', error)
       throw error
@@ -233,18 +207,7 @@ export class MosqueMediaService {
   // جلب وسائط مسجد معين
   static async getMosqueMedia(mosqueId: number): Promise<any> {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/mosque-media?mosque_id=${mosqueId}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Accept': 'application/json',
-        }
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch media')
-      }
-
-      return await response.json()
+      return await api.getMosqueMedia(mosqueId)
     } catch (error) {
       console.error('Error fetching media:', error)
       throw error
@@ -254,19 +217,7 @@ export class MosqueMediaService {
   // حذف وسائط
   static async deleteMedia(mediaId: number): Promise<any> {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/mosque-media/${mediaId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Accept': 'application/json',
-        }
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to delete media')
-      }
-
-      return await response.json()
+      return await api.deleteMosqueMedia(mediaId)
     } catch (error) {
       console.error('Error deleting media:', error)
       throw error
@@ -276,23 +227,7 @@ export class MosqueMediaService {
   // تحديث ترتيب الوسائط
   static async updateMediaOrder(mediaId: number, newOrder: number): Promise<any> {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/mosque-media/${mediaId}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          media_order: newOrder
-        })
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to update media order')
-      }
-
-      return await response.json()
+      return await api.updateMosqueMediaOrder(mediaId, newOrder)
     } catch (error) {
       console.error('Error updating media order:', error)
       throw error
@@ -300,25 +235,9 @@ export class MosqueMediaService {
   }
 
   // تحديد الصورة الرئيسية
-  static async setMainMedia(mediaId: number): Promise<any> {
+  static async setMainMedia(media: MediaFile): Promise<any> {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/mosque-media/${mediaId}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          is_main: true
-        })
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to set main media')
-      }
-
-      return await response.json()
+      return await api.setMainMosqueMedia(media)
     } catch (error) {
       console.error('Error setting main media:', error)
       throw error
