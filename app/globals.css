@@ -11,6 +11,8 @@
   z-index: 1 !important;
 }
 
+
+
 .leaflet-popup-content-wrapper {
   border-radius: 8px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
@@ -90,6 +92,7 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
     font-family: "Cairo", sans-serif;
@@ -180,6 +183,7 @@
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -191,6 +195,7 @@
     opacity: 0;
     transform: translateY(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -202,6 +207,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -213,6 +219,7 @@
     opacity: 0;
     transform: scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -223,6 +230,7 @@
   0% {
     background-position: -200px 0;
   }
+
   100% {
     background-position: calc(200px + 100%) 0;
   }
@@ -390,7 +398,7 @@
   text-align: right;
 }
 
-[dir="rtl"] .rtl\:space-x-reverse > :not([hidden]) ~ :not([hidden]) {
+[dir="rtl"] .rtl\:space-x-reverse> :not([hidden])~ :not([hidden]) {
   --tw-space-x-reverse: 1;
 }
 
@@ -496,6 +504,7 @@
 
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
+
   .animate-in,
   .slide-in-from-top-2,
   .slide-in-from-bottom-4,
@@ -511,6 +520,7 @@
 
 /* High contrast support */
 @media (prefers-contrast: high) {
+
   .mosque-card,
   .project-card,
   .stats-card,

@@ -381,7 +381,9 @@
     border: 2px solid hsl(var(--border));
   }
 }
-
+.custom-switch {
+  direction: ltr !important;
+}
 /* Dark mode enhancements */
 @media (prefers-color-scheme: dark) {
   .glass {

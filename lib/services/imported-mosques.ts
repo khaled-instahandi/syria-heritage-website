@@ -128,6 +128,53 @@ export class ImportedMosquesService {
   }
 
   /**
+   * Update an imported mosque
+   */
+  static async updateImportedMosque(mosqueId: number, data: {
+    batch_id?: number
+    name_ar?: string
+    name_en?: string
+    governorate?: string
+    district?: string
+    sub_district?: string
+    neighborhood?: string
+    address_text?: string
+    damage_level?: string
+    estimated_cost?: string
+    is_reconstruction?: number
+    committee_name?: string
+    notes?: string
+  }): Promise<ImportedMosque> {
+    try {
+      const formData = new FormData()
+      
+      // إضافة _method للـ PUT request
+      formData.append('_method', 'PUT')
+      
+      // إضافة البيانات المُحدثة فقط
+      if (data.batch_id !== undefined) formData.append('batch_id', data.batch_id.toString())
+      if (data.name_ar) formData.append('name_ar', data.name_ar)
+      if (data.name_en) formData.append('name_en', data.name_en)
+      if (data.governorate) formData.append('governorate', data.governorate)
+      if (data.district) formData.append('district', data.district)
+      if (data.sub_district) formData.append('sub_district', data.sub_district)
+      if (data.neighborhood) formData.append('neighborhood', data.neighborhood)
+      if (data.address_text) formData.append('address_text', data.address_text)
+      if (data.damage_level) formData.append('damage_level', data.damage_level)
+      if (data.estimated_cost) formData.append('estimated_cost', data.estimated_cost)
+      if (data.is_reconstruction !== undefined) formData.append('is_reconstruction', data.is_reconstruction.toString())
+      if (data.committee_name) formData.append('committee_name', data.committee_name)
+      if (data.notes) formData.append('notes', data.notes)
+
+      const response = await api.postForm<{ data: ImportedMosque }>(`/imported-mosques/${mosqueId}`, formData)
+      return response.data
+    } catch (error) {
+      console.error('Error updating imported mosque:', error)
+      throw error
+    }
+  }
+
+  /**
    * Export imported mosques to Excel
    */
   static async exportImportedMosques(): Promise<Blob> {

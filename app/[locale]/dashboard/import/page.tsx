@@ -25,11 +25,14 @@ import {
   Building,
   Send,
   SendHorizontal,
+  Edit,
+  Trash2,
 } from "lucide-react"
 import { formatDate } from "@/lib/utils"
 import { ImportedMosque, ImportedMosquesResponse } from "@/types/imported-mosques"
 import { ImportedMosquesService } from "@/lib/services/imported-mosques"
 import { MosqueDetailsDialog } from "@/components/ui/mosque-details-dialog"
+import { EditImportedMosqueDialog } from "@/components/ui/edit-imported-mosque-dialog"
 
 // Types for imported mosque data are now imported from types file
 
@@ -42,9 +45,12 @@ export default function ImportedMosquesPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [isTransferring, setIsTransferring] = useState<{ [key: number]: boolean }>({})
   const [isTransferringAll, setIsTransferringAll] = useState(false)
+  const [isDeleting, setIsDeleting] = useState<{ [key: number]: boolean }>({})
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [selectedMosque, setSelectedMosque] = useState<ImportedMosque | null>(null)
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false)
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [mosqueToEdit, setMosqueToEdit] = useState<ImportedMosque | null>(null)
 
   // Fetch imported mosques data
   const fetchImportedMosques = async () => {
@@ -68,7 +74,7 @@ export default function ImportedMosquesPage() {
   const uploadExcelFile = async (file: File) => {
     setIsUploading(true)
     setUploadProgress(0)
-    
+
     try {
       // Simulate progress
       const progressInterval = setInterval(() => {
@@ -108,7 +114,7 @@ export default function ImportedMosquesPage() {
   // Transfer single mosque
   const transferMosque = async (mosqueId: number) => {
     setIsTransferring(prev => ({ ...prev, [mosqueId]: true }))
-    
+
     try {
       await ImportedMosquesService.transferMosque(mosqueId)
       toast({
@@ -131,7 +137,7 @@ export default function ImportedMosquesPage() {
   // Transfer all mosques
   const transferAllMosques = async () => {
     setIsTransferringAll(true)
-    
+
     try {
       await ImportedMosquesService.transferAllMosques()
       toast({
@@ -151,14 +157,47 @@ export default function ImportedMosquesPage() {
     }
   }
 
+  // Delete imported mosque
+  const deleteImportedMosque = async (mosqueId: number) => {
+    if (!confirm("هل أنت متأكد من حذف هذا المسجد؟ لا يمكن التراجع عن هذا الإجراء.")) {
+      return
+    }
+
+    setIsDeleting(prev => ({ ...prev, [mosqueId]: true }))
+
+    try {
+      await ImportedMosquesService.deleteImportedMosque(mosqueId)
+      toast({
+        title: "تم الحذف",
+        description: "تم حذف المسجد بنجاح",
+      })
+      await fetchImportedMosques()
+    } catch (error) {
+      console.error('Error deleting mosque:', error)
+      toast({
+        title: "خطأ في الحذف",
+        description: "فشل في حذف المسجد، يرجى المحاولة مرة أخرى",
+        variant: "destructive",
+      })
+    } finally {
+      setIsDeleting(prev => ({ ...prev, [mosqueId]: false }))
+    }
+  }
+
   // Download template
   const downloadTemplate = async () => {
     try {
-      const blob = await ImportedMosquesService.downloadTemplate()
+      const response = await fetch('/files/imported_mosques_template.xlsx')
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch template file')
+      }
+      
+      const blob = await response.blob()
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = 'mosque_template.xlsx'
+      a.download = 'imported_mosques_template.xlsx'
       document.body.appendChild(a)
       a.click()
       window.URL.revokeObjectURL(url)
@@ -225,8 +264,8 @@ export default function ImportedMosquesPage() {
 
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       const file = e.dataTransfer.files[0]
-      if (file.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" || 
-          file.type === "application/vnd.ms-excel") {
+      if (file.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
+        file.type === "application/vnd.ms-excel") {
         setSelectedFile(file)
         uploadExcelFile(file)
       } else {
@@ -287,11 +326,10 @@ export default function ImportedMosquesPage() {
             </CardHeader>
             <CardContent>
               <div
-                className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-                  dragActive
+                className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${dragActive
                     ? "border-emerald-500 bg-emerald-50"
                     : "border-slate-300 hover:border-emerald-400 hover:bg-emerald-50"
-                }`}
+                  }`}
                 onDragEnter={handleDrag}
                 onDragLeave={handleDrag}
                 onDragOver={handleDrag}
@@ -346,8 +384,6 @@ export default function ImportedMosquesPage() {
                   إرشادات رفع ملف المساجد
                 </h4>
                 <ul className="text-sm text-blue-800 space-y-1">
-                  <li>• يجب أن يحتوي الملف على الأعمدة التالية: الاسم (عربي/إنجليزي)، المحافظة، المنطقة، الناحية، الحي، العنوان</li>
-                  <li>• مستوى الضرر، التكلفة التقديرية، نوع المشروع (ترميم/إعادة إعمار)، اللجنة المسؤولة</li>
                   <li>• الحد الأقصى لحجم الملف: 10 ميجابايت</li>
                   <li>• تأكد من صحة البيانات قبل الرفع</li>
                 </ul>
@@ -397,7 +433,7 @@ export default function ImportedMosquesPage() {
                 <div className="flex items-center justify-between">
                   <span className="font-medium">إجمالي التكلفة</span>
                   <span className="font-bold text-slate-900">
-                    {isLoading ? "..." : 
+                    {isLoading ? "..." :
                       new Intl.NumberFormat('ar-SY', {
                         style: 'currency',
                         currency: 'USD'
@@ -411,7 +447,7 @@ export default function ImportedMosquesPage() {
 
               {importedMosques.length > 0 && (
                 <div className="pt-4 border-t">
-                  <Button 
+                  <Button
                     onClick={transferAllMosques}
                     disabled={isTransferringAll}
                     className="w-full bg-blue-600 hover:bg-blue-700"
@@ -442,8 +478,8 @@ export default function ImportedMosquesPage() {
               المساجد المستوردة
             </CardTitle>
             <div className="flex gap-2">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={fetchImportedMosques}
                 disabled={isLoading}
@@ -455,8 +491,8 @@ export default function ImportedMosquesPage() {
                 )}
                 تحديث البيانات
               </Button>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={downloadTemplate}
               >
@@ -535,28 +571,56 @@ export default function ImportedMosquesPage() {
                           <div className="text-sm">{formatDate(mosque.created_at)}</div>
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Button 
-                              variant="ghost" 
+                          <div className="flex items-center gap-1">
+                            <Button
+                              variant="ghost"
                               size="sm"
                               onClick={() => {
                                 setSelectedMosque(mosque)
                                 setIsDetailsDialogOpen(true)
                               }}
+                              title="عرض التفاصيل"
                             >
                               <Eye className="w-4 h-4" />
                             </Button>
-                            <Button 
-                              variant="ghost" 
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                setMosqueToEdit(mosque)
+                                setIsEditDialogOpen(true)
+                              }}
+                              className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                              title="تعديل البيانات"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
                               size="sm"
                               onClick={() => transferMosque(mosque.id)}
                               disabled={isTransferring[mosque.id]}
                               className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                              title="ترحيل إلى جدول المساجد الرئيسي"
                             >
                               {isTransferring[mosque.id] ? (
                                 <Clock className="w-4 h-4 animate-spin" />
                               ) : (
                                 <Send className="w-4 h-4" />
+                              )}
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => deleteImportedMosque(mosque.id)}
+                              disabled={isDeleting[mosque.id]}
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                              title="حذف المسجد"
+                            >
+                              {isDeleting[mosque.id] ? (
+                                <Clock className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <Trash2 className="w-4 h-4" />
                               )}
                             </Button>
                           </div>
@@ -576,7 +640,7 @@ export default function ImportedMosquesPage() {
             <CardTitle>قالب Excel للمساجد</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid md:grid-cols-1 lg:grid-cols-1 gap-4">
               <div className="p-4 border border-slate-200 rounded-lg hover:border-emerald-300 hover:bg-emerald-50 transition-colors">
                 <div className="flex items-center gap-3 mb-3">
                   <FileSpreadsheet className="w-8 h-8 text-emerald-600" />
@@ -588,9 +652,9 @@ export default function ImportedMosquesPage() {
                 <div className="text-xs text-slate-500 mb-3">
                   يحتوي على: الاسم، الموقع، مستوى الضرر، التكلفة، نوع المشروع، اللجنة، الملاحظات
                 </div>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   className="w-full bg-transparent"
                   onClick={downloadTemplate}
                 >
@@ -599,44 +663,9 @@ export default function ImportedMosquesPage() {
                 </Button>
               </div>
 
-              <div className="p-4 border border-slate-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors">
-                <div className="flex items-center gap-3 mb-3">
-                  <FileText className="w-8 h-8 text-blue-600" />
-                  <div>
-                    <h4 className="font-semibold">دليل الاستخدام</h4>
-                    <p className="text-sm text-slate-600">إرشادات التعبئة</p>
-                  </div>
-                </div>
-                <div className="text-xs text-slate-500 mb-3">
-                  شرح مفصل لكيفية تعبئة البيانات وأنواع الحقول المطلوبة
-                </div>
-                <Button variant="outline" size="sm" className="w-full bg-transparent">
-                  <Eye className="w-4 h-4 ml-2" />
-                  عرض الدليل
-                </Button>
-              </div>
+             
 
-              <div className="p-4 border border-slate-200 rounded-lg hover:border-purple-300 hover:bg-purple-50 transition-colors">
-                <div className="flex items-center gap-3 mb-3">
-                  <Database className="w-8 h-8 text-purple-600" />
-                  <div>
-                    <h4 className="font-semibold">تصدير البيانات</h4>
-                    <p className="text-sm text-slate-600">تصدير المساجد المستوردة</p>
-                  </div>
-                </div>
-                <div className="text-xs text-slate-500 mb-3">
-                  تصدير جميع المساجد المستوردة في ملف Excel
-                </div>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="w-full bg-transparent"
-                  onClick={exportData}
-                >
-                  <Download className="w-4 h-4 ml-2" />
-                  تصدير البيانات
-                </Button>
-              </div>
+         
             </div>
           </CardContent>
         </Card>
@@ -652,6 +681,17 @@ export default function ImportedMosquesPage() {
         }}
         onTransfer={transferMosque}
         isTransferring={selectedMosque ? isTransferring[selectedMosque.id] || false : false}
+      />
+
+      {/* Edit Mosque Dialog */}
+      <EditImportedMosqueDialog
+        mosque={mosqueToEdit}
+        isOpen={isEditDialogOpen}
+        onClose={() => {
+          setIsEditDialogOpen(false)
+          setMosqueToEdit(null)
+        }}
+        onUpdate={fetchImportedMosques}
       />
     </div>
   )
