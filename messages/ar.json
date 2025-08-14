@@ -101,6 +101,8 @@
         "projectsProgress": "تقدم المشاريع",
         "totalRaised": "إجمالي المبلغ التم جمع",
         "totalTarget": "الهدف الإجمالي",
+        "totalCost": "إجمالي التكلفة",
+        "averageProgress": "متوسط التقدم",
         "completionRate": "نسبة الإنجاز",
         "specifications": "مواصفات المسجد",
         "damageType": "نوع الضرر",
@@ -108,7 +110,8 @@
         "governorate": "المحافظة",
         "district": "المنطقة",
         "registrationDate": "تاريخ التسجيل",
-        "lastUpdate": "آخر تحديث"
+        "lastUpdate": "آخر تحديث",
+        "createdBy": "أنشئ بواسطة"
       },
       "projects": {
         "title": "المشاريع",
@@ -116,9 +119,12 @@
         "noProjectsDesc": "لا توجد مشاريع مرتبطة بهذا المسجد حالياً",
         "raised": "تم جمع",
         "target": "الهدف",
+        "completed": "مكتمل",
         "completionRate": "نسبة الإنجاز",
         "startDate": "تاريخ البدء",
         "endDate": "تاريخ الانتهاء",
+        "createdAt": "تاريخ الإنشاء",
+        "publishedAt": "تاريخ النشر",
         "viewDetails": "عرض التفاصيل",
         "donate": "تبرع"
       },

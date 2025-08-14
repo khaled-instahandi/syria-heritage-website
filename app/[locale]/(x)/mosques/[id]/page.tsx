@@ -28,18 +28,9 @@ import {
   Globe,
   Clock
 } from "lucide-react"
-import {
-  mockMosques,
-  getGovernorateById,
-  getDistrictById,
-  getProjectsByMosqueId,
-  getDonationsByMosqueId,
-  getMainImageForMosque,
-  getAllImagesForMosque,
-  mockProjects,
-  mockDonations
-} from "@/lib/mock-data"
 import { formatCurrency, formatDate } from "@/lib/utils"
+import { api } from "@/lib/api"
+import { Mosque, Project } from "@/lib/types"
 import Image from "next/image"
 import Link from "next/link"
 
@@ -48,24 +39,61 @@ export default function MosqueDetailsPage() {
   const t = useTranslations()
   const mosqueId = parseInt(params.id as string)
   
-  const [mosque, setMosque] = useState<any>(null)
-  const [projects, setProjects] = useState<any[]>([])
+  const [mosque, setMosque] = useState<Mosque | null>(null)
+  const [projects, setProjects] = useState<Project[]>([])
   const [donations, setDonations] = useState<any[]>([])
   const [images, setImages] = useState<string[]>([])
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    // تحميل بيانات المسجد
-    const mosqueData = mockMosques.find(m => m.id === mosqueId)
-    if (mosqueData) {
-      setMosque(mosqueData)
-      setProjects(getProjectsByMosqueId(mosqueId))
-      setDonations(getDonationsByMosqueId(mosqueId))
-      setImages(getAllImagesForMosque(mosqueId))
-    }
-    setLoading(false)
+    loadMosqueData()
   }, [mosqueId])
+
+  const loadMosqueData = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      
+      // جلب بيانات المسجد من الباك إند
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'https://back-aamar.academy-lead.com/api'}/public/onemosquse/${mosqueId}`, {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        }
+      })
+
+      if (!response.ok) {
+        throw new Error('فشل في جلب بيانات المسجد')
+      }
+
+      const data = await response.json()
+      
+      if (data.data) {
+        setMosque(data.data)
+        
+        // معالجة المشاريع إذا كانت موجودة
+        if (data.data.project && Array.isArray(data.data.project)) {
+          setProjects(data.data.project)
+        }
+        
+        // معالجة الوسائط إذا كانت موجودة
+        if (data.data.media && Array.isArray(data.data.media)) {
+          const mediaUrls = data.data.media.map((media: any) => media.file_url)
+          setImages(mediaUrls)
+        }
+        
+        // يمكن إضافة جلب التبرعات هنا إذا كان متاحاً في الـ API
+        setDonations([])
+      }
+    } catch (error: any) {
+      console.error('Error loading mosque data:', error)
+      setError(error.message || 'حدث خطأ في جلب البيانات')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   if (loading) {
     return (
@@ -73,6 +101,19 @@ export default function MosqueDetailsPage() {
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-slate-600">{t('mosques.details.loading')}</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Building2 className="w-24 h-24 text-red-400 mx-auto mb-4" />
+          <h1 className="text-2xl font-bold text-slate-900 mb-2">حدث خطأ</h1>
+          <p className="text-slate-600 mb-6">{error}</p>
+          <Button onClick={loadMosqueData}>إعادة المحاولة</Button>
         </div>
       </div>
     )
@@ -93,11 +134,30 @@ export default function MosqueDetailsPage() {
     )
   }
 
-  const governorate = getGovernorateById(mosque.governorate_id)
-  const district = getDistrictById(mosque.district_id)
-  const totalRaised = projects.reduce((sum, project) => sum + (project.collected_amount || 0), 0)
-  const totalTarget = projects.reduce((sum, project) => sum + (project.cost || 0), 0)
-  const progressPercentage = totalTarget > 0 ? (totalRaised / totalTarget) * 100 : 0
+  // حساب إجمالي التقدم في المشاريع
+  const totalCost = projects.reduce((sum, project) => sum + parseFloat(project.total_cost || '0'), 0)
+  const averageProgress = projects.length > 0 
+    ? projects.reduce((sum, project) => sum + (project.progress_percentage || 0), 0) / projects.length
+    : 0
+
+  // دالة لفتح الخريطة
+  const openMap = () => {
+    if (mosque.latitude && mosque.longitude) {
+      const lat = parseFloat(mosque.latitude)
+      const lng = parseFloat(mosque.longitude)
+      
+      // إنشاء رابط Google Maps
+      const googleMapsUrl = `https://www.google.com/maps?q=${lat},${lng}&z=15&t=m`
+      
+      // فتح الخريطة في نافذة جديدة
+      window.open(googleMapsUrl, '_blank')
+    } else {
+      // في حالة عدم وجود إحداثيات، البحث بالاسم والموقع
+      const searchQuery = encodeURIComponent(`${mosque.name_ar} ${mosque.governorate_ar} ${mosque.district_ar} Syria`)
+      const googleMapsSearchUrl = `https://www.google.com/maps/search/${searchQuery}`
+      window.open(googleMapsSearchUrl, '_blank')
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
@@ -128,12 +188,12 @@ export default function MosqueDetailsPage() {
                 </Badge>
               </div>
 
-              <h1 className="text-4xl lg:text-5xl font-bold mb-4">{mosque.name}</h1>
+              <h1 className="text-4xl lg:text-5xl font-bold mb-4">{mosque.name_ar}</h1>
               
               <div className="flex items-center gap-2 text-emerald-100 mb-6">
                 <MapPin className="w-5 h-5" />
                 <span className="text-lg">
-                  {governorate?.name} - {district?.name}
+                  {mosque.governorate_ar} - {mosque.district_ar}
                 </span>
               </div>
 
@@ -155,7 +215,7 @@ export default function MosqueDetailsPage() {
                     <span className="text-emerald-100 text-sm">{t('mosques.details.estimatedCost')}</span>
                   </div>
                   <span className="text-xl font-bold">
-                    {mosque.estimated_cost ? formatCurrency(mosque.estimated_cost) : t('mosques.details.undefined')}
+                    {mosque.estimated_cost ? formatCurrency(parseFloat(mosque.estimated_cost)) : t('mosques.details.undefined')}
                   </span>
                 </div>
               </div>
@@ -164,8 +224,8 @@ export default function MosqueDetailsPage() {
             <div className="relative">
               <div className="aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl">
                 <Image
-                  src={images[selectedImageIndex] || mosque.image_url || "/placeholder.svg"}
-                  alt={mosque.name}
+                  src={images[selectedImageIndex] || "/placeholder.svg"}
+                  alt={mosque.name_ar}
                   width={600}
                   height={400}
                   className="w-full h-full object-cover"
@@ -230,7 +290,7 @@ export default function MosqueDetailsPage() {
                     </CardHeader>
                     <CardContent>
                       <p className="text-slate-700 leading-relaxed">
-                        {mosque.description || "مسجد تاريخي في منطقة " + district?.name + " بمحافظة " + governorate?.name + ". يحتاج إلى أعمال ترميم وإعادة إعمار للحفاظ على مساجده المعماري الأصيل."}
+                        مسجد تاريخي في منطقة {mosque.district_ar} بمحافظة {mosque.governorate_ar}. يحتاج إلى أعمال ترميم وإعادة إعمار للحفاظ على طابعه المعماري الأصيل.
                       </p>
                     </CardContent>
                   </Card>
@@ -247,21 +307,21 @@ export default function MosqueDetailsPage() {
                       <CardContent>
                         <div className="space-y-4">
                           <div className="flex items-center justify-between">
-                            <span className="text-slate-600">{t('mosques.details.overview.totalRaised')}</span>
+                            <span className="text-slate-600">{t('mosques.details.overview.totalCost')}</span>
                             <span className="font-bold text-emerald-600">
-                              {formatCurrency(totalRaised)}
+                              {formatCurrency(totalCost)}
                             </span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="text-slate-600">{t('mosques.details.overview.totalTarget')}</span>
+                            <span className="text-slate-600">{t('mosques.details.overview.averageProgress')}</span>
                             <span className="font-bold text-slate-900">
-                              {formatCurrency(totalTarget)}
+                              {averageProgress.toFixed(1)}%
                             </span>
                           </div>
-                          <Progress value={progressPercentage} className="h-3" />
+                          <Progress value={averageProgress} className="h-3" />
                           <div className="text-center">
                             <span className="text-2xl font-bold text-emerald-600">
-                              {progressPercentage.toFixed(1)}%
+                              {averageProgress.toFixed(1)}%
                             </span>
                             <span className="text-slate-600 text-sm block">{t('mosques.details.overview.completionRate')}</span>
                           </div>
@@ -292,19 +352,19 @@ export default function MosqueDetailsPage() {
                         </div>
                         <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                           <span className="text-slate-600">{t('mosques.details.overview.governorate')}</span>
-                          <span className="font-medium">{governorate?.name}</span>
+                          <span className="font-medium">{mosque.governorate_ar}</span>
                         </div>
                         <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                           <span className="text-slate-600">{t('mosques.details.overview.district')}</span>
-                          <span className="font-medium">{district?.name}</span>
+                          <span className="font-medium">{mosque.district_ar}</span>
                         </div>
                         <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                           <span className="text-slate-600">{t('mosques.details.overview.registrationDate')}</span>
                           <span className="font-medium">{formatDate(mosque.created_at)}</span>
                         </div>
                         <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                          <span className="text-slate-600">{t('mosques.details.overview.lastUpdate')}</span>
-                          <span className="font-medium">{formatDate(mosque.updated_at)}</span>
+                          <span className="text-slate-600">{t('mosques.details.overview.createdBy')}</span>
+                          <span className="font-medium">{mosque.created_by}</span>
                         </div>
                       </div>
                     </CardContent>
@@ -320,8 +380,8 @@ export default function MosqueDetailsPage() {
                         <CardContent className="p-6">
                           <div className="flex items-start justify-between mb-4">
                             <div>
-                              <h3 className="text-xl font-bold text-slate-900 mb-2">{project.title}</h3>
-                              <p className="text-slate-600">{project.description}</p>
+                              <h3 className="text-xl font-bold text-slate-900 mb-2">{mosque.name_ar} - {project.project_category}</h3>
+                              <p className="text-slate-600">مشروع {project.project_category} للمسجد</p>
                             </div>
                             <Badge 
                               variant={
@@ -336,33 +396,33 @@ export default function MosqueDetailsPage() {
                           <div className="grid md:grid-cols-3 gap-4 mb-4">
                             <div className="text-center p-3 bg-emerald-50 rounded-lg">
                               <div className="text-2xl font-bold text-emerald-600">
-                                {formatCurrency(project.collected_amount || 0)}
+                                {formatCurrency(parseFloat(project.total_cost) * (project.progress_percentage / 100))}
                               </div>
-                              <div className="text-sm text-slate-600">{t('mosques.details.projects.raised')}</div>
+                              <div className="text-sm text-slate-600">{t('mosques.details.projects.completed')}</div>
                             </div>
                             <div className="text-center p-3 bg-slate-50 rounded-lg">
                               <div className="text-2xl font-bold text-slate-900">
-                                {formatCurrency(project.cost)}
+                                {formatCurrency(parseFloat(project.total_cost))}
                               </div>
                               <div className="text-sm text-slate-600">{t('mosques.details.projects.target')}</div>
                             </div>
                             <div className="text-center p-3 bg-blue-50 rounded-lg">
                               <div className="text-2xl font-bold text-blue-600">
-                                {((project.collected_amount || 0) / project.cost * 100).toFixed(1)}%
+                                {project.progress_percentage}%
                               </div>
                               <div className="text-sm text-slate-600">{t('mosques.details.projects.completionRate')}</div>
                             </div>
                           </div>
 
                           <Progress 
-                            value={(project.collected_amount || 0) / project.cost * 100} 
+                            value={project.progress_percentage} 
                             className="mb-4" 
                           />
 
                           <div className="flex items-center justify-between text-sm text-slate-600 mb-4">
-                            <span>{t('mosques.details.projects.startDate')}: {formatDate(project.start_date)}</span>
-                            {project.end_date && (
-                              <span>{t('mosques.details.projects.endDate')}: {formatDate(project.end_date)}</span>
+                            <span>{t('mosques.details.projects.createdAt')}: {formatDate(project.created_at)}</span>
+                            {project.published_at && (
+                              <span>{t('mosques.details.projects.publishedAt')}: {formatDate(project.published_at)}</span>
                             )}
                           </div>
 
@@ -516,15 +576,15 @@ export default function MosqueDetailsPage() {
                   <Heart className="w-4 h-4 ml-2" />
                   {t('mosques.details.sidebar.donateToMosque')}
                 </Button>
-                <Button variant="outline" className="w-full">
+                {/* <Button variant="outline" className="w-full">
                   <Share2 className="w-4 h-4 ml-2" />
                   {t('mosques.details.sidebar.share')}
                 </Button>
                 <Button variant="outline" className="w-full">
                   <Download className="w-4 h-4 ml-2" />
                   {t('mosques.details.sidebar.downloadReport')}
-                </Button>
-                <Button variant="outline" className="w-full">
+                </Button> */}
+                <Button variant="outline" className="w-full" onClick={openMap}>
                   <Eye className="w-4 h-4 ml-2" />
                   {t('mosques.details.sidebar.viewOnMap')}
                 </Button>
@@ -532,7 +592,7 @@ export default function MosqueDetailsPage() {
             </Card>
 
             {/* Contact Information */}
-            <Card>
+            {/* <Card>
               <CardHeader>
                 <CardTitle>{t('mosques.details.sidebar.contactInfo')}</CardTitle>
               </CardHeader>
@@ -566,7 +626,7 @@ export default function MosqueDetailsPage() {
                   </div>
                 </div>
               </CardContent>
-            </Card>
+            </Card> */}
 
             {/* Related Mosques */}
             <Card>
@@ -574,29 +634,8 @@ export default function MosqueDetailsPage() {
                 <CardTitle>{t('mosques.details.sidebar.relatedMosques')}</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  {mockMosques
-                    .filter(m => m.id !== mosqueId && m.governorate_id === mosque.governorate_id)
-                    .slice(0, 3)
-                    .map((relatedMosque) => (
-                      <Link key={relatedMosque.id} href={`/mosques/${relatedMosque.id}`}>
-                        <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer">
-                          <Image
-                            src={relatedMosque.image_url || "/placeholder.svg"}
-                            alt={relatedMosque.name}
-                            width={48}
-                            height={48}
-                            className="w-12 h-12 rounded-lg object-cover"
-                          />
-                          <div className="flex-1 min-w-0">
-                            <div className="font-medium truncate">{relatedMosque.name}</div>
-                            <div className="text-sm text-slate-600 truncate">
-                              {getDistrictById(relatedMosque.district_id)?.name}
-                            </div>
-                          </div>
-                        </div>
-                      </Link>
-                    ))}
+                <div className="text-center p-4">
+                  <p className="text-slate-600 text-sm">سيتم إضافة المساجد ذات الصلة قريباً</p>
                 </div>
               </CardContent>
             </Card>

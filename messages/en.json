@@ -101,6 +101,8 @@
         "projectsProgress": "Projects Progress",
         "totalRaised": "Total Amount Raised",
         "totalTarget": "Total Target",
+        "totalCost": "Total Cost",
+        "averageProgress": "Average Progress",
         "completionRate": "Completion Rate",
         "specifications": "Mosque Specifications",
         "damageType": "Damage Type",
@@ -108,7 +110,8 @@
         "governorate": "Governorate",
         "district": "District",
         "registrationDate": "Registration Date",
-        "lastUpdate": "Last Update"
+        "lastUpdate": "Last Update",
+        "createdBy": "Created By"
       },
       "projects": {
         "title": "Projects",
@@ -116,9 +119,12 @@
         "noProjectsDesc": "No projects are currently associated with this mosque",
         "raised": "Raised",
         "target": "Target",
+        "completed": "Completed",
         "completionRate": "Completion Rate",
         "startDate": "Start Date",
         "endDate": "End Date",
+        "createdAt": "Created At",
+        "publishedAt": "Published At",
         "viewDetails": "View Details",
         "donate": "Donate"
       },
