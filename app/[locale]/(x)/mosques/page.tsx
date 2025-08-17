@@ -58,6 +58,15 @@ export default function MosquesPage() {
       setLoading(true)
       setError("")
 
+      // تحويل قيمة damage_level قبل الإرسال
+      let damageLevelToSend: "جزئي" | "كامل" | undefined = undefined;
+      // دعم القيم من select أو من الفلتر مباشرة
+      if (filters.damage_level && filters.damage_level !== "all") {
+        if (filters.damage_level === "جزئي" || filters.damage_level === "كامل") {
+          damageLevelToSend = filters.damage_level;
+        }
+      }
+
       const response = await PublicMosqueService.getPublicMosques({
         page,
         per_page: filters.per_page,
@@ -66,7 +75,7 @@ export default function MosquesPage() {
         district_id: filters.district_id ? parseInt(filters.district_id) : undefined,
         sub_district_id: filters.sub_district_id ? parseInt(filters.sub_district_id) : undefined,
         neighborhood_id: filters.neighborhood_id ? parseInt(filters.neighborhood_id) : undefined,
-        damage_level: filters.damage_level === "all" ? undefined : filters.damage_level,
+        damage_level: damageLevelToSend,
         status: filters.status === "all" ? undefined : filters.status,
         is_reconstruction: filters.is_reconstruction
       })
@@ -96,8 +105,11 @@ export default function MosquesPage() {
 
   // Handle filter changes
   const handleFilterChange = (key: string, value: any) => {
+    console.log(`Filter changed: ${key} = ${value}`) // للتتبع
     setFilters(prev => {
-      const newFilters = { ...prev, [key]: value }
+      let newValue = value;
+      // لا نحتاج تحويل القيم لأن المكونات ترسل القيم الصحيحة مباشرة
+      const newFilters = { ...prev, [key]: newValue };
 
       // Reset dependent filters when parent changes
       if (key === 'governorate_id') {
@@ -111,7 +123,7 @@ export default function MosquesPage() {
         newFilters.neighborhood_id = ""
       }
 
-      return newFilters
+      return newFilters;
     })
   }
 
@@ -286,6 +298,8 @@ export default function MosquesPage() {
                       value={filters.status}
                       onValueChange={(value) => handleFilterChange('status', value)}
                       placeholder="اختر الحالة"
+                      includeAll={true}
+                      clearable={true}
                     />
                   </div>
 
@@ -295,6 +309,8 @@ export default function MosquesPage() {
                       value={filters.damage_level}
                       onValueChange={(value) => handleFilterChange('damage_level', value)}
                       placeholder="اختر مستوى الضرر"
+                      includeAll={true}
+                      clearable={true}
                     />
                   </div>
 

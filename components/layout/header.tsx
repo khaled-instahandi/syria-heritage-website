@@ -33,9 +33,9 @@ export function Header() {
             <Link href="/" className="text-slate-700 hover:text-emerald-600 transition-colors font-medium">
               {t("navigation.home")}
             </Link>
-            <Link href="/projects" className="text-slate-700 hover:text-emerald-600 transition-colors font-medium">
+            {/* <Link href="/projects" className="text-slate-700 hover:text-emerald-600 transition-colors font-medium">
               {t("navigation.projects")}
-            </Link>
+            </Link> */}
             <Link href="/mosques" className="text-slate-700 hover:text-emerald-600 transition-colors font-medium">
               {t("navigation.mosques")}
             </Link>
