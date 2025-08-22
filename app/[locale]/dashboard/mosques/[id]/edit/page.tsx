@@ -1,50 +1,68 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect } from "react"
-import { useRouter, useParams } from "next/navigation"
-import { DashboardHeader } from "@/components/dashboard/header"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Save, ArrowRight, MapPin, DollarSign, AlertCircle, Loader2 } from "lucide-react"
-import Link from "next/link"
-import InteractiveMap from "@/components/ui/interactive-map"
-import MediaUpload from "@/components/ui/media-upload"
-import { MosqueService, LocationService, MosqueMediaService } from "@/lib/services/mosque-service"
-import { Mosque, Governorate, District, SubDistrict, Neighborhood } from "@/lib/types"
-import { toast } from "sonner"
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
+import { DashboardHeader } from "@/components/dashboard/header";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  Save,
+  ArrowRight,
+  MapPin,
+  DollarSign,
+  AlertCircle,
+  Loader2,
+} from "lucide-react";
+import Link from "next/link";
+import InteractiveMap from "@/components/ui/interactive-map";
+import MediaUpload from "@/components/ui/media-upload";
+import {
+  MosqueService,
+  LocationService,
+  MosqueMediaService,
+} from "@/lib/services/mosque-service";
+import {
+  Mosque,
+  Governorate,
+  District,
+  SubDistrict,
+  Neighborhood,
+} from "@/lib/types";
+import { toast } from "sonner";
 
 export default function EditMosquePage() {
-  const router = useRouter()
-  const params = useParams()
-  const mosqueId = parseInt(params.id as string)
+  const router = useRouter();
+  const params = useParams();
+  const mosqueId = parseInt(params.id as string);
 
-  const [mosque, setMosque] = useState<Mosque | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const [isPageLoading, setIsPageLoading] = useState(true)
-  const [error, setError] = useState("")
-  const [success, setSuccess] = useState("")
-  
+  const [mosque, setMosque] = useState<Mosque | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isPageLoading, setIsPageLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
   // البيانات المرجعية
-  const [governorates, setGovernorates] = useState<Governorate[]>([])
-  const [districts, setDistricts] = useState<District[]>([])
-  const [subDistricts, setSubDistricts] = useState<SubDistrict[]>([])
-  const [neighborhoods, setNeighborhoods] = useState<Neighborhood[]>([])
-  
+  const [governorates, setGovernorates] = useState<Governorate[]>([]);
+  const [districts, setDistricts] = useState<District[]>([]);
+  const [subDistricts, setSubDistricts] = useState<SubDistrict[]>([]);
+  const [neighborhoods, setNeighborhoods] = useState<Neighborhood[]>([]);
+
   // حالة التحميل للبيانات المرجعية
-  const [loadingGovernorates, setLoadingGovernorates] = useState(true)
-  const [loadingDistricts, setLoadingDistricts] = useState(false)
-  const [loadingSubDistricts, setLoadingSubDistricts] = useState(false)
-  const [loadingNeighborhoods, setLoadingNeighborhoods] = useState(false)
-  
+  const [loadingGovernorates, setLoadingGovernorates] = useState(true);
+  const [loadingDistricts, setLoadingDistricts] = useState(false);
+  const [loadingSubDistricts, setLoadingSubDistricts] = useState(false);
+  const [loadingNeighborhoods, setLoadingNeighborhoods] = useState(false);
+
   const [formData, setFormData] = useState({
     name_ar: "",
     name_en: "",
+    capacityv:"",
     governorate_id: "",
     district_id: "",
     sub_district_id: "",
@@ -55,51 +73,51 @@ export default function EditMosquePage() {
     damage_level: "جزئي" as "جزئي" | "كامل",
     estimated_cost: "",
     is_reconstruction: false,
-    status: "مفعل" as "مفعل" | "موقوف" | "مكتمل",
-  })
+    status: "نشط" as "مكتمل" | "موقوف" | "نشط",
+  });
 
   // تحميل البيانات عند تحميل الصفحة
   useEffect(() => {
     if (mosqueId) {
-      loadMosque()
-      loadGovernorates()
+      loadMosque();
+      loadGovernorates();
     }
-  }, [mosqueId])
+  }, [mosqueId]);
 
   // تحميل المناطق عند تغيير المحافظة
   useEffect(() => {
-    if (formData.governorate_id) {
-      loadDistricts(parseInt(formData.governorate_id))
+    if (formData["governorate_id"]) {
+      loadDistricts(parseInt(formData.governorate_id));
     } else {
-      setDistricts([])
+      setDistricts([]);
     }
-  }, [formData.governorate_id])
+  }, [formData.governorate_id]);
 
   // تحميل النواحي عند تغيير المنطقة
   useEffect(() => {
     if (formData.district_id) {
-      loadSubDistricts(parseInt(formData.district_id))
+      loadSubDistricts(parseInt(formData.district_id));
     } else {
-      setSubDistricts([])
+      setSubDistricts([]);
     }
-  }, [formData.district_id])
+  }, [formData.district_id]);
 
   // تحميل الأحياء عند تغيير الناحية
   useEffect(() => {
     if (formData.sub_district_id) {
-      loadNeighborhoods(parseInt(formData.sub_district_id))
+      loadNeighborhoods(parseInt(formData.sub_district_id));
     } else {
-      setNeighborhoods([])
+      setNeighborhoods([]);
     }
-  }, [formData.sub_district_id])
+  }, [formData.sub_district_id]);
 
   // تحميل بيانات المسجد
   const loadMosque = async () => {
     try {
-      setIsPageLoading(true)
-      const data = await MosqueService.getMosque(mosqueId)
-      setMosque(data)
-      
+      setIsPageLoading(true);
+      const data = await MosqueService.getMosque(mosqueId);
+      setMosque(data);
+
       // تعبئة النموذج
       setFormData({
         name_ar: data.name_ar,
@@ -115,115 +133,139 @@ export default function EditMosquePage() {
         estimated_cost: data.estimated_cost || "",
         is_reconstruction: data.is_reconstruction === 1,
         status: data.status,
-      })
+        capacityv: data.capacityv || "",
+      });
     } catch (err: any) {
-      console.error('Error loading mosque:', err)
-      setError('حدث خطأ في تحميل بيانات المسجد')
+      console.error("Error loading mosque:", err);
+      setError("حدث خطأ في تحميل بيانات المسجد");
     } finally {
-      setIsPageLoading(false)
+      setIsPageLoading(false);
     }
-  }
+  };
 
   // تحميل المحافظات
   const loadGovernorates = async () => {
     try {
-      setLoadingGovernorates(true)
-      const data = await LocationService.getGovernorates()
-      setGovernorates(data)
+      setLoadingGovernorates(true);
+      const data = await LocationService.getGovernorates();
+      setGovernorates(data);
     } catch (error) {
-      console.error('Error loading governorates:', error)
-      toast.error('حدث خطأ في تحميل المحافظات')
+      console.error("Error loading governorates:", error);
+      toast.error("حدث خطأ في تحميل المحافظات");
     } finally {
-      setLoadingGovernorates(false)
+      setLoadingGovernorates(false);
     }
-  }
+  };
 
   // تحميل المناطق
   const loadDistricts = async (governorateId: number) => {
     try {
-      setLoadingDistricts(true)
-      const data = await LocationService.getDistricts(governorateId)
-      setDistricts(data)
+      setLoadingDistricts(true);
+      const data = await LocationService.getDistricts(governorateId);
+      setDistricts(data);
     } catch (error) {
-      console.error('Error loading districts:', error)
-      toast.error('حدث خطأ في تحميل المناطق')
+      console.error("Error loading districts:", error);
+      toast.error("حدث خطأ في تحميل المناطق");
     } finally {
-      setLoadingDistricts(false)
+      setLoadingDistricts(false);
     }
-  }
+  };
 
   // تحميل النواحي
   const loadSubDistricts = async (districtId: number) => {
     try {
-      setLoadingSubDistricts(true)
-      const data = await LocationService.getSubDistricts(districtId)
-      setSubDistricts(data)
+      setLoadingSubDistricts(true);
+      const data = await LocationService.getSubDistricts(districtId);
+      setSubDistricts(data);
     } catch (error) {
-      console.error('Error loading sub-districts:', error)
-      toast.error('حدث خطأ في تحميل النواحي')
+      console.error("Error loading sub-districts:", error);
+      toast.error("حدث خطأ في تحميل النواحي");
     } finally {
-      setLoadingSubDistricts(false)
+      setLoadingSubDistricts(false);
     }
-  }
+  };
 
   // تحميل الأحياء
   const loadNeighborhoods = async (subDistrictId: number) => {
     try {
-      setLoadingNeighborhoods(true)
-      const data = await LocationService.getNeighborhoods(subDistrictId)
-      setNeighborhoods(data)
+      setLoadingNeighborhoods(true);
+      const data = await LocationService.getNeighborhoods(subDistrictId);
+      setNeighborhoods(data);
     } catch (error) {
-      console.error('Error loading neighborhoods:', error)
-      toast.error('حدث خطأ في تحميل الأحياء')
+      console.error("Error loading neighborhoods:", error);
+      toast.error("حدث خطأ في تحميل الأحياء");
     } finally {
-      setLoadingNeighborhoods(false)
+      setLoadingNeighborhoods(false);
     }
-  }
+  };
 
   // البحث عن المحافظة والمنطقة والناحية الحالية وتحديد قيمها
   useEffect(() => {
     if (mosque && governorates.length > 0) {
-      const governorate = governorates.find(g => g.name_ar === mosque.governorate_ar)
+      const governorate = governorates.find(
+        (g) => g.name_ar === mosque.governorate_ar
+      );
       if (governorate) {
-        setFormData(prev => ({ ...prev, governorate_id: governorate.id.toString() }))
+        setFormData((prev) => ({
+          ...prev,
+          governorate_id: governorate.id.toString(),
+        }));
       }
     }
-  }, [mosque, governorates])
+  }, [mosque, governorates]);
 
   useEffect(() => {
     if (mosque && districts.length > 0) {
-      const district = districts.find(d => d.name_ar === mosque.district_ar)
+      const district = districts.find((d) => d.name_ar === mosque.district_ar);
       if (district) {
-        setFormData(prev => ({ ...prev, district_id: district.id.toString() }))
+        setFormData((prev) => ({
+          ...prev,
+          district_id: district.id.toString(),
+        }));
       }
     }
-  }, [mosque, districts])
+  }, [mosque, districts]);
 
   useEffect(() => {
     if (mosque && subDistricts.length > 0) {
-      const subDistrict = subDistricts.find(sd => sd.name_ar === mosque.sub_district_ar)
+      const subDistrict = subDistricts.find(
+        (sd) => sd.name_ar === mosque.sub_district_ar
+      );
       if (subDistrict) {
-        setFormData(prev => ({ ...prev, sub_district_id: subDistrict.id.toString() }))
+        setFormData((prev) => ({
+          ...prev,
+          sub_district_id: subDistrict.id.toString(),
+        }));
       }
     }
-  }, [mosque, subDistricts])
+  }, [mosque, subDistricts]);
 
   useEffect(() => {
     if (mosque && neighborhoods.length > 0) {
-      const neighborhood = neighborhoods.find(n => n.name_ar === mosque.neighborhood_ar)
+      const neighborhood = neighborhoods.find(
+        (n) => n.name_ar === mosque.neighborhood_ar
+      );
       if (neighborhood) {
-        setFormData(prev => ({ ...prev, neighborhood_id: neighborhood.id.toString() }))
+        setFormData((prev) => ({
+          ...prev,
+          neighborhood_id: neighborhood.id.toString(),
+        }));
       }
     }
-  }, [mosque, neighborhoods])
+  }, [mosque, neighborhoods]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    const { name, value, type } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
-    }))
-  }
+      [name]:
+        type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
+    }));
+  };
 
   // وظيفة للتعامل مع النقر على الخريطة لتحديد الإحداثيات
   const handleMapClick = (lat: number, lng: number) => {
@@ -231,35 +273,35 @@ export default function EditMosquePage() {
       ...prev,
       latitude: lat.toFixed(6),
       longitude: lng.toFixed(6),
-    }))
-    toast.success(`تم تحديد الموقع: ${lat.toFixed(6)}, ${lng.toFixed(6)}`)
-  }
+    }));
+    toast.success(`تم تحديد الموقع: ${lat.toFixed(6)}, ${lng.toFixed(6)}`);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError("")
-    setSuccess("")
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
+    setSuccess("");
 
     try {
       // التحقق من صحة البيانات
       if (!formData.name_ar.trim()) {
-        throw new Error("اسم المسجد باللغة العربية مطلوب")
+        throw new Error("اسم المسجد باللغة العربية مطلوب");
       }
       if (!formData.name_en.trim()) {
-        throw new Error("اسم المسجد باللغة الإنجليزية مطلوب")
+        throw new Error("اسم المسجد باللغة الإنجليزية مطلوب");
       }
       if (!formData.governorate_id) {
-        throw new Error("المحافظة مطلوبة")
+        throw new Error("المحافظة مطلوبة");
       }
       if (!formData.district_id) {
-        throw new Error("المنطقة مطلوبة")
+        throw new Error("المنطقة مطلوبة");
       }
       if (!formData.sub_district_id) {
-        throw new Error("الناحية مطلوبة")
+        throw new Error("الناحية مطلوبة");
       }
       if (!formData.neighborhood_id) {
-        throw new Error("الحي مطلوب")
+        throw new Error("الحي مطلوب");
       }
 
       // تحديث المسجد
@@ -277,27 +319,34 @@ export default function EditMosquePage() {
         estimated_cost: formData.estimated_cost.trim() || undefined,
         is_reconstruction: formData.is_reconstruction,
         status: formData.status,
-      })
+        capacityv: 
+        formData.capacityv,
+      });
 
-      setSuccess("تم تحديث بيانات المسجد بنجاح!")
-      toast.success('تم تحديث المسجد بنجاح')
+      setSuccess("تم تحديث بيانات المسجد بنجاح!");
+      toast.success("تم تحديث المسجد بنجاح");
 
       // Redirect after success
       setTimeout(() => {
-        router.push(`/dashboard/mosques/${mosqueId}`)
-      }, 1500)
+        router.push(`/dashboard/mosques/${mosqueId}`);
+      }, 1500);
     } catch (err: any) {
-      console.error('Error updating mosque:', err)
-      setError(err.message || "حدث خطأ أثناء تحديث المسجد. يرجى المحاولة مرة أخرى.")
+      console.error("Error updating mosque:", err);
+      setError(
+        err.message || "حدث خطأ أثناء تحديث المسجد. يرجى المحاولة مرة أخرى."
+      );
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   if (isPageLoading) {
     return (
       <div className="min-h-screen">
-        <DashboardHeader title="تحديث المسجد" description="جاري تحميل بيانات المسجد..." />
+        <DashboardHeader
+          title="تحديث المسجد"
+          description="جاري تحميل بيانات المسجد..."
+        />
         <div className="flex items-center justify-center py-20">
           <div className="text-center">
             <Loader2 className="w-8 h-8 animate-spin text-emerald-600 mx-auto mb-4" />
@@ -305,22 +354,31 @@ export default function EditMosquePage() {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div className="min-h-screen">
-      <DashboardHeader title="تحديث المسجد" description="تعديل وتحديث معلومات المسجد في قاعدة البيانات" />
+      <DashboardHeader
+        title="تحديث المسجد"
+        description="تعديل وتحديث معلومات المسجد في قاعدة البيانات"
+      />
 
       <div className="p-6">
         <div className="">
           {/* Breadcrumb */}
           <div className="flex items-center gap-2 mb-6 text-sm text-slate-600">
-            <Link href="/dashboard" className="hover:text-emerald-600 transition-colors">
+            <Link
+              href="/dashboard"
+              className="hover:text-emerald-600 transition-colors"
+            >
               لوحة التحكم
             </Link>
             <ArrowRight className="w-4 h-4" />
-            <Link href="/dashboard/mosques" className="hover:text-emerald-600 transition-colors">
+            <Link
+              href="/dashboard/mosques"
+              className="hover:text-emerald-600 transition-colors"
+            >
               إدارة المساجد
             </Link>
             <ArrowRight className="w-4 h-4" />
@@ -330,14 +388,18 @@ export default function EditMosquePage() {
           {error && (
             <Alert className="mb-6 border-red-200 bg-red-50 animate-in slide-in-from-top-2">
               <AlertCircle className="h-4 w-4 text-red-600" />
-              <AlertDescription className="text-red-800">{error}</AlertDescription>
+              <AlertDescription className="text-red-800">
+                {error}
+              </AlertDescription>
             </Alert>
           )}
 
           {success && (
             <Alert className="mb-6 border-emerald-200 bg-emerald-50 animate-in slide-in-from-top-2">
               <AlertCircle className="h-4 w-4 text-emerald-600" />
-              <AlertDescription className="text-emerald-800">{success}</AlertDescription>
+              <AlertDescription className="text-emerald-800">
+                {success}
+              </AlertDescription>
             </Alert>
           )}
 
@@ -353,7 +415,10 @@ export default function EditMosquePage() {
               <CardContent className="p-6 space-y-4">
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="name_ar" className="text-slate-700 font-medium">
+                    <Label
+                      htmlFor="name_ar"
+                      className="text-slate-700 font-medium"
+                    >
                       اسم المسجد (عربي) *
                     </Label>
                     <Input
@@ -366,8 +431,12 @@ export default function EditMosquePage() {
                       className="transition-all duration-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                     />
                   </div>
+
                   <div className="space-y-2">
-                    <Label htmlFor="name_en" className="text-slate-700 font-medium">
+                    <Label
+                      htmlFor="name_en"
+                      className="text-slate-700 font-medium"
+                    >
                       اسم المسجد (إنجليزي) *
                     </Label>
                     <Input
@@ -383,7 +452,10 @@ export default function EditMosquePage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="status" className="text-slate-700 font-medium">
+                  <Label
+                    htmlFor="status"
+                    className="text-slate-700 font-medium"
+                  >
                     الحالة
                   </Label>
                   <select
@@ -398,9 +470,31 @@ export default function EditMosquePage() {
                     <option value="مكتمل">مكتمل</option>
                   </select>
                 </div>
-
+                {/* capacityv */}
                 <div className="space-y-2">
-                  <Label htmlFor="address_text" className="text-slate-700 font-medium">
+                  <Label
+                    htmlFor="capacityv"
+                    className="text-slate-700 font-medium"
+                  >
+                    عدد المصلين
+                  </Label>
+                  <Input
+                    id="capacityv"
+                    name="capacityv"
+                    value={formData.capacityv}
+                    onChange={handleInputChange}
+                    placeholder="أدخل عدد المصلين"
+                    required
+                    type="number"
+                    min={0}
+                    className="transition-all duration-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="address_text"
+                    className="text-slate-700 font-medium"
+                  >
                     العنوان التفصيلي
                   </Label>
                   <Textarea
@@ -427,7 +521,10 @@ export default function EditMosquePage() {
               <CardContent className="p-6 space-y-4">
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="governorate_id" className="text-slate-700 font-medium">
+                    <Label
+                      htmlFor="governorate_id"
+                      className="text-slate-700 font-medium"
+                    >
                       المحافظة *
                     </Label>
                     <select
@@ -440,7 +537,9 @@ export default function EditMosquePage() {
                       disabled={loadingGovernorates}
                     >
                       <option value="">
-                        {loadingGovernorates ? "جاري التحميل..." : "اختر المحافظة"}
+                        {loadingGovernorates
+                          ? "جاري التحميل..."
+                          : "اختر المحافظة"}
                       </option>
                       {governorates.map((gov) => (
                         <option key={gov.id} value={gov.id}>
@@ -453,7 +552,10 @@ export default function EditMosquePage() {
                     )}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="district_id" className="text-slate-700 font-medium">
+                    <Label
+                      htmlFor="district_id"
+                      className="text-slate-700 font-medium"
+                    >
                       المنطقة *
                     </Label>
                     <select
@@ -469,8 +571,8 @@ export default function EditMosquePage() {
                         {!formData.governorate_id
                           ? "اختر المحافظة أولاً"
                           : loadingDistricts
-                            ? "جاري التحميل..."
-                            : "اختر المنطقة"}
+                          ? "جاري التحميل..."
+                          : "اختر المنطقة"}
                       </option>
                       {districts.map((district) => (
                         <option key={district.id} value={district.id}>
@@ -486,7 +588,10 @@ export default function EditMosquePage() {
 
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="sub_district_id" className="text-slate-700 font-medium">
+                    <Label
+                      htmlFor="sub_district_id"
+                      className="text-slate-700 font-medium"
+                    >
                       الناحية *
                     </Label>
                     <select
@@ -502,8 +607,8 @@ export default function EditMosquePage() {
                         {!formData.district_id
                           ? "اختر المنطقة أولاً"
                           : loadingSubDistricts
-                            ? "جاري التحميل..."
-                            : "اختر الناحية"}
+                          ? "جاري التحميل..."
+                          : "اختر الناحية"}
                       </option>
                       {subDistricts.map((subDistrict) => (
                         <option key={subDistrict.id} value={subDistrict.id}>
@@ -516,7 +621,10 @@ export default function EditMosquePage() {
                     )}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="neighborhood_id" className="text-slate-700 font-medium">
+                    <Label
+                      htmlFor="neighborhood_id"
+                      className="text-slate-700 font-medium"
+                    >
                       الحي *
                     </Label>
                     <select
@@ -526,14 +634,16 @@ export default function EditMosquePage() {
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-200"
                       required
-                      disabled={!formData.sub_district_id || loadingNeighborhoods}
+                      disabled={
+                        !formData.sub_district_id || loadingNeighborhoods
+                      }
                     >
                       <option value="">
                         {!formData.sub_district_id
                           ? "اختر الناحية أولاً"
                           : loadingNeighborhoods
-                            ? "جاري التحميل..."
-                            : "اختر الحي"}
+                          ? "جاري التحميل..."
+                          : "اختر الحي"}
                       </option>
                       {neighborhoods.map((neighborhood) => (
                         <option key={neighborhood.id} value={neighborhood.id}>
@@ -548,7 +658,10 @@ export default function EditMosquePage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="address_text" className="text-slate-700 font-medium">
+                  <Label
+                    htmlFor="address_text"
+                    className="text-slate-700 font-medium"
+                  >
                     العنوان التفصيلي
                   </Label>
                   <Textarea
@@ -564,7 +677,10 @@ export default function EditMosquePage() {
 
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="latitude" className="text-slate-700 font-medium">
+                    <Label
+                      htmlFor="latitude"
+                      className="text-slate-700 font-medium"
+                    >
                       خط العرض
                     </Label>
                     <Input
@@ -579,7 +695,10 @@ export default function EditMosquePage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="longitude" className="text-slate-700 font-medium">
+                    <Label
+                      htmlFor="longitude"
+                      className="text-slate-700 font-medium"
+                    >
                       خط الطول
                     </Label>
                     <Input
@@ -604,7 +723,10 @@ export default function EditMosquePage() {
                     <InteractiveMap
                       center={
                         formData.latitude && formData.longitude
-                          ? [parseFloat(formData.latitude), parseFloat(formData.longitude)]
+                          ? [
+                              parseFloat(formData.latitude),
+                              parseFloat(formData.longitude),
+                            ]
                           : [33.5138, 36.2765] // Damascus default
                       }
                       zoom={13}
@@ -613,14 +735,18 @@ export default function EditMosquePage() {
                       onLocationSelect={handleMapClick}
                       selectedLocation={
                         formData.latitude && formData.longitude
-                          ? [parseFloat(formData.latitude), parseFloat(formData.longitude)]
+                          ? [
+                              parseFloat(formData.latitude),
+                              parseFloat(formData.longitude),
+                            ]
                           : null
                       }
                       showCurrentMarker={false}
                     />
                   </div>
                   <p className="text-xs text-slate-500 mt-1">
-                    💡 انقر على الخريطة لتحديد موقع المسجد وسيتم تحديث الإحداثيات تلقائياً
+                    💡 انقر على الخريطة لتحديد موقع المسجد وسيتم تحديث
+                    الإحداثيات تلقائياً
                   </p>
                 </div>
               </CardContent>
@@ -637,7 +763,10 @@ export default function EditMosquePage() {
               <CardContent className="p-6 space-y-4">
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="damage_level" className="text-slate-700 font-medium">
+                    <Label
+                      htmlFor="damage_level"
+                      className="text-slate-700 font-medium"
+                    >
                       مستوى الضرر *
                     </Label>
                     <select
@@ -653,7 +782,10 @@ export default function EditMosquePage() {
                     </select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="estimated_cost" className="text-slate-700 font-medium">
+                    <Label
+                      htmlFor="estimated_cost"
+                      className="text-slate-700 font-medium"
+                    >
                       التكلفة المقدرة (ل.س)
                     </Label>
                     <Input
@@ -677,7 +809,10 @@ export default function EditMosquePage() {
                     onChange={handleInputChange}
                     className="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500 transition-all duration-200"
                   />
-                  <Label htmlFor="is_reconstruction" className="text-slate-700 font-medium cursor-pointer">
+                  <Label
+                    htmlFor="is_reconstruction"
+                    className="text-slate-700 font-medium cursor-pointer"
+                  >
                     يحتاج إعادة إعمار كاملة
                   </Label>
                 </div>
@@ -774,10 +909,12 @@ export default function EditMosquePage() {
                   onMediaUpdate={async () => {
                     // إعادة تحميل بيانات المسجد بعد تحديث الوسائط
                     try {
-                      const updatedMosque = await MosqueService.getMosque(mosqueId)
-                      setMosque(updatedMosque)
+                      const updatedMosque = await MosqueService.getMosque(
+                        mosqueId
+                      );
+                      setMosque(updatedMosque);
                     } catch (error) {
-                      console.error('Error refreshing mosque data:', error)
+                      console.error("Error refreshing mosque data:", error);
                     }
                   }}
                 />
@@ -817,5 +954,5 @@ export default function EditMosquePage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

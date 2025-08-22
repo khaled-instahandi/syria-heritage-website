@@ -1,37 +1,45 @@
-"use client"
+"use client";
 
-import { useTranslations } from "next-intl"
-import Image from "next/image"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
-import { MapPin, Heart } from "lucide-react"
-import type { Project } from "@/lib/types"
-import type { DisplayProject } from "@/lib/data-transformers"
-import { getMosqueById, getGovernorateById, getDonationsByProjectId, getMainImageForMosque } from "@/lib/mock-data"
-import { formatCurrency, calculateProgress } from "@/lib/utils"
-import { getFullImageUrl } from "@/lib/data-transformers"
+import { useTranslations } from "next-intl";
+import Image from "next/image";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { MapPin, Heart } from "lucide-react";
+import type { Project } from "@/lib/types";
+import type { DisplayProject } from "@/lib/data-transformers";
+import {
+  getMosqueById,
+  getGovernorateById,
+  getDonationsByProjectId,
+  getMainImageForMosque,
+} from "@/lib/mock-data";
+import { formatCurrency, calculateProgress } from "@/lib/utils";
+import { getFullImageUrl } from "@/lib/data-transformers";
+import { DonationDialog } from "./donation-dialog";
 
 interface ProjectCardProps {
-  project: Project | DisplayProject
-  index?: number
+  project: Project | DisplayProject;
+  index?: number;
 }
 
 // type guard لتحديد نوع Project
-function isDisplayProject(project: Project | DisplayProject): project is DisplayProject {
-  return 'location' in project
+function isDisplayProject(
+  project: Project | DisplayProject
+): project is DisplayProject {
+  return "location" in project;
 }
 
 export function ProjectCard({ project, index = 0 }: ProjectCardProps) {
-  const t = useTranslations()
+  const t = useTranslations();
 
   if (isDisplayProject(project)) {
     // التعامل مع DisplayProject (البيانات من API)
-    const progress = project.progress_percentage || 0
-    const totalRaised = project.collected_amount || 0
-    const imageUrl = getFullImageUrl(project.image_url)
+    const progress = project.progress_percentage || 0;
+    const totalRaised = project.collected_amount || 0;
+    const imageUrl = getFullImageUrl(project.image_url);
 
     return (
       <Card
@@ -46,21 +54,40 @@ export function ProjectCard({ project, index = 0 }: ProjectCardProps) {
             height={300}
             className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-700"
             onError={(e) => {
-              const img = e.currentTarget
-              img.src = '/placeholder.jpg'
+              const img = e.currentTarget;
+              img.src = "/placeholder.jpg";
             }}
           />
           <div className="absolute top-4 right-4">
             <Badge
-              className={`${project.project_category === "إعادة إعمار" ? "bg-emerald-600" : "bg-blue-600"} text-white shadow-lg`}
+              className={`${
+                project.project_category === "إعادة إعمار"
+                  ? "bg-emerald-600"
+                  : "bg-blue-600"
+              } text-white shadow-lg`}
             >
-              {t(`projects.category.${project.project_category === "إعادة إعمار" ? "reconstruction" : "restoration"}`)}
+              {t(
+                `projects.category.${
+                  project.project_category === "إعادة إعمار"
+                    ? "reconstruction"
+                    : "restoration"
+                }`
+              )}
             </Badge>
           </div>
           <div className="absolute top-4 left-4">
-            <Badge variant="secondary" className="bg-white/90 text-slate-700 shadow-lg">
+            <Badge
+              variant="secondary"
+              className="bg-white/90 text-slate-700 shadow-lg"
+            >
               {t(
-                `projects.status.${project.status === "قيد الدراسة" ? "study" : project.status === "قيد التنفيذ" ? "progress" : "completed"}`,
+                `projects.status.${
+                  project.status === "قيد الدراسة"
+                    ? "study"
+                    : project.status === "قيد التنفيذ"
+                    ? "progress"
+                    : "completed"
+                }`
               )}
             </Badge>
           </div>
@@ -81,8 +108,12 @@ export function ProjectCard({ project, index = 0 }: ProjectCardProps) {
 
           <div className="mb-6">
             <div className="flex justify-between items-center mb-2">
-              <span className="text-sm text-slate-600">{t("projects.progress")}</span>
-              <span className="text-sm font-semibold text-emerald-600">{progress}%</span>
+              <span className="text-sm text-slate-600">
+                {t("projects.progress")}
+              </span>
+              <span className="text-sm font-semibold text-emerald-600">
+                {progress}%
+              </span>
             </div>
             <Progress value={progress} className="h-2 bg-slate-200">
               <div
@@ -91,19 +122,29 @@ export function ProjectCard({ project, index = 0 }: ProjectCardProps) {
               />
             </Progress>
             <div className="flex justify-between items-center mt-2 text-sm">
-              <span className="text-slate-600">{formatCurrency(totalRaised)} {t("projects.raised")}</span>
+              <span className="text-slate-600">
+                {formatCurrency(totalRaised)} {t("projects.raised")}
+              </span>
               <span className="font-semibold text-slate-900">
-                {project.total_cost ? formatCurrency(project.total_cost) : t("projects.undefined")} {t("projects.target")}
+                {project.total_cost
+                  ? formatCurrency(project.total_cost)
+                  : t("projects.undefined")}{" "}
+                {t("projects.target")}
               </span>
             </div>
           </div>
 
           <div className="flex gap-3">
-            <Button className="flex-1 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white shadow-lg hover:shadow-xl transition-all duration-300">
+            {/* <Button className="flex-1 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white shadow-lg hover:shadow-xl transition-all duration-300">
               <Heart className="w-4 h-4 ml-2" />
               {t("projects.donate")}
-            </Button>
-            <Link href={`/projects/${project.id}`}>
+            </Button> */}
+            <DonationDialog
+              mosqueId={project.id}
+              // mosqueName={project[`name_${params.locale}`]}
+            />
+
+            <Link href={`/mosques/${project.id}`}>
               <Button
                 variant="outline"
                 className="border-2 border-slate-300 hover:border-emerald-600 hover:text-emerald-600 transition-all duration-300 bg-transparent"
@@ -114,18 +155,25 @@ export function ProjectCard({ project, index = 0 }: ProjectCardProps) {
           </div>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   // التعامل مع Project التقليدي (للحفاظ على التوافق مع المكونات الأخرى)
-  const mosque = getMosqueById(project.mosque_id)
-  const governorate = mosque ? getGovernorateById(mosque.governorate_id) : null
-  const donations = getDonationsByProjectId(project.id)
-  const totalRaised = donations.reduce((sum, donation) => sum + donation.amount, 0)
-  const progress = project.total_cost ? calculateProgress(totalRaised, project.total_cost) : 0
-  const mainImage = mosque ? getMainImageForMosque(mosque.id) : "/placeholder.svg?height=300&width=400"
+  const mosque = getMosqueById(project.mosque_id);
+  const governorate = mosque ? getGovernorateById(mosque.governorate_id) : null;
+  const donations = getDonationsByProjectId(project.id);
+  const totalRaised = donations.reduce(
+    (sum, donation) => sum + donation.amount,
+    0
+  );
+  const progress = project.total_cost
+    ? calculateProgress(totalRaised, project.total_cost)
+    : 0;
+  const mainImage = mosque
+    ? getMainImageForMosque(mosque.id)
+    : "/placeholder.svg?height=300&width=400";
 
-  if (!mosque) return null
+  if (!mosque) return null;
 
   return (
     <Card
@@ -142,15 +190,34 @@ export function ProjectCard({ project, index = 0 }: ProjectCardProps) {
         />
         <div className="absolute top-4 right-4">
           <Badge
-            className={`${project.project_category === "إعادة إعمار" ? "bg-emerald-600" : "bg-blue-600"} text-white shadow-lg`}
+            className={`${
+              project.project_category === "إعادة إعمار"
+                ? "bg-emerald-600"
+                : "bg-blue-600"
+            } text-white shadow-lg`}
           >
-            {t(`projects.category.${project.project_category === "إعادة إعمار" ? "reconstruction" : "restoration"}`)}
+            {t(
+              `projects.category.${
+                project.project_category === "إعادة إعمار"
+                  ? "reconstruction"
+                  : "restoration"
+              }`
+            )}
           </Badge>
         </div>
         <div className="absolute top-4 left-4">
-          <Badge variant="secondary" className="bg-white/90 text-slate-700 shadow-lg">
+          <Badge
+            variant="secondary"
+            className="bg-white/90 text-slate-700 shadow-lg"
+          >
             {t(
-              `projects.status.${project.status === "قيد الدراسة" ? "study" : project.status === "قيد التنفيذ" ? "progress" : "completed"}`,
+              `projects.status.${
+                project.status === "قيد الدراسة"
+                  ? "study"
+                  : project.status === "قيد التنفيذ"
+                  ? "progress"
+                  : "completed"
+              }`
             )}
           </Badge>
         </div>
@@ -171,8 +238,12 @@ export function ProjectCard({ project, index = 0 }: ProjectCardProps) {
 
         <div className="mb-6">
           <div className="flex justify-between items-center mb-2">
-            <span className="text-sm text-slate-600">{t("projects.progress")}</span>
-            <span className="text-sm font-semibold text-emerald-600">{progress}%</span>
+            <span className="text-sm text-slate-600">
+              {t("projects.progress")}
+            </span>
+            <span className="text-sm font-semibold text-emerald-600">
+              {progress}%
+            </span>
           </div>
           <Progress value={progress} className="h-2 bg-slate-200">
             <div
@@ -181,9 +252,14 @@ export function ProjectCard({ project, index = 0 }: ProjectCardProps) {
             />
           </Progress>
           <div className="flex justify-between items-center mt-2 text-sm">
-            <span className="text-slate-600">{formatCurrency(totalRaised)} {t("projects.raised")}</span>
+            <span className="text-slate-600">
+              {formatCurrency(totalRaised)} {t("projects.raised")}
+            </span>
             <span className="font-semibold text-slate-900">
-              {project.total_cost ? formatCurrency(project.total_cost) : t("projects.undefined")} {t("projects.target")}
+              {project.total_cost
+                ? formatCurrency(project.total_cost)
+                : t("projects.undefined")}{" "}
+              {t("projects.target")}
             </span>
           </div>
         </div>
@@ -193,7 +269,7 @@ export function ProjectCard({ project, index = 0 }: ProjectCardProps) {
             <Heart className="w-4 h-4 ml-2" />
             {t("projects.donate")}
           </Button>
-          <Link href={`/projects/${project.id}`}>
+          <Link href={`/mosques/${project.id}`}>
             <Button
               variant="outline"
               className="border-2 border-slate-300 hover:border-emerald-600 hover:text-emerald-600 transition-all duration-300 bg-transparent"
@@ -204,5 +280,5 @@ export function ProjectCard({ project, index = 0 }: ProjectCardProps) {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useTranslations } from "next-intl"
-import { usePathname, useParams } from "next/navigation"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { useState } from "react";
+import { useTranslations } from "next-intl";
+import { usePathname, useParams } from "next/navigation";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Building2 as Mosque,
   LayoutDashboard,
@@ -20,40 +20,40 @@ import {
   X,
   LogOut,
   Home,
-} from "lucide-react"
-import { useAuth } from "@/hooks/use-auth"
+} from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
 
 interface DashboardSidebarProps {
-  isOpen?: boolean
-  onClose?: () => void
-  isCollapsed?: boolean
-  onToggleCollapse?: (collapsed: boolean) => void
-  navigateWithLoading?: (url: string) => void
+  isOpen?: boolean;
+  onClose?: () => void;
+  isCollapsed?: boolean;
+  onToggleCollapse?: (collapsed: boolean) => void;
+  navigateWithLoading?: (url: string) => void;
 }
 
-export function DashboardSidebar({ 
-  isOpen = false, 
-  onClose, 
-  isCollapsed = false, 
+export function DashboardSidebar({
+  isOpen = false,
+  onClose,
+  isCollapsed = false,
   onToggleCollapse,
-  navigateWithLoading
+  navigateWithLoading,
 }: DashboardSidebarProps) {
-  const t = useTranslations()
-  const pathname = usePathname()
-  const params = useParams()
-  
+  const t = useTranslations();
+  const pathname = usePathname();
+  const params = useParams();
+
   // Get current locale from params
-  const locale = params?.locale as string || 'ar'
-  const isRTL = locale === 'ar'
-  const { user, logout } = useAuth()
+  const locale = (params?.locale as string) || "ar";
+  const isRTL = locale === "ar";
+  const { user, logout } = useAuth();
 
   const handleLogout = async () => {
     try {
-      await logout()
+      await logout();
     } catch (error) {
-      console.error('Logout error:', error)
+      console.error("Logout error:", error);
     }
-  }
+  };
   const menuItems = [
     {
       title: t("dashboard.overview"),
@@ -67,12 +67,12 @@ export function DashboardSidebar({
       icon: Mosque,
       badge: "3",
     },
-    {
-      title: t("dashboard.projectsManagement"),
-      href: `/${locale}/dashboard/projects`,
-      icon: Building,
-      badge: null,
-    },
+    // {
+    //   title: t("dashboard.projectsManagement"),
+    //   href: `/${locale}/dashboard/projects`,
+    //   icon: Building,
+    //   badge: null,
+    // },
     {
       title: t("dashboard.donationsManagement"),
       href: `/${locale}/dashboard/donations`,
@@ -109,22 +109,22 @@ export function DashboardSidebar({
     //   icon: Settings,
     //   badge: null,
     // },
-  ]
+  ];
 
   // For mobile, use the isOpen prop, for desktop, use collapsed state from props
-  const isMobileOpen = isOpen
-  const isDesktopCollapsed = isCollapsed
+  const isMobileOpen = isOpen;
+  const isDesktopCollapsed = isCollapsed;
 
   // Dynamic positioning based on locale
-  const sidebarPosition = isRTL ? 'right-0' : 'left-0'
-  const borderDirection = isRTL ? 'border-l' : 'border-r'
+  const sidebarPosition = isRTL ? "right-0" : "left-0";
+  const borderDirection = isRTL ? "border-l" : "border-r";
 
   return (
     <>
       {/* Mobile Overlay */}
       {isMobileOpen && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden" 
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
           onClick={onClose}
         />
       )}
@@ -157,25 +157,29 @@ export function DashboardSidebar({
                 </div>
               </div>
             )}
-            
+
             {/* Mobile close button */}
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={onClose} 
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onClose}
               className="lg:hidden flex-shrink-0"
             >
               <X className="w-5 h-5" />
             </Button>
-            
+
             {/* Desktop collapse button */}
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => onToggleCollapse?.(!isDesktopCollapsed)} 
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onToggleCollapse?.(!isDesktopCollapsed)}
               className="hidden lg:block"
             >
-              {isDesktopCollapsed ? <Menu className="w-5 h-5" /> : <X className="w-5 h-5" />}
+              {isDesktopCollapsed ? (
+                <Menu className="w-5 h-5" />
+              ) : (
+                <X className="w-5 h-5" />
+              )}
             </Button>
           </div>
 
@@ -185,14 +189,16 @@ export function DashboardSidebar({
             <Button
               onClick={() => {
                 if (navigateWithLoading) {
-                  navigateWithLoading(`/${locale}`)
+                  navigateWithLoading(`/${locale}`);
                 } else {
-                  window.location.href = `/${locale}`
+                  window.location.href = `/${locale}`;
                 }
-                onClose?.()
+                onClose?.();
               }}
               variant="ghost"
-              className={`w-full ${isRTL ? 'justify-start' : 'justify-start'} gap-3 text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 ${
+              className={`w-full ${
+                isRTL ? "justify-start" : "justify-start"
+              } gap-3 text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 ${
                 isDesktopCollapsed ? "lg:px-2" : "px-4"
               }`}
             >
@@ -204,23 +210,25 @@ export function DashboardSidebar({
 
             <div className="border-t border-slate-200 pt-4 mt-4">
               {menuItems.map((item) => {
-                const isActive = pathname === item.href
-                
+                const isActive = pathname === item.href;
+
                 const handleNavigation = () => {
                   if (navigateWithLoading) {
-                    navigateWithLoading(item.href)
+                    navigateWithLoading(item.href);
                   } else {
-                    window.location.href = item.href
+                    window.location.href = item.href;
                   }
-                  onClose?.()
-                }
+                  onClose?.();
+                };
 
                 return (
                   <div key={item.href}>
                     <Button
                       onClick={handleNavigation}
                       variant={isActive ? "default" : "ghost"}
-                      className={`w-full ${isRTL ? 'justify-start' : 'justify-start'} gap-3 mb-1 ${
+                      className={`w-full ${
+                        isRTL ? "justify-start" : "justify-start"
+                      } gap-3 mb-1 ${
                         isActive
                           ? "bg-emerald-600 text-white hover:bg-emerald-700"
                           : "text-slate-600 hover:text-emerald-600 hover:bg-emerald-50"
@@ -229,7 +237,13 @@ export function DashboardSidebar({
                       <item.icon className="w-5 h-5 flex-shrink-0" />
                       {(!isDesktopCollapsed || isMobileOpen) && (
                         <>
-                          <span className={`flex-1 ${isRTL ? 'text-right' : 'text-left'}`}>{item.title}</span>
+                          <span
+                            className={`flex-1 ${
+                              isRTL ? "text-right" : "text-left"
+                            }`}
+                          >
+                            {item.title}
+                          </span>
                           {/* {item.badge && (
                             <Badge variant="secondary" className="bg-emerald-100 text-emerald-800 text-xs">
                               {item.badge}
@@ -239,7 +253,7 @@ export function DashboardSidebar({
                       )}
                     </Button>
                   </div>
-                )
+                );
               })}
             </div>
           </nav>
@@ -249,7 +263,9 @@ export function DashboardSidebar({
             <Button
               onClick={handleLogout}
               variant="ghost"
-              className={`w-full ${isRTL ? 'justify-start' : 'justify-start'} gap-3 text-red-600 hover:text-red-700 hover:bg-red-50 ${
+              className={`w-full ${
+                isRTL ? "justify-start" : "justify-start"
+              } gap-3 text-red-600 hover:text-red-700 hover:bg-red-50 ${
                 isDesktopCollapsed ? "lg:px-2" : "px-4"
               }`}
             >
@@ -262,5 +278,5 @@ export function DashboardSidebar({
         </div>
       </div>
     </>
-  )
+  );
 }

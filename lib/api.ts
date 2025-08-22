@@ -603,6 +603,7 @@ class ApiClient {
     district_id?: number
     sub_district_id?: number
     neighborhood_id?: number
+    capacityv?: string
     address_text?: string
     latitude?: string
     longitude?: string
@@ -629,6 +630,7 @@ class ApiClient {
     if (data.latitude) formData.append('latitude', data.latitude)
     if (data.longitude) formData.append('longitude', data.longitude)
     if (data.estimated_cost) formData.append('estimated_cost', data.estimated_cost)
+    if (data.capacityv) formData.append('capacityv', data.capacityv)
 
     return await this.postForm<{ data: Mosque }>(`/mosques/${id}`, formData)
   }
@@ -716,10 +718,10 @@ class ApiClient {
     })
 
     // أضف أيضاً كـ files بدون []
-    data.files.forEach((file, index) => {
-      formData.append('files', file, file.name)
-      console.log(`Added file ${index} as files:`, file.name, file.size, file.type)
-    })
+    // data.files.forEach((file, index) => {
+    //   formData.append('files', file, file.name)
+    //   console.log(`Added file ${index} as files:`, file.name, file.size, file.type)
+    // })
 
     // التحقق من محتويات FormData قبل الإرسال
     console.log('=== FormData contents before sending ===')
@@ -921,6 +923,7 @@ export const api = {
     neighborhood_id?: number
     address_text?: string
     latitude?: string
+    capacityv:string
     longitude?: string
     damage_level?: "جزئي" | "كامل"
     estimated_cost?: string

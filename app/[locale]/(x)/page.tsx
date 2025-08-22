@@ -91,7 +91,7 @@ export default function HomePage() {
                 <Heart className="w-5 h-5 ml-2" />
                 {t("home.becomePartner")}
               </Button> */}
-              <Link href="/projects">
+              <Link href="/mosques">
                 <Button
                   size="lg"
                   // variant="outline"
@@ -168,7 +168,7 @@ export default function HomePage() {
           )}
 
           <div className="text-center">
-            <Link href="/projects">
+            <Link href="/mosques">
               <Button
                 size="lg"
                 variant="outline"

@@ -76,12 +76,36 @@
   },
   "mosques": {
     "title": "المساجد المسجلة",
+
+    "reconstruction": "إعادة إعمار",
+    "restoration": "ترميم",
     "description": "قاعدة بيانات شاملة للمساجد المتضررة",
     "damageLevel": {
       "partial": "ضرر جزئي",
       "complete": "ضرر كامل"
     },
     "details": {
+      "donation": {
+        "submit": "إرسال",
+        "receipt": "رابط الإيصال",
+        "paymentMethod": "طريقة الدفع",
+        "amount": "المبلغ",
+        "success": "تم إرسال تبرعك بنجاح",
+        "error": "حدث خطأ في إرسال التبرع",
+        "donorName": "اسم المتبرع",
+        "title": "العنوان",
+        "submitting": "جاري إرسال التبرع",
+        "donation": "التبرع",
+        "description": "الوصف",
+        "paymentMethods": {
+          "cash": "نقدي",
+          "transfer": "تحويل",
+          "cashSham": "كاش شام",
+          "card": "بطاقة",
+          "other": "أخرى"
+        }
+      },
+      "total_donations": "إجمالي التبرعات",
       "loading": "جاري تحميل بيانات المسجد...",
       "notFound": "المسجد غير موجود",
       "notFoundDesc": "لم يتم العثور على المسجد المطلوب",
@@ -97,6 +121,11 @@
         "gallery": "المعرض"
       },
       "overview": {
+        "projectType": "نوع المشروع",
+        "subDistrict": "المدينة",
+        "neighborhood": "الحي",
+        "capacityv": "سعة المصلين",
+        "damageLevel": "مستوى الضرر",
         "description": "وصف المسجد",
         "projectsProgress": "تقدم المشاريع",
         "totalRaised": "إجمالي المبلغ التم جمع",

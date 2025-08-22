@@ -75,6 +75,8 @@
     }
   },
   "mosques": {
+    "reconstruction": "Reconstruction",
+    "restoration": "Restoration",
     "title": "Registered Mosques",
     "description": "Comprehensive database of damaged mosques",
     "damageLevel": {
@@ -82,7 +84,28 @@
       "complete": "Complete Damage"
     },
     "details": {
+      "donation": {
+        "submit": "Submit",
+        "receipt": "Receipt URL",
+        "paymentMethod": "Payment Method",
+        "amount": "Amount",
+        "donorName": "Donor Name",
+        "title": "Title",
+        "donation": "Donation",
+        "submitting":"Submitting",
+        "success": "Your Donation was sent successfully",
+        "error": "An error occurred, please try again",
+        "description": "Description",
+        "paymentMethods": {
+          "cash": "Cash",
+          "transfer": "Transfer",
+          "cashSham": "Sham Cash",
+          "card": "Card",
+          "other": "Other"
+        }
+      },
       "loading": "Loading mosque data...",
+      "total_donations": "Total Donations",
       "notFound": "Mosque not found",
       "notFoundDesc": "The requested mosque was not found",
       "backToMosques": "Back to mosques list",
@@ -97,6 +120,11 @@
         "gallery": "Gallery"
       },
       "overview": {
+        "projectType": "Project Type",
+        "subDistrict": "Sub District",
+        "neighborhood": "Neighborhood",
+        "damageLevel": "Damage Level",
+        "capacityv": "Capacity",
         "description": "Mosque Description",
         "projectsProgress": "Projects Progress",
         "totalRaised": "Total Amount Raised",
@@ -130,6 +158,7 @@
       },
       "donations": {
         "title": "Donations",
+
         "noDonations": "No donations",
         "noDonationsDesc": "No donations are currently registered for this mosque",
         "totalDonations": "Total Donations",
@@ -500,7 +529,7 @@
     "brandSubtitle": "Preserving Heritage",
     "errors": {
       "general": "An error occurred during login",
-      "connection": "Connection error with server"  
+      "connection": "Connection error with server"
     }
   }
 }

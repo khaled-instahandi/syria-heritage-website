@@ -1,188 +1,231 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { useState, useCallback } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { 
-  Upload, 
-  Image as ImageIcon, 
-  X, 
-  Star, 
+import * as React from "react";
+import { useState, useCallback } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  Upload,
+  Image as ImageIcon,
+  X,
+  Star,
   Move,
   AlertCircle,
   Check,
-  Loader2
-} from "lucide-react"
-import { cn } from "@/lib/utils"
-import { MosqueMedia } from "@/lib/types"
-import { MosqueMediaService } from "@/lib/services/mosque-service"
-import { toast } from "sonner"
+  Loader2,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { MosqueMedia } from "@/lib/types";
+import { MosqueMediaService } from "@/lib/services/mosque-service";
+import { toast } from "sonner";
+import { getFullImageUrl } from "@/lib/data-transformers";
 
 interface MediaUploadProps {
-  mosqueId: number
-  existingMedia?: MosqueMedia[]
-  onMediaUpdate?: () => void
-  className?: string
+  mosqueId: number;
+  existingMedia?: MosqueMedia[];
+  onMediaUpdate?: () => void;
+  className?: string;
 }
 
 interface MediaFile {
-  file: File
-  preview: string
-  id: string
+  file: File;
+  preview: string;
+  id: string;
 }
 
-export function MediaUpload({ mosqueId, existingMedia = [], onMediaUpdate, className }: MediaUploadProps) {
-  const [beforeFiles, setBeforeFiles] = useState<MediaFile[]>([])
-  const [afterFiles, setAfterFiles] = useState<MediaFile[]>([])
-  const [uploading, setUploading] = useState(false)
-  const [dragOver, setDragOver] = useState<"before" | "after" | null>(null)
-  const [settingMainMedia, setSettingMainMedia] = useState<number | null>(null)
+export function MediaUpload({
+  mosqueId,
+  existingMedia = [],
+  onMediaUpdate,
+  className,
+}: MediaUploadProps) {
+  const [beforeFiles, setBeforeFiles] = useState<MediaFile[]>([]);
+  const [afterFiles, setAfterFiles] = useState<MediaFile[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [dragOver, setDragOver] = useState<"before" | "after" | null>(null);
+  const [settingMainMedia, setSettingMainMedia] = useState<number | null>(null);
 
   // تصفية الوسائط الموجودة
-  const beforeMedia = existingMedia.filter(media => media.media_stage === "before")
-  const afterMedia = existingMedia.filter(media => media.media_stage === "after")
+  const beforeMedia = existingMedia.filter(
+    (media) => media.media_stage === "before"
+  );
+  const afterMedia = existingMedia.filter(
+    (media) => media.media_stage === "after"
+  );
 
   // إنشاء معاينة للملف
   const createFilePreview = useCallback((file: File): MediaFile => {
     return {
       file,
       preview: URL.createObjectURL(file),
-      id: Math.random().toString(36).substr(2, 9)
-    }
-  }, [])
+      id: Math.random().toString(36).substr(2, 9),
+    };
+  }, []);
 
   // التعامل مع اختيار الملفات
-  const handleFileSelect = useCallback((files: FileList | null, stage: "before" | "after") => {
-    if (!files) return
+  const handleFileSelect = useCallback(
+    (files: FileList | null, stage: "before" | "after") => {
+      if (!files) return;
 
-    const validFiles = Array.from(files).filter(file => {
-      const isValidType = file.type.startsWith('image/')
-      const isValidSize = file.size <= 10 * 1024 * 1024 // 10MB
-      
-      if (!isValidType) {
-        toast.error(`${file.name} ليس صورة صالحة`)
-        return false
-      }
-      
-      if (!isValidSize) {
-        toast.error(`${file.name} حجم الملف كبير جداً (الحد الأقصى 10MB)`)
-        return false
-      }
-      
-      return true
-    })
+      const validFiles = Array.from(files).filter((file) => {
+        const isValidType = file.type.startsWith("image/");
+        const isValidSize = file.size <= 10 * 1024 * 1024; // 10MB
 
-    const newFiles = validFiles.map(createFilePreview)
-    
-    if (stage === "before") {
-      setBeforeFiles(prev => [...prev, ...newFiles])
-    } else {
-      setAfterFiles(prev => [...prev, ...newFiles])
-    }
-  }, [createFilePreview])
+        if (!isValidType) {
+          toast.error(`${file.name} ليس صورة صالحة`);
+          return false;
+        }
+
+        if (!isValidSize) {
+          toast.error(`${file.name} حجم الملف كبير جداً (الحد الأقصى 10MB)`);
+          return false;
+        }
+
+        return true;
+      });
+
+      const newFiles = validFiles.map(createFilePreview);
+
+      if (stage === "before") {
+        setBeforeFiles((prev) => [...prev, ...newFiles]);
+      } else {
+        setAfterFiles((prev) => [...prev, ...newFiles]);
+      }
+    },
+    [createFilePreview]
+  );
 
   // التعامل مع السحب والإفلات
-  const handleDrop = useCallback((e: React.DragEvent, stage: "before" | "after") => {
-    e.preventDefault()
-    setDragOver(null)
-    handleFileSelect(e.dataTransfer.files, stage)
-  }, [handleFileSelect])
+  const handleDrop = useCallback(
+    (e: React.DragEvent, stage: "before" | "after") => {
+      e.preventDefault();
+      setDragOver(null);
+      handleFileSelect(e.dataTransfer.files, stage);
+    },
+    [handleFileSelect]
+  );
 
-  const handleDragOver = useCallback((e: React.DragEvent, stage: "before" | "after") => {
-    e.preventDefault()
-    setDragOver(stage)
-  }, [])
+  const handleDragOver = useCallback(
+    (e: React.DragEvent, stage: "before" | "after") => {
+      e.preventDefault();
+      setDragOver(stage);
+    },
+    []
+  );
 
   const handleDragLeave = useCallback(() => {
-    setDragOver(null)
-  }, [])
+    setDragOver(null);
+  }, []);
 
   // حذف ملف معاينة
-  const removeFile = useCallback((fileId: string, stage: "before" | "after") => {
-    const setter = stage === "before" ? setBeforeFiles : setAfterFiles
-    setter(prev => {
-      const updated = prev.filter(f => f.id !== fileId)
-      // تنظيف memory leak
-      const removedFile = prev.find(f => f.id === fileId)
-      if (removedFile) {
-        URL.revokeObjectURL(removedFile.preview)
-      }
-      return updated
-    })
-  }, [])
+  const removeFile = useCallback(
+    (fileId: string, stage: "before" | "after") => {
+      const setter = stage === "before" ? setBeforeFiles : setAfterFiles;
+      setter((prev) => {
+        const updated = prev.filter((f) => f.id !== fileId);
+        // تنظيف memory leak
+        const removedFile = prev.find((f) => f.id === fileId);
+        if (removedFile) {
+          URL.revokeObjectURL(removedFile.preview);
+        }
+        return updated;
+      });
+    },
+    []
+  );
 
   // رفع الملفات
-  const uploadFiles = useCallback(async (files: MediaFile[], stage: "before" | "after") => {
-    if (files.length === 0) return
+  const uploadFiles = useCallback(
+    async (files: MediaFile[], stage: "before" | "after") => {
+      if (files.length === 0) return;
 
-    try {
-      setUploading(true)
-      
-      await MosqueMediaService.uploadMedia({
-        mosque_id: mosqueId,
-        media_stage: stage,
-        is_main: false,
-        media_order: 1,
-        files: files.map(f => f.file)
-      })
+      try {
+        setUploading(true);
 
-      // تنظيف الملفات المرفوعة
-      files.forEach(file => URL.revokeObjectURL(file.preview))
-      
-      if (stage === "before") {
-        setBeforeFiles([])
-      } else {
-        setAfterFiles([])
+        await MosqueMediaService.uploadMedia({
+          mosque_id: mosqueId,
+          media_stage: stage,
+          is_main: false,
+          media_order: 1,
+          files: files.map((f) => f.file),
+        });
+
+        // تنظيف الملفات المرفوعة
+        files.forEach((file) => URL.revokeObjectURL(file.preview));
+
+        if (stage === "before") {
+          setBeforeFiles([]);
+        } else {
+          setAfterFiles([]);
+        }
+
+        toast.success(`تم رفع ${files.length} صورة بنجاح`);
+        onMediaUpdate?.();
+      } catch (error) {
+        console.error("Upload error:", error);
+        toast.error("حدث خطأ أثناء رفع الصور");
+      } finally {
+        setUploading(false);
       }
-
-      toast.success(`تم رفع ${files.length} صورة بنجاح`)
-      onMediaUpdate?.()
-    } catch (error) {
-      console.error('Upload error:', error)
-      toast.error('حدث خطأ أثناء رفع الصور')
-    } finally {
-      setUploading(false)
-    }
-  }, [mosqueId, onMediaUpdate])
+    },
+    [mosqueId, onMediaUpdate]
+  );
 
   // حذف وسائط موجودة
-  const deleteExistingMedia = useCallback(async (mediaId: number) => {
-    try {
-      await MosqueMediaService.deleteMedia(mediaId)
-      toast.success('تم حذف الصورة بنجاح')
-      onMediaUpdate?.()
-    } catch (error) {
-      console.error('Delete error:', error)
-      toast.error('حدث خطأ أثناء حذف الصورة')
-    }
-  }, [onMediaUpdate])
+  const deleteExistingMedia = useCallback(
+    async (mediaId: number) => {
+      try {
+        await MosqueMediaService.deleteMedia(mediaId);
+        toast.success("تم حذف الصورة بنجاح");
+        onMediaUpdate?.();
+      } catch (error) {
+        console.error("Delete error:", error);
+        toast.error("حدث خطأ أثناء حذف الصورة");
+      }
+    },
+    [onMediaUpdate]
+  );
 
   // تعيين صورة رئيسية
-  const setMainMedia = useCallback(async (mediaId: number, stage: "before" | "after") => {
-    try {
-      setSettingMainMedia(mediaId)
-      await MosqueMediaService.setMainMedia(mediaId)
-      toast.success(`تم تعيين الصورة الرئيسية لمرحلة ${stage === "before" ? "قبل" : "بعد"} الترميم`)
-      onMediaUpdate?.()
-    } catch (error) {
-      console.error('Set main media error:', error)
-      toast.error('حدث خطأ أثناء تعيين الصورة الرئيسية')
-    } finally {
-      setSettingMainMedia(null)
-    }
-  }, [onMediaUpdate])
+  const setMainMedia = useCallback(
+    async (mediaId: number, stage: "before" | "after") => {
+      try {
+        setSettingMainMedia(mediaId);
+        await MosqueMediaService.setMainMedia(mediaId);
+        toast.success(
+          `تم تعيين الصورة الرئيسية لمرحلة ${
+            stage === "before" ? "قبل" : "بعد"
+          } الترميم`
+        );
+        onMediaUpdate?.();
+      } catch (error) {
+        console.error("Set main media error:", error);
+        toast.error("حدث خطأ أثناء تعيين الصورة الرئيسية");
+      } finally {
+        setSettingMainMedia(null);
+      }
+    },
+    [onMediaUpdate]
+  );
 
   // مكون منطقة الرفع
-  const DropZone = ({ stage, files }: { stage: "before" | "after", files: MediaFile[] }) => (
-    <Card className={cn(
-      "border-2 border-dashed transition-colors",
-      dragOver === stage 
-        ? "border-primary bg-primary/10" 
-        : "border-gray-300 hover:border-gray-400"
-    )}>
+  const DropZone = ({
+    stage,
+    files,
+  }: {
+    stage: "before" | "after";
+    files: MediaFile[];
+  }) => (
+    <Card
+      className={cn(
+        "border-2 border-dashed transition-colors",
+        dragOver === stage
+          ? "border-primary bg-primary/10"
+          : "border-gray-300 hover:border-gray-400"
+      )}
+    >
       <CardContent className="p-6">
         <div
           onDrop={(e) => handleDrop(e, stage)}
@@ -190,26 +233,25 @@ export function MediaUpload({ mosqueId, existingMedia = [], onMediaUpdate, class
           onDragLeave={handleDragLeave}
           className="text-center"
         >
-          <input
-            type="file"
-            multiple
-            accept="image/*"
-            onChange={(e) => handleFileSelect(e.target.files, stage)}
-            className="hidden"
-            id={`upload-${stage}`}
-          />
-          
           <div className="flex flex-col items-center gap-4">
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={(e) => handleFileSelect(e.target.files, stage)}
+              className="hidden"
+              id={`upload-${stage}`}
+            />
             <div className="p-4 bg-gray-100 rounded-full">
               <Upload className="w-8 h-8 text-gray-600" />
             </div>
-            
+
             <div>
               <h3 className="text-lg font-medium mb-2">
                 صور {stage === "before" ? "قبل" : "بعد"} الترميم
               </h3>
               <p className="text-sm text-gray-600 mb-4">
-                اسحب الصور هنا أو 
+                اسحب الصور هنا أو
                 <label
                   htmlFor={`upload-${stage}`}
                   className="text-primary hover:underline cursor-pointer mr-1"
@@ -217,9 +259,7 @@ export function MediaUpload({ mosqueId, existingMedia = [], onMediaUpdate, class
                   تصفح الملفات
                 </label>
               </p>
-              <p className="text-xs text-gray-500">
-                PNG, JPG, GIF حتى 10MB
-              </p>
+              <p className="text-xs text-gray-500">PNG, JPG, GIF حتى 10MB</p>
             </div>
           </div>
         </div>
@@ -248,7 +288,7 @@ export function MediaUpload({ mosqueId, existingMedia = [], onMediaUpdate, class
                 )}
               </Button>
             </div>
-            
+
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {files.map((file) => (
                 <div key={file.id} className="relative group">
@@ -277,10 +317,16 @@ export function MediaUpload({ mosqueId, existingMedia = [], onMediaUpdate, class
         )}
       </CardContent>
     </Card>
-  )
+  );
 
   // مكون عرض الوسائط الموجودة
-  const ExistingMedia = ({ media, stage }: { media: MosqueMedia[], stage: "before" | "after" }) => (
+  const ExistingMedia = ({
+    media,
+    stage,
+  }: {
+    media: MosqueMedia[];
+    stage: "before" | "after";
+  }) => (
     <>
       {media.length > 0 && (
         <Card>
@@ -297,21 +343,26 @@ export function MediaUpload({ mosqueId, existingMedia = [], onMediaUpdate, class
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-1 gap-4">
               {media.map((item) => (
-                <div key={item.id} className={cn(
-                  "relative group transition-all duration-200 hover:scale-105",
-                  item.is_main ? "ring-2 ring-yellow-400 ring-offset-2" : ""
-                )}>
+                <div
+                  key={item.id}
+                  className={cn(
+                    "relative group transition-all duration-200 hover:scale-105",
+                    item.is_main ? "ring-2 ring-yellow-400 ring-offset-2" : ""
+                  )}
+                >
                   <img
-                    src={item.file_url}
+                    src={getFullImageUrl(item.file_url)}
                     alt="صورة المسجد"
                     className={cn(
                       "w-full h-24 object-cover rounded-lg border",
-                      item.is_main ? "border-yellow-400 border-2" : "border-gray-200"
+                      item.is_main
+                        ? "border-yellow-400 border-2"
+                        : "border-gray-200"
                     )}
                   />
-                  
+
                   {/* شارة الصورة الرئيسية */}
                   {item.is_main && (
                     <div className="absolute top-2 left-2">
@@ -364,7 +415,7 @@ export function MediaUpload({ mosqueId, existingMedia = [], onMediaUpdate, class
         </Card>
       )}
     </>
-  )
+  );
 
   return (
     <div className={cn("space-y-6", className)}>
@@ -372,30 +423,36 @@ export function MediaUpload({ mosqueId, existingMedia = [], onMediaUpdate, class
       <Alert>
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
-          قم برفع الصور قبل وبعد الترميم لإظهار التقدم المحرز في المشروع. 
-          يمكنك رفع عدة صور لكل مرحلة وتحديد الصورة الرئيسية لكل قسم بالنقر على أيقونة النجمة.
+          قم برفع الصور قبل وبعد الترميم لإظهار التقدم المحرز في المشروع. يمكنك
+          رفع عدة صور لكل مرحلة وتحديد الصورة الرئيسية لكل قسم بالنقر على أيقونة
+          النجمة.
           <br />
-          💡 <strong>نصيحة:</strong> الصور الرئيسية ستظهر مع إطار ذهبي وعلامة "رئيسية".
+          💡 <strong>نصيحة:</strong> الصور الرئيسية ستظهر مع إطار ذهبي وعلامة
+          "رئيسية".
         </AlertDescription>
       </Alert>
 
       <div className="grid md:grid-cols-2 gap-6">
         {/* قسم صور قبل الترميم */}
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-red-700">صور قبل الترميم</h3>
+          <h3 className="text-lg font-semibold text-red-700">
+            صور قبل الترميم
+          </h3>
           <DropZone stage="before" files={beforeFiles} />
           <ExistingMedia media={beforeMedia} stage="before" />
         </div>
 
         {/* قسم صور بعد الترميم */}
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-green-700">صور بعد الترميم</h3>
+          <h3 className="text-lg font-semibold text-green-700">
+            صور بعد الترميم
+          </h3>
           <DropZone stage="after" files={afterFiles} />
           <ExistingMedia media={afterMedia} stage="after" />
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default MediaUpload
+export default MediaUpload;

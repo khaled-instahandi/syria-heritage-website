@@ -1,12 +1,12 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useParams, useRouter } from "next/navigation"
-import { DashboardHeader } from "@/components/dashboard/header"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Alert, AlertDescription } from "@/components/ui/alert"
+import { useState, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { DashboardHeader } from "@/components/dashboard/header";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   ArrowRight,
   MapPin,
@@ -17,62 +17,62 @@ import {
   Trash2,
   AlertCircle,
   Loader2,
-  ExternalLink
-} from 'lucide-react'
-import Link from "next/link"
-import MediaGallery from "@/components/ui/media-gallery"
-import { MosqueService } from "@/lib/services/mosque-service"
-import { Mosque } from "@/lib/types"
-import { formatCurrency, formatDate } from "@/lib/utils"
-import { toast } from "sonner"
-import { DeleteDialog } from "@/components/ui/delete-dialog"
-import { getFullImageUrl } from "@/lib/data-transformers"
+  ExternalLink,
+} from "lucide-react";
+import Link from "next/link";
+import MediaGallery from "@/components/ui/media-gallery";
+import { MosqueService } from "@/lib/services/mosque-service";
+import { Mosque } from "@/lib/types";
+import { formatCurrency, formatDate } from "@/lib/utils";
+import { toast } from "sonner";
+import { DeleteDialog } from "@/components/ui/delete-dialog";
+import { getFullImageUrl } from "@/lib/data-transformers";
 
 export default function MosqueDetailsPage() {
-  const params = useParams()
-  const router = useRouter()
-  const mosqueId = parseInt(params.id as string)
+  const params = useParams();
+  const router = useRouter();
+  const mosqueId = parseInt(params.id as string);
 
-  const [mosque, setMosque] = useState<Mosque | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [deleting, setDeleting] = useState(false)
-  const [error, setError] = useState("")
+  const [mosque, setMosque] = useState<Mosque | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [deleting, setDeleting] = useState(false);
+  const [error, setError] = useState("");
 
-  const [deleteDialog, setDeleteDialog] = useState(false)
+  const [deleteDialog, setDeleteDialog] = useState(false);
 
   useEffect(() => {
     if (mosqueId) {
-      loadMosque()
+      loadMosque();
     }
-  }, [mosqueId])
+  }, [mosqueId]);
 
   const loadMosque = async () => {
     try {
-      setLoading(true)
-      setError("")
-      const data = await MosqueService.getMosque(mosqueId)
-      setMosque(data)
+      setLoading(true);
+      setError("");
+      const data = await MosqueService.getMosque(mosqueId);
+      setMosque(data);
     } catch (err: any) {
-      console.error('Error loading mosque:', err)
-      setError('حدث خطأ في تحميل بيانات المسجد')
+      console.error("Error loading mosque:", err);
+      setError("حدث خطأ في تحميل بيانات المسجد");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleDelete = async () => {
     try {
-      setDeleting(true)
-      await MosqueService.deleteMosque(mosqueId)
-      toast.success('تم حذف المسجد بنجاح')
-      router.push('/dashboard/mosques')
+      setDeleting(true);
+      await MosqueService.deleteMosque(mosqueId);
+      toast.success("تم حذف المسجد بنجاح");
+      router.push("/dashboard/mosques");
     } catch (err: any) {
-      console.error('Error deleting mosque:', err)
-      toast.error('حدث خطأ في حذف المسجد')
+      console.error("Error deleting mosque:", err);
+      toast.error("حدث خطأ في حذف المسجد");
     } finally {
-      setDeleting(false)
+      setDeleting(false);
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -88,7 +88,7 @@ export default function MosqueDetailsPage() {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -101,7 +101,9 @@ export default function MosqueDetailsPage() {
         <div className="p-6">
           <Alert className="border-red-200 bg-red-50">
             <AlertCircle className="h-4 w-4 text-red-600" />
-            <AlertDescription className="text-red-800">{error}</AlertDescription>
+            <AlertDescription className="text-red-800">
+              {error}
+            </AlertDescription>
           </Alert>
           <div className="mt-4">
             <Link href="/dashboard/mosques">
@@ -113,7 +115,7 @@ export default function MosqueDetailsPage() {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   if (!mosque) {
@@ -126,7 +128,9 @@ export default function MosqueDetailsPage() {
         <div className="p-6">
           <Alert className="border-amber-200 bg-amber-50">
             <AlertCircle className="h-4 w-4 text-amber-600" />
-            <AlertDescription className="text-amber-800">المسجد غير موجود</AlertDescription>
+            <AlertDescription className="text-amber-800">
+              المسجد غير موجود
+            </AlertDescription>
           </Alert>
           <div className="mt-4">
             <Link href="/dashboard/mosques">
@@ -138,14 +142,16 @@ export default function MosqueDetailsPage() {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   const getMainImage = () => {
-    const mainImage = mosque.media?.find(media => media.is_main && media.type === 'image')
-    const fullImageUrl = getFullImageUrl(mainImage?.file_url || '')
-    return fullImageUrl
-  }
+    const mainImage = mosque.media?.find(
+      (media) => media.is_main && media.type === "image"
+    );
+    const fullImageUrl = getFullImageUrl(mosque.media?.[0].file_url || "");
+    return fullImageUrl;
+  };
 
   return (
     <div className="min-h-screen">
@@ -176,10 +182,7 @@ export default function MosqueDetailsPage() {
               تحرير المسجد
             </Button>
           </Link>
-          <Button
-            variant="destructive"
-            onClick={() => setDeleteDialog(true)}
-          >
+          <Button variant="destructive" onClick={() => setDeleteDialog(true)}>
             <Trash2 className="w-4 h-4 ml-2" />
             حذف المسجد
           </Button>
@@ -199,36 +202,58 @@ export default function MosqueDetailsPage() {
               <CardContent className="space-y-4">
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-medium text-slate-600">الاسم بالعربية</label>
-                    <p className="text-lg font-semibold text-slate-900">{mosque.name_ar}</p>
+                    <label className="text-sm font-medium text-slate-600">
+                      الاسم بالعربية
+                    </label>
+                    <p className="text-lg font-semibold text-slate-900">
+                      {mosque.name_ar}
+                    </p>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-slate-600">الاسم بالإنجليزية</label>
-                    <p className="text-lg font-semibold text-slate-900">{mosque.name_en}</p>
+                    <label className="text-sm font-medium text-slate-600">
+                      الاسم بالإنجليزية
+                    </label>
+                    <p className="text-lg font-semibold text-slate-900">
+                      {mosque.name_en}
+                    </p>
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-slate-600">الحالة</label>
+                  <label className="text-sm font-medium text-slate-600">
+                    الحالة
+                  </label>
                   <div className="mt-1">
                     <Badge
-                      className={`${mosque.status === "مفعل"
+                      className={`${
+                        mosque.status === "مفعل"
                           ? "bg-emerald-100 text-emerald-800"
                           : mosque.status === "مكتمل"
-                            ? "bg-blue-100 text-blue-800"
-                            : "bg-amber-100 text-amber-800"
-                        }`}
+                          ? "bg-blue-100 text-blue-800"
+                          : "bg-amber-100 text-amber-800"
+                      }`}
                     >
                       {mosque.status}
                     </Badge>
                   </div>
                 </div>
-
-                <div>
-                  <label className="text-sm font-medium text-slate-600">العنوان التفصيلي</label>
-                  <p className="text-slate-900 mt-1 leading-relaxed">
-                    {mosque.address_text || "غير محدد"}
-                  </p>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-slate-600">
+                      العنوان التفصيلي
+                    </label>
+                    <p className="text-slate-900 mt-1 leading-relaxed">
+                      {mosque.address_text || "غير محدد"}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-slate-600">
+                      عدد المصلين
+                    </label>
+                    <p className="text-slate-900 font-medium">
+                      {mosque.capacityv || "غير محدد"}
+                    </p>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -244,47 +269,67 @@ export default function MosqueDetailsPage() {
               <CardContent className="space-y-4">
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-medium text-slate-600">المحافظة</label>
-                    <p className="text-slate-900 font-medium">{mosque.governorate_ar}</p>
+                    <label className="text-sm font-medium text-slate-600">
+                      المحافظة
+                    </label>
+                    <p className="text-slate-900 font-medium">
+                      {mosque.governorate_ar}
+                    </p>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-slate-600">المنطقة</label>
-                    <p className="text-slate-900 font-medium">{mosque.district_ar}</p>
+                    <label className="text-sm font-medium text-slate-600">
+                      المنطقة
+                    </label>
+                    <p className="text-slate-900 font-medium">
+                      {mosque.district_ar}
+                    </p>
                   </div>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-medium text-slate-600">الناحية</label>
+                    <label className="text-sm font-medium text-slate-600">
+                      الناحية
+                    </label>
                     <p className="text-slate-900">{mosque.sub_district_ar}</p>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-slate-600">الحي</label>
+                    <label className="text-sm font-medium text-slate-600">
+                      الحي
+                    </label>
                     <p className="text-slate-900">{mosque.neighborhood_ar}</p>
                   </div>
                 </div>
 
-                {(mosque.latitude && mosque.longitude) && (
+                {mosque.latitude && mosque.longitude && (
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
-                      <label className="text-sm font-medium text-slate-600">خط العرض</label>
-                      <p className="text-slate-900 font-mono">{mosque.latitude}</p>
+                      <label className="text-sm font-medium text-slate-600">
+                        خط العرض
+                      </label>
+                      <p className="text-slate-900 font-mono">
+                        {mosque.latitude}
+                      </p>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-slate-600">خط الطول</label>
-                      <p className="text-slate-900 font-mono">{mosque.longitude}</p>
+                      <label className="text-sm font-medium text-slate-600">
+                        خط الطول
+                      </label>
+                      <p className="text-slate-900 font-mono">
+                        {mosque.longitude}
+                      </p>
                     </div>
                   </div>
                 )}
 
-                {(mosque.latitude && mosque.longitude) && (
+                {mosque.latitude && mosque.longitude && (
                   <div>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => {
-                        const url = `https://www.google.com/maps?q=${mosque.latitude},${mosque.longitude}`
-                        window.open(url, '_blank')
+                        const url = `https://www.google.com/maps?q=${mosque.latitude},${mosque.longitude}`;
+                        window.open(url, "_blank");
                       }}
                     >
                       <ExternalLink className="w-4 h-4 ml-2" />
@@ -306,17 +351,34 @@ export default function MosqueDetailsPage() {
               <CardContent className="space-y-4">
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-medium text-slate-600">مستوى الضرر</label>
+                    <label className="text-sm font-medium text-slate-600">
+                      مستوى الضرر
+                    </label>
                     <div className="mt-1">
-                      <Badge variant={mosque.damage_level === "كامل" ? "destructive" : "secondary"}>
+                      <Badge
+                        variant={
+                          mosque.damage_level === "كامل"
+                            ? "destructive"
+                            : "secondary"
+                        }
+                      >
                         {mosque.damage_level}
                       </Badge>
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-slate-600">نوع العمل</label>
+                    <label className="text-sm font-medium text-slate-600">
+                      نوع العمل
+                    </label>
                     <div className="mt-1">
-                      <Badge variant="outline" className={mosque.is_reconstruction ? "bg-blue-50 text-blue-700" : "bg-green-50 text-green-700"}>
+                      <Badge
+                        variant="outline"
+                        className={
+                          mosque.is_reconstruction
+                            ? "bg-blue-50 text-blue-700"
+                            : "bg-green-50 text-green-700"
+                        }
+                      >
                         {mosque.is_reconstruction ? "إعادة إعمار" : "ترميم"}
                       </Badge>
                     </div>
@@ -325,7 +387,9 @@ export default function MosqueDetailsPage() {
 
                 {mosque.estimated_cost && (
                   <div>
-                    <label className="text-sm font-medium text-slate-600">التكلفة المقدرة</label>
+                    <label className="text-sm font-medium text-slate-600">
+                      التكلفة المقدرة
+                    </label>
                     <p className="text-2xl font-bold text-emerald-600 mt-1">
                       {formatCurrency(parseFloat(mosque.estimated_cost))}
                     </p>
@@ -368,20 +432,30 @@ export default function MosqueDetailsPage() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <div>
-                  <label className="text-sm font-medium text-slate-600">رقم المسجد</label>
+                  <label className="text-sm font-medium text-slate-600">
+                    رقم المسجد
+                  </label>
                   <p className="text-slate-900 font-mono">#{mosque.id}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-slate-600">تاريخ الإضافة</label>
-                  <p className="text-slate-900">{formatDate(mosque.created_at)}</p>
+                  <label className="text-sm font-medium text-slate-600">
+                    تاريخ الإضافة
+                  </label>
+                  <p className="text-slate-900">
+                    {formatDate(mosque.created_at)}
+                  </p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-slate-600">أضيف بواسطة</label>
+                  <label className="text-sm font-medium text-slate-600">
+                    أضيف بواسطة
+                  </label>
                   <p className="text-slate-900">{mosque.created_by}</p>
                 </div>
                 {mosque.media && mosque.media.length > 0 && (
                   <div>
-                    <label className="text-sm font-medium text-slate-600">عدد الصور</label>
+                    <label className="text-sm font-medium text-slate-600">
+                      عدد الصور
+                    </label>
                     <p className="text-slate-900">{mosque.media.length} صورة</p>
                   </div>
                 )}
@@ -394,13 +468,19 @@ export default function MosqueDetailsPage() {
                 <CardTitle>إجراءات سريعة</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
-                <Link href={`/dashboard/mosques/${mosque.id}/projects`} className="block">
+                <Link
+                  href={`/dashboard/mosques/${mosque.id}/projects`}
+                  className="block"
+                >
                   <Button variant="outline" className="w-full justify-start">
                     <ExternalLink className="w-4 h-4 ml-2" />
                     عرض المشاريع
                   </Button>
                 </Link>
-                <Link href={`/dashboard/mosques/${mosque.id}/media`} className="block">
+                <Link
+                  href={`/dashboard/mosques/${mosque.id}/media`}
+                  className="block"
+                >
                   <Button variant="outline" className="w-full justify-start">
                     <ExternalLink className="w-4 h-4 ml-2" />
                     إدارة الصور
@@ -423,5 +503,5 @@ export default function MosqueDetailsPage() {
         isLoading={deleting}
       />
     </div>
-  )
+  );
 }

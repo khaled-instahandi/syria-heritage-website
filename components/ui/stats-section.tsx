@@ -48,7 +48,7 @@ export function StatsSection() {
   useEffect(() => {
     if (!isLoading) {
       const animateStats = () => {
-        const duration = 2000
+        const duration = 1500
         // get min final value from array
         const minFinalValue = Math.max(
           finalStats.damaged_mosques,

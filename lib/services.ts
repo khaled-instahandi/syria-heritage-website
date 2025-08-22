@@ -50,6 +50,7 @@ export interface Donation {
   payment_method: string
   payment_status: string
   donated_at: string
+  status: string
   created_at: string
   updated_at: string
   message?: string

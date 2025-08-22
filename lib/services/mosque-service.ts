@@ -63,6 +63,7 @@ export class MosqueService {
     name_en?: string
     governorate_id?: number
     district_id?: number
+    capacityv?: string
     sub_district_id?: number
     neighborhood_id?: number
     address_text?: string
@@ -71,7 +72,7 @@ export class MosqueService {
     damage_level?: "جزئي" | "كامل"
     estimated_cost?: string
     is_reconstruction?: boolean
-    status?: "مفعل" | "موقوف" | "مكتمل"
+    status?: "نشط" | "موقوف" | "مكتمل"
   }): Promise<Mosque> {
     try {
       const response = await api.updateMosque(id, data)

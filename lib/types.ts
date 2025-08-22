@@ -42,6 +42,8 @@ export interface Neighborhood {
 
 export interface Mosque {
   id: number
+  capacityv:string
+  total_donations: string
   name_ar: string
   name_en: string
   governorate_ar: string
@@ -59,7 +61,7 @@ export interface Mosque {
   estimated_cost?: string
   is_reconstruction: number
   created_by: string
-  status: "مفعل" | "موقوف" | "مكتمل"
+  status: "نشط" | "موقوف" | "مكتمل"
   created_at: string
   media?: MosqueMedia[]
 }
